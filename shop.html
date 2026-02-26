@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKJ Jewelry - Premium Collection</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f5f5f5; 
+            color: #333;
+        }
+
+        /* Navigation */
+        nav {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #d4af37;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover {
+            color: #d4af37;
+        }
+
+        .cart-icon {
+            position: relative;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #d4af37;
+            color: black;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Header */
+        .hero {
+            background: linear-gradient(135deg, #d4af37 0%, #f5c842 100%);
+            padding: 60px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Filters Section */
+        .filters-section {
+            background: white;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filters-section label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .filters-section select,
+        .filters-section input {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .filters-section select:focus,
+        .filters-section input:focus {
+            outline: none;
+            border-color: #d4af37;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-box input {
+            width: 100%;
+        }
+
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .product-image-container {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            background: #f0f0f0;
+            overflow: hidden;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+
+        .stock-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .stock-badge.in-stock {
+            background: #28a745;
+        }
+
+        .stock-badge.out-of-stock {
+            background: #dc3545;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-category {
+            color: #d4af37;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+
+        .product-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .product-meta {
+            color: #999;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .product-price {
+            font-size: 28px;
+            font-weight: bold;
+            color: #d4af37;
+            margin-bottom: 15px;
+        }
+
+        .product-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-view {
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-view:hover {
+            background: #16213e;
+        }
+
+        .btn-cart {
+            background: #d4af37;
+            color: #1a1a2e;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-cart:hover {
+            background: #b8962e;
+        }
+
+        .btn-cart:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Loading & Empty State */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid #d4af37;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state p {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        /* Modal - Product Detail */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 32px;
+            cursor: pointer;
+            color: #666;
+            z-index: 1001;
+        }
+
+        .modal-image-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .modal-main-image {
+            width: 100%;
+            height: 350px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .modal-main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-thumb-images {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .modal-thumb {
+            height: 80px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .modal-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-thumb:hover,
+        .modal-thumb.active {
+            border-color: #d4af37;
+        }
+
+        .modal-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .modal-details h2 {
+            font-size: 28px;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+
+        .modal-details .category {
+            color: #d4af37;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .modal-details .price {
+            font-size: 36px;
+            color: #d4af37;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .modal-specs {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .modal-specs p {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .modal-specs label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-specs value {
+            color: #666;
+        }
+
+        .modal-stock {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .modal-stock.in-stock {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .modal-stock.out-of-stock {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .modal-quantity {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .modal-quantity label {
+            font-weight: 600;
+        }
+
+        .quantity-input {
+            width: 80px;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .btn-add-cart {
+            background: #d4af37;
+            color: #1a1a2e;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-add-cart:hover:not(:disabled) {
+            background: #b8962e;
+        }
+
+        .btn-add-cart:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .filters-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: unset;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+        }
+
+        /* Footer */
+        footer {
+            background: #1a1a2e;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 60px;
+        }
+
+        footer p {
+            opacity: 0.8;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #d4af37;
+        }
+
+        .feedback-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .feedback-message.show {
+            display: block;
+        }
+
+        .feedback-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="logo">💎 SKJ Jewelry</div>
+            <div class="nav-links">
+                <a onclick="scrollToTop()">Shop</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+                <div class="cart-icon" onclick="toggleCart()">
+                    🛒
+                    <span class="cart-count" id="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>✨ Premium Jewelry Collection</h1>
+        <p>Exquisite designs crafted with perfection</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Filters -->
+        <div class="filters-section">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search by product name..." onkeyup="applyFilters()">
+            </div>
+            <div>
+                <label>Category:</label>
+                <select id="category-filter" onchange="applyFilters()">
+                    <option value="">All Categories</option>
+                    <option value="rings">Rings</option>
+                    <option value="bangles">Bangles</option>
+                    <option value="bracelets">Bracelets</option>
+                    <option value="necklaces">Necklaces</option>
+                    <option value="earrings">Earrings</option>
+                    <option value="pendants">Pendants</option>
+                </select>
+            </div>
+            <div>
+                <label>Stock:</label>
+                <select id="stock-filter" onchange="applyFilters()">
+                    <option value="">All Items</option>
+                    <option value="in-stock">In Stock Only</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="products-grid" class="products-grid">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading products...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div id="product-modal" class="modal">
+        <button class="modal-close" onclick="closeProductModal()">&times;</button>
+        <div class="modal-content">
+            <!-- Image Gallery -->
+            <div class="modal-image-gallery">
+                <div class="modal-main-image">
+                    <img id="modal-main-image" src="" alt="Product">
+                </div>
+                <div class="modal-thumb-images" id="modal-thumbnails"></div>
+            </div>
+
+            <!-- Details -->
+            <div class="modal-details">
+                <div>
+                    <div class="category" id="modal-category"></div>
+                    <h2 id="modal-name"></h2>
+                    <div class="price" id="modal-price"></div>
+                    <div id="modal-stock" class="modal-stock"></div>
+
+                    <div class="modal-specs">
+                        <p><label>Weight:</label> <value id="modal-weight"></value></p>
+                        <p><label>Category:</label> <value id="modal-category-full"></value></p>
+                        <p><label>Availability:</label> <value id="modal-availability"></value></p>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="modal-quantity">
+                        <label>Quantity:</label>
+                        <input type="number" id="modal-quantity" class="quantity-input" value="1" min="1">
+                    </div>
+                    <button id="modal-add-cart" class="btn-add-cart" onclick="addToCart()">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 SKJ Jewelry. All rights reserved. | Crafted with elegance ✨</p>
+    </footer>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Checkout</h2>
+                <button class="close-btn" onclick="closeCheckout()">&times;</button>
+            </div>
+            <div id="checkout-message" class="feedback-message"></div>
+            
+            <form id="checkout-form" onsubmit="processPayment(event)">
+                <div id="checkout-form-group">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="customer-name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="customer-email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="customer-phone" pattern="[0-9]{10}" placeholder="10 digit phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="customer-address" rows="3" required></textarea>
+                    </div>
+                </div>
+                
+                <!-- WhatsApp Inquiry Section -->
+                <div id="whatsapp-section" style="display: none; background: #25d366; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px;">📱 Inquire via WhatsApp</h3>
+                    <p style="font-size: 14px; margin-bottom: 10px;">Send your inquiry for non-online products:</p>
+                    <textarea id="whatsapp-message" rows="4" style="width: 100%; padding: 10px; border: none; border-radius: 4px; margin-bottom: 10px; font-family: inherit; resize: vertical;"></textarea>
+                    <button type="button" class="btn-add-cart" onclick="sendWhatsAppInquiry()" style="background: white; color: #25d366; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">💬 Send on WhatsApp</button>
+                </div>
+                
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px;">Order Summary</h3>
+                    <div id="checkout-items" style="margin-bottom: 15px; max-height: 200px; overflow-y: auto;"></div>
+                    <hr style="margin: 10px 0;">
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px;">
+                        <span>Total:</span>
+                        <span id="checkout-total">₹0</span>
+                    </div>
+                </div>
+                
+                <button id="modal-add-cart" type="submit" class="btn-add-cart" style="width: 100%; margin-bottom: 10px;">Pay with Razorpay</button>
+                <button type="button" class="btn-view" style="width: 100%;" onclick="closeCheckout()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Razorpay Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Firebase compat initialization
+        const firebaseConfig = {
+            apiKey: "AIzaSyATmseHSU3qimkm6pSCJ_xA1EL3_KiHtXs",
+            authDomain: "skj-jewelry-store.firebaseapp.com",
+            projectId: "skj-jewelry-store",
+            storageBucket: "skj-jewelry-store.firebasestorage.app",
+            messagingSenderId: "531463279637",
+            appId: "1:531463279637:web:2ab8aaaa80211045252a1c",
+            measurementId: "G-0S99YE5NR1"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Price cache for dynamic pricing
+        let shopCachedPrices = { gold: 6400, skjg: 6200, silver: 750 };
+
+        // Real-time price listener
+        db.collection('prices').doc('current').onSnapshot((docSnap) => {
+            if (docSnap.exists) {
+                const data = docSnap.data();
+                shopCachedPrices = {
+                    gold: data.goldMarketPrice || 0,
+                    skjg: data.goldSKJPrice || 0,
+                    silver: data.silverMarketPrice || 0
+                };
+                console.log('✅ Shop prices updated:', shopCachedPrices);
+                // Re-render products with new prices
+                if (allProducts.length > 0) {
+                    applyFilters();
+                }
+            }
+        }, (err) => { console.error('Shop price listener error:', err); });
+
+        // Dynamic price calculation
+        function calcShopPrice(product) {
+            let price = product.offerPrice || product.price || 0;
+            if (product.metalType === 'gold' && product.weight && product.dynamicPricing !== false) {
+                const rate = product.carat === '24CT' ? shopCachedPrices.gold : (shopCachedPrices.skjg || 6200);
+                const making = (product.makingCharges || 0) * parseFloat(product.weight);
+                const basePrice = Math.round(parseFloat(product.weight) * rate + making);
+                let discountAmt = product.discountAmount || 0;
+                if (!discountAmt && product.discountPercent > 0) discountAmt = Math.round((basePrice * product.discountPercent) / 100);
+                price = basePrice - discountAmt;
+            } else if (product.metalType === 'silver' && product.weight && product.dynamicPricing !== false) {
+                const rate = (shopCachedPrices.silver || 750) / 10;
+                const making = (product.makingCharges || 0) * parseFloat(product.weight);
+                const basePrice = Math.round(parseFloat(product.weight) * rate + making);
+                let discountAmt = product.discountAmount || 0;
+                if (!discountAmt && product.discountPercent > 0) discountAmt = Math.round((basePrice * product.discountPercent) / 100);
+                price = basePrice - discountAmt;
+            }
+            return price;
+        }
+
+        // Global variables
+        let allProducts = [];
+        let filteredProducts = [];
+        let cart = [];
+        let currentProduct = null;
+        let currentImageIndex = 0;
+
+        // ============================================
+        // LOAD PRODUCTS FROM FIREBASE
+        // ============================================
+        function loadProducts() {
+            db.collection('products').where('isActive', '==', true).onSnapshot((snapshot) => {
+                allProducts = [];
+                snapshot.forEach((doc) => {
+                    allProducts.push({ id: doc.id, ...doc.data() });
+                });
+                applyFilters();
+            }, (error) => {
+                console.error('Error loading products:', error);
+                showEmptyState('Error loading products. Please try again later.');
+            });
+        }
+
+        // ============================================
+        // RENDER PRODUCTS
+        // ============================================
+        window.renderProducts = () => {
+            const grid = document.getElementById('products-grid');
+
+            if (filteredProducts.length === 0) {
+                showEmptyState('No products found matching your criteria.');
+                return;
+            }
+
+            grid.innerHTML = filteredProducts.map(product => {
+                const mainImage = product.images && product.images[product.mainImageIndex || 0]
+                    ? product.images[product.mainImageIndex || 0]
+                    : 'https://via.placeholder.com/280';
+
+                const isOnlineAvailable = product.onlineEnabled !== false;
+                const livePrice = calcShopPrice(product);
+
+                return `
+                    <div class="product-card" onclick="openProductModal('${product.id}')">
+                        <div class="product-image-container">
+                            <img src="${mainImage}" alt="${product.name}" class="product-image">
+                            <span class="stock-badge ${product.inStock ? 'in-stock' : 'out-of-stock'}">
+                                ${product.inStock ? '✓ In Stock' : '✕ Out'}
+                            </span>
+                            ${!isOnlineAvailable ? '<span class="stock-badge" style="background: #ff6b6b; right: auto; left: 10px;">🔒 In-Store Only</span>' : ''}
+                        </div>
+                        <div class="product-info">
+                            <div class="product-category">${product.category}</div>
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-description">
+                                <span>${product.weight}g</span>
+                            </div>
+                            <div class="product-price">₹${livePrice.toLocaleString()}</div>
+                            <div class="product-actions">
+                                <button class="btn-view" onclick="event.stopPropagation(); openProductModal('${product.id}')">View</button>
+                                <button class="btn-cart" ${!product.inStock ? 'disabled' : ''} onclick="event.stopPropagation(); quickAddToCart('${product.id}')">
+                                    ${!product.inStock ? 'Out' : (isOnlineAvailable ? 'Add' : '📝 Inquire')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        function showEmptyState(message) {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;"><p>${message}</p></div>`;
+        }
+
+        // ============================================
+        // FILTER PRODUCTS
+        // ============================================
+        window.applyFilters = () => {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const category = document.getElementById('category-filter').value;
+            const stock = document.getElementById('stock-filter').value;
+
+            filteredProducts = allProducts.filter(product => {
+                const matchesSearch = product.name.toLowerCase().includes(search);
+                const matchesCategory = !category || product.category === category;
+                const matchesStock = !stock || product.inStock;
+
+                return matchesSearch && matchesCategory && matchesStock;
+            });
+
+            renderProducts();
+        };
+
+        // ============================================
+        // OPEN PRODUCT DETAIL MODAL
+        // ============================================
+        window.openProductModal = (productId) => {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+
+            currentProduct = product;
+            currentImageIndex = 0;
+
+            // Populate modal
+            document.getElementById('modal-category').textContent = product.category.toUpperCase();
+            document.getElementById('modal-name').textContent = product.name;
+            document.getElementById('modal-price').textContent = `₹${calcShopPrice(product).toLocaleString()}`;
+            document.getElementById('modal-weight').textContent = `${product.weight}g`;
+            document.getElementById('modal-category-full').textContent = product.category;
+            document.getElementById('modal-availability').textContent = product.inStock ? 'In Stock' : 'Out of Stock';
+            document.getElementById('modal-quantity').value = 1;
+            document.getElementById('modal-quantity').max = product.stockQuantity || 1;
+
+            // Set stock badge
+            const stockDiv = document.getElementById('modal-stock');
+            const isOnlineAvailable = product.onlineEnabled !== false;
+            const button = document.getElementById('modal-add-cart');
+            
+            if (!isOnlineAvailable) {
+                stockDiv.className = 'modal-stock out-of-stock';
+                stockDiv.textContent = '🔒 In-Store Only - Inquire on WhatsApp for Pricing';
+                button.disabled = false;
+                button.textContent = '💬 Add & Inquire';
+            } else if (product.inStock) {
+                stockDiv.className = 'modal-stock in-stock';
+                stockDiv.textContent = '✓ In Stock - Available Online';
+                button.disabled = false;
+                button.textContent = 'Add to Cart';
+            } else {
+                stockDiv.className = 'modal-stock out-of-stock';
+                stockDiv.textContent = '✕ Out of Stock';
+                button.disabled = true;
+                button.textContent = 'Out of Stock';
+            }
+
+            // Set images
+            const mainImage = product.images && product.images[product.mainImageIndex || 0]
+                ? product.images[product.mainImageIndex || 0]
+                : 'https://via.placeholder.com/400';
+            
+            document.getElementById('modal-main-image').src = mainImage;
+
+            // Render thumbnails
+            if (product.images && product.images.length > 0) {
+                document.getElementById('modal-thumbnails').innerHTML = product.images.map((img, idx) => `
+                    <div class="modal-thumb ${idx === (product.mainImageIndex || 0) ? 'active' : ''}" 
+                         onclick="changeModalImage(${idx})">
+                        <img src="${img}" alt="Product image ${idx + 1}">
+                    </div>
+                `).join('');
+            }
+
+            // Show modal
+            document.getElementById('product-modal').classList.add('active');
+        };
+
+        window.closeProductModal = () => {
+            document.getElementById('product-modal').classList.remove('active');
+            currentProduct = null;
+        };
+
+        window.changeModalImage = (index) => {
+            if (!currentProduct || !currentProduct.images) return;
+            
+            currentImageIndex = index;
+            document.getElementById('modal-main-image').src = currentProduct.images[index];
+            
+            // Update active thumbnail
+            document.querySelectorAll('.modal-thumb').forEach((thumb, idx) => {
+                thumb.classList.toggle('active', idx === index);
+            });
+        };
+
+        // ============================================
+        // CART FUNCTIONS
+        // ============================================
+        window.addToCart = () => {
+            if (!currentProduct) return;
+            
+            const quantity = parseInt(document.getElementById('modal-quantity').value) || 1;
+            addCartItem(currentProduct.id, quantity);
+            closeProductModal();
+        };
+
+        window.quickAddToCart = (productId) => {
+            addCartItem(productId, 1);
+        };
+
+        function addCartItem(productId, quantity) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product || !product.inStock) return;
+
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({
+                    id: productId,
+                    name: product.name,
+                    price: calcShopPrice(product),
+                    quantity: quantity,
+                    onlineEnabled: product.onlineEnabled
+                });
+            }
+
+            updateCartCount();
+            showNotification(`${product.name} added to cart!`);
+        };
+
+        window.toggleCart = () => {
+            if (cart.length === 0) {
+                showNotification('Your cart is empty');
+                return;
+            }
+            
+            openCheckout();
+        };
+
+        window.openCheckout = () => {
+            if (cart.length === 0) {
+                showNotification('Your cart is empty');
+                return;
+            }
+
+            // Detect offline products
+            const offlineItems = [];
+            const onlineItems = [];
+            let totalOnline = 0;
+            let totalOffline = 0;
+
+            cart.forEach(item => {
+                const product = allProducts.find(p => p.id === item.id);
+                if (product && product.onlineEnabled === false) {
+                    offlineItems.push(item);
+                    totalOffline += item.price * item.quantity;
+                } else {
+                    onlineItems.push(item);
+                    totalOnline += item.price * item.quantity;
+                }
+            });
+
+            // Build order summary
+            const itemsHtml = cart.map(item => {
+                const product = allProducts.find(p => p.id === item.id);
+                const isOffline = product && product.onlineEnabled === false;
+                const itemTotal = item.price * item.quantity;
+                return `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #e0e0e0; ${isOffline ? 'opacity: 0.7;' : ''}">
+                        <div>
+                            <div style="font-weight: 600;">${item.name} ${isOffline ? '🔒' : ''}</div>
+                            <div style="font-size: 12px; color: #666;">₹${item.price.toLocaleString()} x ${item.quantity}</div>
+                        </div>
+                        <div style="font-weight: 600;">₹${itemTotal.toLocaleString()}</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('checkout-items').innerHTML = itemsHtml;
+            const total = totalOnline + totalOffline;
+            document.getElementById('checkout-total').textContent = `₹${total.toLocaleString()}`;
+
+            // Show/hide payment sections based on product types
+            const formGroup = document.getElementById('checkout-form-group');
+            const whatsappSection = document.getElementById('whatsapp-section');
+            const paymentButton = document.getElementById('modal-add-cart');
+
+            if (offlineItems.length > 0) {
+                // Show WhatsApp inquiry option
+                whatsappSection.style.display = 'block';
+                document.getElementById('whatsapp-message').value = generateWhatsAppMessage(offlineItems);
+                
+                if (onlineItems.length === 0) {
+                    // Only offline items - hide payment form
+                    formGroup.style.display = 'none';
+                    paymentButton.style.display = 'none';
+                } else {
+                    // Mixed items - show both
+                    formGroup.style.display = 'block';
+                    paymentButton.style.display = 'block';
+                }
+            } else {
+                // Only online items
+                whatsappSection.style.display = 'none';
+                formGroup.style.display = 'block';
+                paymentButton.style.display = 'block';
+            }
+
+            document.getElementById('checkout-modal').classList.add('active');
+        };
+
+        function generateWhatsAppMessage(offlineItems) {
+            let message = 'Hi! I am interested in the following products:\n\n';
+            offlineItems.forEach((item, idx) => {
+                message += `${idx + 1}. ${item.name}\n   Quantity: ${item.quantity}\n   ₹${item.price.toLocaleString()} per unit\n\n`;
+            });
+            message += 'Please provide pricing and availability information.';
+            return message;
+        }
+
+        window.sendWhatsAppInquiry = () => {
+            const phone = document.getElementById('customer-phone').value;
+            const message = document.getElementById('whatsapp-message').value;
+
+            if (!phone) {
+                showCheckoutMessage('Please enter your phone number first', 'error');
+                return;
+            }
+
+            // ⚠️ IMPORTANT: Replace '919876543210' with your actual WhatsApp Business number (include country code)
+            // Example format: '919876543210' = +91 9876543210
+            const whatsappNumber = '919876543210';
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+            window.open(whatsappUrl, '_blank');
+        };
+
+        window.closeCheckout = () => {
+            document.getElementById('checkout-modal').classList.remove('active');
+        };
+
+        function updateCartCount() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-count').textContent = count;
+        }
+
+        function showNotification(message) {
+            alert(message);
+        }
+
+        // ============================================
+        // RAZORPAY PAYMENT INTEGRATION
+        // ============================================
+        window.processPayment = async (e) => {
+            e.preventDefault();
+
+            if (cart.length === 0) {
+                showCheckoutMessage('Your cart is empty', 'error');
+                return;
+            }
+
+            // Validate only online items can be paid
+            const onlineItems = [];
+            let amount = 0;
+
+            cart.forEach(item => {
+                const product = allProducts.find(p => p.id === item.id);
+                if (!product || product.onlineEnabled === false) {
+                    return; // Skip offline items
+                }
+                onlineItems.push(item);
+                amount += item.price * item.quantity;
+            });
+
+            if (onlineItems.length === 0) {
+                showCheckoutMessage('❌ No online products in cart. Please use WhatsApp to inquire about your items.', 'error');
+                return;
+            }
+
+            const name = document.getElementById('customer-name').value;
+            const email = document.getElementById('customer-email').value;
+            const phone = document.getElementById('customer-phone').value;
+            const address = document.getElementById('customer-address').value;
+
+            // Convert to paise (Razorpay uses paise)
+            const amountInPaise = Math.round(amount * 100);
+
+            // Razorpay options
+            const options = {
+                key: 'YOUR_RAZORPAY_KEY_ID', // Replace with your Razorpay Key ID
+                amount: amountInPaise,
+                currency: 'INR',
+                name: 'SKJ Jewelry',
+                description: 'Premium Jewelry Purchase',
+                customer_notify: 1,
+                prefill: {
+                    name: name,
+                    email: email,
+                    contact: phone
+                },
+                notes: {
+                    address: address,
+                    items: JSON.stringify(cart)
+                },
+                handler: async function(response) {
+                    // Payment successful
+                    await saveOrderToFirebase(
+                        response.razorpay_payment_id,
+                        response.razorpay_order_id,
+                        response.razorpay_signature,
+                        name,
+                        email,
+                        phone,
+                        address,
+                        amount
+                    );
+                },
+                prefill: {
+                    name: name,
+                    email: email,
+                    contact: phone
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function(response) {
+                showCheckoutMessage('Payment Failed: ' + response.error.description, 'error');
+            });
+
+            rzp.open();
+        };
+
+        async function saveOrderToFirebase(paymentId, orderId, signature, name, email, phone, address, amount) {
+            try {
+                // Save only online items that were paid for
+                const paidItems = cart.filter(item => {
+                    const product = allProducts.find(p => p.id === item.id);
+                    return product && product.onlineEnabled !== false;
+                });
+
+                await db.collection('orders').add({
+                    paymentId: paymentId,
+                    razorpayOrderId: orderId,
+                    signature: signature,
+                    customerName: name,
+                    customerEmail: email,
+                    customerPhone: phone,
+                    customerAddress: address,
+                    items: paidItems,
+                    totalAmount: amount,
+                    status: 'confirmed',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Keep offline items in cart for WhatsApp inquiry
+                cart = cart.filter(item => {
+                    const product = allProducts.find(p => p.id === item.id);
+                    return product && product.onlineEnabled === false;
+                });
+                updateCartCount();
+
+                showCheckoutMessage('✓ Payment Successful! Your online order has been confirmed.', 'success');
+                
+                setTimeout(() => {
+                    closeCheckout();
+                    if (cart.length > 0) {
+                        showNotification('Order confirmed for online items! Please send your inquiry for other items via WhatsApp.');
+                    } else {
+                        showNotification('Order confirmed! You will receive an email confirmation shortly.');
+                    }
+                }, 2000);
+
+            } catch (error) {
+                showCheckoutMessage('Error saving order: ' + error.message, 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        function showCheckoutMessage(message, type) {
+            const msgElement = document.getElementById('checkout-message');
+            msgElement.textContent = message;
+            msgElement.className = `feedback-message show ${type}`;
+            setTimeout(() => {
+                msgElement.classList.remove('show');
+            }, 5000);
+        }
+
+        window.scrollToTop = () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // ============================================
+        // CLOSE MODAL ON OUTSIDE CLICK
+        // ============================================
+        document.getElementById('product-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'product-modal') {
+                closeProductModal();
+            }
+        });
+
+        document.getElementById('checkout-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'checkout-modal') {
+                closeCheckout();
+            }
+        });
+
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        loadProducts();
+    </script>
+</body>
+</html>

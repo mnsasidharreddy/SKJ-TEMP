@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cover Images - SKJ Jewellers Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin-layout.css">
+    <style>
+        /* ── Text truncation ── */
+        .text-truncate {
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        /* ── Upload dropzone ── */
+        .dropzone {
+            border: 2.5px dashed #d1d5db;
+            border-radius: 1rem;
+            transition: all .25s;
+            cursor: pointer;
+        }
+        .dropzone.drag-over {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        .dropzone input[type="file"] { display: none; }
+
+        /* ── Banner preview cards ── */
+        .banner-card {
+            position: relative;
+            width: 100%;
+            border-radius: .75rem;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,.10);
+            background: #000;
+            cursor: default;
+        }
+        .banner-card img {
+            display: block;
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            transition: opacity .3s;
+        }
+        @media (max-width: 768px) {
+            .banner-card img { height: 180px; }
+        }
+        .banner-card:hover img { opacity: .75; }
+
+        /* order badge */
+        .banner-order {
+            position: absolute;
+            top: .6rem;
+            left: .75rem;
+            background: rgba(0,0,0,.55);
+            color: #fff;
+            font-size: .75rem;
+            font-weight: 700;
+            padding: .2rem .55rem;
+            border-radius: 999px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* delete button overlay */
+        .banner-delete-btn {
+            position: absolute;
+            top: .6rem;
+            right: .75rem;
+            background: rgba(239,68,68,.85);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: .8rem;
+            opacity: 0;
+            transition: opacity .2s;
+        }
+        .banner-card:hover .banner-delete-btn { opacity: 1; }
+
+        /* filename strip at bottom */
+        .banner-label {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,.65));
+            color: #fff;
+            font-size: .75rem;
+            padding: .4rem .75rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* empty slot placeholders */
+        .banner-slot-empty {
+            width: 100%;
+            height: 260px;
+            border-radius: .75rem;
+            border: 2px dashed #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: .85rem;
+            gap: .5rem;
+        }
+        @media (max-width: 768px) {
+            .banner-slot-empty { height: 180px; }
+        }
+
+        /* progress bar */
+        .progress-bar-wrap {
+            background: #e5e7eb;
+            border-radius: 999px;
+            height: 6px;
+            overflow: hidden;
+        }
+        .progress-bar-inner {
+            height: 100%;
+            background: #10b981;
+            transition: width .3s;
+            border-radius: 999px;
+        }
+
+        /* toast */
+        .cover-toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            padding: .75rem 1.5rem;
+            border-radius: .6rem;
+            font-size: .875rem;
+            font-weight: 500;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: all .3s;
+        }
+        .cover-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .cover-toast.success { background: #10b981; color: #fff; }
+        .cover-toast.error   { background: #ef4444; color: #fff; }
+        .cover-toast.info    { background: #6b7280; color: #fff; }
+
+        /* pending update banner */
+        #pendingBanner {
+            display: none;
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: .75rem 1rem;
+            border-radius: .5rem;
+            font-size: .875rem;
+            color: #92400e;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        /* permission error */
+        .permission-error {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            border-radius: .5rem;
+            margin-bottom: 1rem;
+            font-size: .875rem;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── SIDEBAR ── -->
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+
+        <!-- ── HEADER ── -->
+        <header class="bg-white shadow-sm px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-40">
+            <div class="min-w-0">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800 text-truncate">Cover Images</h2>
+                <p class="text-gray-600 text-sm">Hero banner manager — <span id="adminName" class="font-medium">Admin</span></p>
+            </div>
+            <div class="flex items-center space-x-3 flex-shrink-0">
+                <span class="text-xs md:text-sm text-gray-500 hidden sm:inline" id="currentDate"></span>
+                <button onclick="logout()" class="bg-royal-green text-white w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 hover:bg-opacity-90 transition" title="Logout">
+                    <i class="fas fa-sign-out-alt text-sm"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="content-wrapper p-4 md:p-6">
+
+            <!-- Permission error -->
+            <div id="permissionError" class="permission-error hidden">
+                <strong>⚠️ Firebase Permission Error:</strong> Missing or insufficient permissions. Check Firestore and Storage rules.
+            </div>
+
+            <!-- ─────────────────────────── STATS ROW ─────────────────────────── -->
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow border-l-4 border-green-500 p-4 flex items-center gap-3">
+                    <i class="fas fa-images text-green-500 text-xl"></i>
+                    <div>
+                        <p class="text-xs text-gray-500">Active Banners</p>
+                        <p class="text-2xl font-bold text-gray-800" id="statCount">—</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow border-l-4 border-blue-500 p-4 flex items-center gap-3">
+                    <i class="fas fa-check-circle text-blue-500 text-xl"></i>
+                    <div>
+                        <p class="text-xs text-gray-500">Min Required</p>
+                        <p class="text-2xl font-bold text-gray-800">2</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow border-l-4 border-yellow-500 p-4 flex items-center gap-3">
+                    <i class="fas fa-layer-group text-yellow-500 text-xl"></i>
+                    <div>
+                        <p class="text-xs text-gray-500">Max Allowed</p>
+                        <p class="text-2xl font-bold text-gray-800">5</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─────────────────────────── UPLOAD CARD ─────────────────────────── -->
+            <div class="bg-white rounded-xl shadow p-5 mb-6">
+                <h3 class="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                    <i class="fas fa-cloud-upload-alt text-green-600"></i> Upload New Banner
+                </h3>
+
+                <div id="dropzone" class="dropzone p-8 text-center" onclick="document.getElementById('fileInput').click()">
+                    <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFileSelect(this.files)">
+                    <i class="fas fa-image text-4xl text-gray-300 mb-3"></i>
+                    <p class="text-gray-500 font-medium">Click to choose or drag & drop images here</p>
+                    <p class="text-xs text-gray-400 mt-1">Accepts JPG, PNG, WebP · Max <strong>1 MB</strong> per image · Up to <strong>5 banners</strong> total</p>
+                </div>
+
+                <!-- Selected files preview -->
+                <div id="selectedFiles" class="mt-4 space-y-2 hidden"></div>
+
+                <!-- Progress -->
+                <div id="uploadProgress" class="mt-4 hidden">
+                    <div class="flex justify-between text-xs text-gray-500 mb-1">
+                        <span id="progressLabel">Uploading…</span>
+                        <span id="progressPct">0%</span>
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-inner" id="progressBar" style="width:0%"></div>
+                    </div>
+                </div>
+
+                <!-- Upload button -->
+                <div class="mt-4 flex items-center gap-3">
+                    <button id="uploadBtn" onclick="uploadSelected()" class="px-5 py-2.5 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-lg flex items-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <i class="fas fa-upload"></i> Upload
+                    </button>
+                    <button onclick="clearSelected()" class="px-4 py-2.5 border border-gray-300 text-gray-600 text-sm rounded-lg hover:bg-gray-50 transition">
+                        Clear
+                    </button>
+                    <span class="text-xs text-gray-400 ml-auto" id="slotNote"></span>
+                </div>
+            </div>
+
+            <!-- ─────────────────────────── CURRENT BANNERS ─────────────────────────── -->
+            <div class="bg-white rounded-xl shadow p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-base font-semibold text-gray-700 flex items-center gap-2">
+                        <i class="fas fa-th-list text-blue-500"></i> Current Banners
+                        <span class="text-xs text-gray-400 font-normal">(as they appear in the hero carousel)</span>
+                    </h3>
+                    <div id="loadingSpinner" class="text-sm text-gray-400 flex items-center gap-1">
+                        <i class="fas fa-circle-notch fa-spin"></i> Loading…
+                    </div>
+                </div>
+
+                <!-- Single column banner list — 5 rows max -->
+                <div id="bannerList" class="flex flex-col gap-4">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+
+        </div><!-- /content-wrapper -->
+    </main>
+
+    <!-- Toast -->
+    <div id="coverToast" class="cover-toast"></div>
+
+    <!-- Your existing firebase-config + sidebar -->
+    <script src="firebase-config.js"></script>
+
+    <!-- Firebase Storage compat — must come AFTER firebase-config.js -->
+    <script src="sidebar.js"></script>
+
+    <script>
+    // ══════════════════════════════════════════════════════════════════════
+    //  COVER IMAGE MANAGER — Admin Logic
+    // ══════════════════════════════════════════════════════════════════════
+
+    const MAX_IMAGES  = 5;
+    const MIN_IMAGES  = 2;
+    const MAX_SIZE_MB = 1;
+    const COLLECTION  = 'coverImages';      // Firestore collection
+    const STORAGE_DIR = 'coverImages/';     // Firebase Storage path
+
+    let coverInitialized = false;
+    let coverListener    = null;
+    let pendingTimer     = null;
+    let selectedFiles    = [];              // Files staged for upload
+
+    // ── Init ──────────────────────────────────────────────────────────────
+    function loadStorageThenInit() {
+        if (typeof firebase !== 'undefined' && typeof firebase.storage === 'function') {
+            setTimeout(initCover, 300);
+            return;
+        }
+        const s = document.createElement('script');
+        s.src = 'https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js';
+        s.onload = () => setTimeout(initCover, 300);
+        s.onerror = () => showToast('Failed to load Firebase Storage.', 'error');
+        document.head.appendChild(s);
+    }
+
+    window.addEventListener('firebase-ready', loadStorageThenInit);
+    if (typeof firebase !== 'undefined' && firebase.apps?.length > 0) loadStorageThenInit();
+
+    async function initCover() {
+        if (coverInitialized) return;
+        coverInitialized = true;
+
+        const auth = firebase.auth();
+        const db   = firebase.firestore();
+
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) { setTimeout(() => window.location.href = 'login.html', 1500); return; }
+
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (!userDoc.exists || userDoc.data().role !== 'admin') {
+                    setTimeout(() => window.location.href = 'index.html', 1500); return;
+                }
+                const nameEl = document.getElementById('adminName');
+                if (nameEl) nameEl.textContent = userDoc.data().displayName || user.email?.split('@')[0] || 'Admin';
+            } catch(e) {
+                console.error('Role check error:', e);
+                showPermissionError();
+                return;
+            }
+
+            setupCoverListener();
+        });
+
+        // Date
+        const dateEl = document.getElementById('currentDate');
+        if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-IN', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+    }
+
+    // ── Real-time listener with 10-second delay ────────────────────────────
+    function setupCoverListener() {
+    const db = firebase.firestore();
+    if (coverListener) coverListener();
+
+    let isFirstLoad = true; // ← tracks whether this is initial page load
+
+    coverListener = db.collection(COLLECTION)
+        .orderBy('order', 'asc')
+        .onSnapshot((snapshot) => {
+            const images = [];
+            snapshot.forEach(doc => images.push({ id: doc.id, ...doc.data() }));
+
+            if (isFirstLoad) {
+                // ── Initial load: render immediately, no delay ──
+                isFirstLoad = false;
+                document.getElementById('loadingSpinner').style.display = 'none';
+                renderBanners(images);
+            } else {
+                // ── Admin made a change: apply with 10-second delay ──
+                triggerDelayedUpdate(images);
+            }
+        }, (err) => {
+            console.error('Cover listener error:', err);
+            if (err.code === 'permission-denied') showPermissionError();
+            document.getElementById('loadingSpinner').style.display = 'none';
+        });
+}
+    function triggerDelayedUpdate(images) {
+        if (pendingTimer) {
+            clearInterval(pendingTimer);
+            pendingTimer = null;
+        }
+
+        const banner      = document.getElementById('pendingBanner');
+        const countdownEl = document.getElementById('pendingCountdown');
+
+        // If the HTML elements are missing, just render immediately
+        if (!banner || !countdownEl) {
+            renderBanners(images);
+            return;
+        }
+
+        let countdown = 10;
+        banner.style.display = 'flex';
+        countdownEl.textContent = countdown;
+
+        pendingTimer = setInterval(() => {
+            countdown--;
+            countdownEl.textContent = countdown;
+            if (countdown <= 0) {
+                clearInterval(pendingTimer);
+                pendingTimer = null;
+                banner.style.display = 'none';
+                renderBanners(images);
+            }
+        }, 1000);
+    }
+
+    // ── Render banners ─────────────────────────────────────────────────────
+    function renderBanners(images) {
+        const list    = document.getElementById('bannerList');
+        const spinner = document.getElementById('loadingSpinner');
+        const stat    = document.getElementById('statCount');
+
+        spinner.style.display = 'none';
+        stat.textContent = images.length;
+        updateSlotNote(images.length);
+
+        list.innerHTML = '';
+
+        // If no images yet
+        if (images.length === 0) {
+            list.innerHTML = `
+                <div class="text-center py-10 text-gray-400">
+                    <i class="fas fa-image text-4xl mb-3"></i>
+                    <p class="font-medium">No cover images yet.</p>
+                    <p class="text-sm mt-1">Upload at least <strong>2</strong> images above to get started.</p>
+                </div>`;
+            return;
+        }
+
+        // Render each image as a full-width banner row
+        images.forEach((img, idx) => {
+            const card = document.createElement('div');
+            card.className = 'banner-card';
+            card.innerHTML = `
+                <img src="${img.url}" alt="Banner ${idx + 1}" loading="lazy"
+                     onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%25%22 height=%22260%22><rect fill=%22%23f3f4f6%22 width=%22100%25%22 height=%22260%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%239ca3af%22 font-size=%2218%22>Image Not Found</text></svg>'">
+                <span class="banner-order">Banner ${idx + 1}</span>
+                <button class="banner-delete-btn" onclick="deleteBanner('${img.id}', '${(img.storagePath || '').replace(/'/g,"\\'")}', ${images.length})"
+                        title="Delete this banner">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+                <span class="banner-label">${img.name || 'cover-' + (idx+1)}</span>
+            `;
+            list.appendChild(card);
+        });
+
+        // Empty slot placeholders (so admin can visualise remaining slots)
+        const remaining = MAX_IMAGES - images.length;
+        for (let i = 0; i < remaining; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'banner-slot-empty';
+            slot.innerHTML = `<i class="fas fa-plus-circle"></i> Empty slot ${images.length + i + 1} of ${MAX_IMAGES}`;
+            list.appendChild(slot);
+        }
+    }
+
+    // ── File selection ──────────────────────────────────────────────────────
+    function handleFileSelect(files) {
+        const db = firebase.firestore();
+        // We need the current count first
+        db.collection(COLLECTION).get().then(snap => {
+            const currentCount = snap.size;
+            processFileSelection(files, currentCount);
+        }).catch(() => processFileSelection(files, 0));
+    }
+
+    function processFileSelection(files, currentCount) {
+        const slotsLeft = MAX_IMAGES - currentCount;
+
+        if (slotsLeft <= 0) {
+            showToast('Maximum 5 banners already uploaded. Delete one first.', 'error');
+            return;
+        }
+
+        const valid = [];
+        const errors = [];
+
+        Array.from(files).forEach(file => {
+            if (!file.type.startsWith('image/')) {
+                errors.push(`${file.name}: not an image`);
+                return;
+            }
+            if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+                errors.push(`${file.name}: exceeds 1 MB (${(file.size/1024/1024).toFixed(2)} MB)`);
+                return;
+            }
+            valid.push(file);
+        });
+
+        // Respect slots
+        const allowed = valid.slice(0, slotsLeft);
+        if (valid.length > slotsLeft) {
+            errors.push(`Only ${slotsLeft} slot(s) available. ${valid.length - slotsLeft} file(s) ignored.`);
+        }
+
+        if (errors.length) showToast(errors.join('\n'), 'error');
+
+        selectedFiles = allowed;
+        renderSelectedFiles(allowed);
+        document.getElementById('uploadBtn').disabled = allowed.length === 0;
+    }
+
+    function renderSelectedFiles(files) {
+        const wrap = document.getElementById('selectedFiles');
+        wrap.innerHTML = '';
+
+        if (!files.length) { wrap.classList.add('hidden'); return; }
+        wrap.classList.remove('hidden');
+
+        files.forEach((f, i) => {
+            const reader = new FileReader();
+            const row    = document.createElement('div');
+            row.className = 'flex items-center gap-3 p-2 bg-gray-50 rounded-lg border border-gray-200';
+            row.id = `sel-${i}`;
+            row.innerHTML = `
+                <img id="sel-thumb-${i}" class="w-12 h-10 object-cover rounded" src="">
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-700 truncate">${f.name}</p>
+                    <p class="text-xs text-gray-400">${(f.size/1024).toFixed(1)} KB</p>
+                </div>
+                <span class="text-xs text-green-600 font-semibold flex items-center gap-1">
+                    <i class="fas fa-check-circle"></i> Ready
+                </span>`;
+            wrap.appendChild(row);
+            reader.onload = e => {
+                const thumb = document.getElementById(`sel-thumb-${i}`);
+                if (thumb) thumb.src = e.target.result;
+            };
+            reader.readAsDataURL(f);
+        });
+    }
+
+    // ── Upload ──────────────────────────────────────────────────────────────
+    async function uploadSelected() {
+        if (!selectedFiles.length) return;
+
+        const btn      = document.getElementById('uploadBtn');
+        const progWrap = document.getElementById('uploadProgress');
+        const progBar  = document.getElementById('progressBar');
+        const progPct  = document.getElementById('progressPct');
+        const progLbl  = document.getElementById('progressLabel');
+
+        btn.disabled = true;
+        progWrap.classList.remove('hidden');
+
+        const db      = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Get current max order
+        const snap     = await db.collection(COLLECTION).orderBy('order', 'desc').limit(1).get();
+        let nextOrder  = snap.empty ? 1 : (snap.docs[0].data().order || 0) + 1;
+
+        const total = selectedFiles.length;
+        let done    = 0;
+
+        for (const file of selectedFiles) {
+            progLbl.textContent = `Uploading ${file.name} (${done + 1}/${total})…`;
+
+            try {
+                const uniqueName  = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+                const storagePath = `${STORAGE_DIR}${uniqueName}`;
+                const storageRef  = storage.ref(storagePath);
+
+               // Upload with progress
+                const task = storageRef.put(file);
+                await new Promise((resolve, reject) => {
+                    task.on('state_changed',
+                        (snapshot) => {
+                            const filePct = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                            const overall = ((done + filePct / 100) / total) * 100;
+                            progBar.style.width  = overall + '%';
+                            progPct.textContent  = Math.round(overall) + '%';
+                        },
+                        (storageErr) => {
+                            console.error('Storage upload error:', storageErr.code, storageErr.message);
+                            reject(storageErr);
+                        },
+                        resolve
+                    );
+                });
+
+                const url = await storageRef.getDownloadURL();
+
+                // Save to Firestore
+                await db.collection(COLLECTION).add({
+                    url,
+                    storagePath,
+                    name: file.name,
+                    order: nextOrder++,
+                    uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                done++;
+            } catch (err) {
+                console.error('Upload error:', err.code, err.message);
+                const msg = err.code === 'storage/unauthorized'
+                    ? `Permission denied — check Firebase Storage rules for coverImages/`
+                    : err.code === 'storage/canceled'
+                    ? `Upload cancelled`
+                    : err.message || 'Unknown error';
+                showToast(`Failed: ${msg}`, 'error');
+                if (err.code === 'storage/unauthorized' || err.code === 'permission-denied') showPermissionError();
+            }
+        }
+
+        progBar.style.width  = '100%';
+        progPct.textContent  = '100%';
+        progLbl.textContent  = `Done! ${done} of ${total} uploaded.`;
+
+        showToast(`${done} banner(s) uploaded successfully!`, 'success');
+        clearSelected();
+
+        setTimeout(() => {
+            progWrap.classList.add('hidden');
+            progBar.style.width = '0%';
+            btn.disabled = false;
+        }, 1500);
+    }
+
+    function clearSelected() {
+        selectedFiles = [];
+        document.getElementById('fileInput').value = '';
+        document.getElementById('selectedFiles').innerHTML = '';
+        document.getElementById('selectedFiles').classList.add('hidden');
+        document.getElementById('uploadBtn').disabled = true;
+    }
+
+    // ── Delete ──────────────────────────────────────────────────────────────
+    async function deleteBanner(docId, storagePath, currentTotal) {
+        if (currentTotal <= MIN_IMAGES) {
+            showToast(`Cannot delete — minimum ${MIN_IMAGES} banners required.`, 'error');
+            return;
+        }
+
+        if (!confirm('Delete this banner? It will be removed from the hero carousel.')) return;
+
+        try {
+            const db      = firebase.firestore();
+            const storage = firebase.storage();
+
+            // Delete from Storage first
+            if (storagePath) {
+                try {
+                    await storage.ref(storagePath).delete();
+                } catch (storageErr) {
+                    // If file not found in storage, still remove Firestore doc
+                    console.warn('Storage delete warning:', storageErr.message);
+                }
+            }
+
+            // Delete from Firestore
+            await db.collection(COLLECTION).doc(docId).delete();
+
+            // Re-number remaining items
+            await reorderBanners();
+
+            showToast('Banner deleted successfully.', 'success');
+        } catch (err) {
+            console.error('Delete error:', err);
+            showToast('Failed to delete banner: ' + err.message, 'error');
+            if (err.code === 'permission-denied') showPermissionError();
+        }
+    }
+
+    // Re-number banners 1..N after a deletion
+    async function reorderBanners() {
+        const db   = firebase.firestore();
+        const snap = await db.collection(COLLECTION).orderBy('order', 'asc').get();
+        const batch = db.batch();
+        snap.docs.forEach((doc, idx) => {
+            batch.update(doc.ref, { order: idx + 1 });
+        });
+        await batch.commit();
+    }
+
+    // ── Drag & drop ─────────────────────────────────────────────────────────
+    const dz = document.getElementById('dropzone');
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', ()  => dz.classList.remove('drag-over'));
+    dz.addEventListener('drop', e => {
+        e.preventDefault();
+        dz.classList.remove('drag-over');
+        handleFileSelect(e.dataTransfer.files);
+    });
+
+    // ── Slot note ────────────────────────────────────────────────────────────
+    function updateSlotNote(count) {
+        const el = document.getElementById('slotNote');
+        if (!el) return;
+        const left = MAX_IMAGES - count;
+        if (left <= 0) {
+            el.textContent = '✓ Maximum 5 banners reached';
+            el.className = 'text-xs text-red-500 ml-auto';
+        } else {
+            el.textContent = `${left} slot(s) remaining`;
+            el.className = 'text-xs text-gray-400 ml-auto';
+        }
+    }
+
+    // ── Helpers ─────────────────────────────────────────────────────────────
+    function showPermissionError() {
+        const banner = document.getElementById('permissionError');
+        if (banner) banner.classList.remove('hidden');
+    }
+
+    let toastTimeout;
+    function showToast(msg, type = 'info') {
+        const el = document.getElementById('coverToast');
+        el.textContent = msg;
+        el.className = `cover-toast ${type} show`;
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => el.classList.remove('show'), 3500);
+    }
+
+    window.logout = async function() {
+        if (!confirm('Are you sure you want to logout?')) return;
+        try {
+            await firebase.auth().signOut();
+            localStorage.clear(); sessionStorage.clear();
+            window.location.href = 'login.html';
+        } catch (e) { console.error('Logout error:', e); }
+    };
+
+    // Make deleteBanner globally accessible
+    window.deleteBanner    = deleteBanner;
+    window.uploadSelected  = uploadSelected;
+    window.clearSelected   = clearSelected;
+    window.handleFileSelect = handleFileSelect;
+
+    // Cleanup
+    window.addEventListener('beforeunload', () => {
+        if (coverListener) coverListener();
+        if (pendingTimer)  clearInterval(pendingTimer);
+    });
+    </script>
+</body>
+</html>

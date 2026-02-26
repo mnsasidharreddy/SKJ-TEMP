@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Price Settings - SKJ Jewellers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase CDN -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    
+    <style>
+    :root {
+        --royal-green: #004d40;
+        --gold: #D4AF37;
+        --sidebar-width: 260px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100vh; width: 100vw; overflow: hidden; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    body { display: flex; background-color: #f3f4f6; line-height: 1.5; color: #1e293b; }
+    .sidebar {
+        width: var(--sidebar-width);
+        min-width: var(--sidebar-width);
+        height: 100vh;
+        background-color: var(--royal-green);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        z-index: 100;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        position: fixed;
+        left: 0; top: 0;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255,255,255,0.3) transparent;
+        transition: width 0.3s ease;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 2px; }
+    .main-content {
+        flex: 1;
+        height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        background-color: #f8fafc;
+        margin-left: var(--sidebar-width);
+        width: calc(100% - var(--sidebar-width));
+        min-width: 200px;
+        transition: margin-left 0.3s ease, width 0.3s ease;
+    }
+    .content-wrapper {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+        padding: 1.5rem;
+    }
+
+    .cards-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+    @media (min-width: 1025px) {
+        .cards-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+
+    .form-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        position: relative;
+    }
+
+    .card-status-message {
+        padding: 0.6rem 1rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+        display: none;
+    }
+    .card-status-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; display: block; }
+    .card-status-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; display: block; }
+
+
+    .form-container h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+    @media (min-width: 640px) {
+        .form-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+    .form-group label i { font-size: 0.9rem; }
+    .form-group input {
+        width: 100%;
+        padding: 0.625rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.95rem;
+    }
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--royal-green);
+        box-shadow: 0 0 0 3px rgba(0, 77, 64, 0.1);
+    }
+    .btn-save {
+        background: var(--royal-green);
+        color: white;
+        border: none;
+        padding: 0.625rem 1.25rem;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .btn-save:hover { background: #00332a; }
+    .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+    .price-preview {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+    .price-preview span { font-weight: 600; color: var(--royal-green); }
+    .status-message {
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
+    }
+    .status-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .status-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .text-truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+        display: block;
+    }
+    @media (max-width: 480px) {
+        :root { --sidebar-width: 110px; }
+        .sidebar { width: var(--sidebar-width); min-width: var(--sidebar-width); }
+        .sidebar .px-6 { padding: 0.4rem 0.5rem; }
+        .sidebar h1 { font-size: 0.9rem; }
+        .sidebar p, .sidebar span { font-size: 0.65rem !important; }
+        .sidebar .text-xs { font-size: 0.6rem !important; }
+        .sidebar .w-6 { font-size: 0.85rem; }
+        .main-content { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); min-width: 210px; }
+        .content-wrapper { padding: 0.6rem; }
+        .form-container { padding: 0.9rem; }
+        .form-container h3 { font-size: 0.95rem; }
+        .form-group label { font-size: 0.75rem; }
+        .form-group input { padding: 0.5rem 0.6rem; font-size: 0.85rem; }
+        .btn-save { padding: 0.5rem 1rem; font-size: 0.8rem; }
+    }
+    @media (min-width: 481px) and (max-width: 768px) {
+        :root { --sidebar-width: 140px; }
+        .sidebar { width: var(--sidebar-width); min-width: var(--sidebar-width); }
+        .sidebar span { font-size: 0.7rem !important; }
+        .main-content { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); min-width: 340px; }
+        .content-wrapper { padding: 0.85rem; }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+        :root { --sidebar-width: 190px; }
+        .sidebar { width: var(--sidebar-width); min-width: var(--sidebar-width); }
+        .main-content { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); min-width: 570px; }
+        .content-wrapper { padding: 1.1rem; }
+    }
+    @media (min-width: 1025px) {
+        :root { --sidebar-width: 240px; }
+        .sidebar { width: var(--sidebar-width); min-width: var(--sidebar-width); }
+        .main-content { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); min-width: 760px; }
+        .content-wrapper { padding: 1.5rem; }
+    }
+    .active-nav {
+        background: rgba(212, 175, 55, 0.15);
+        border-left: 4px solid var(--gold);
+        color: var(--gold) !important;
+    }
+    .active-nav i { color: var(--gold) !important; }
+    @media (hover: none) and (pointer: coarse) {
+        a, button { min-height: 44px; display: flex; align-items: center; }
+    }
+    </style>
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    <main class="main-content">
+        <header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center sticky top-0 z-40">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Set Gold & Silver Prices</h2>
+                <p class="text-gray-600">Update current market rates</p>
+            </div>
+        </header>
+        <div class="content-wrapper">
+            <div class="cards-grid">
+                <!-- GOLD CARD -->
+                <div class="form-container">
+                    <div id="goldStatusMessage" class="card-status-message"></div>
+                    <h3><i class="fas fa-coins text-yellow-500"></i> Gold Price Settings</h3>
+                    <form id="goldPriceForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gold24ct"><i class="fas fa-coins text-yellow-500"></i> Gold Price 24 CT per gram</label>
+                                <input type="number" id="gold24ct" step="0.01" min="0" placeholder="Enter 24CT price" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="gold22ct"><i class="fas fa-coins text-yellow-600"></i> Gold Price 22CT per gram</label>
+                                <input type="number" id="gold22ct" step="0.01" min="0" placeholder="Enter 22CT price" required>
+                            </div>
+                        </div>
+                        <div class="price-preview">
+                            SKJ 24CT : <span id="previewGold24ct">₹--</span> | SKJ 22CT : <span id="previewGold22ct">₹--</span>
+                        </div>
+                        <button type="submit" class="btn-save" id="saveGoldBtn" style="margin-top: 1rem;">
+                            Save Gold Price
+                        </button>
+                    </form>
+                </div>
+                <!-- SILVER CARD -->
+                <div class="form-container">
+                    <div id="silverStatusMessage" class="card-status-message"></div>
+                    <h3><i class="fas fa-ring text-gray-400"></i> Silver Price Settings</h3>
+                    <form id="silverPriceForm">
+                        <div class="form-group">
+                            <label for="silverPrice"><i class="fas fa-ring text-gray-400"></i> Silver Price per 10 grams</label>
+                            <input type="number" id="silverPrice" step="0.01" min="0" placeholder="Enter silver price" required>
+                        </div>
+                        <div class="price-preview">
+                            SKJ SILVER : <span id="previewSilver">₹--</span>
+                        </div>
+                        <button type="submit" class="btn-save" id="saveSilverBtn" style="margin-top: 1rem;">
+                            Save Silver Price
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="sidebar.js"></script>
+    <script>
+        // ==========================================
+        // FIREBASE CDN CONFIGURATION
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyATmseHSU3qimkm6pSCJ_xA1EL3_KiHtXs",
+            authDomain: "skj-jewelry-store.firebaseapp.com",
+            projectId: "skj-jewelry-store",
+            storageBucket: "skj-jewelry-store.firebasestorage.app",
+            messagingSenderId: "531463279637",
+            appId: "1:531463279637:web:2ab8aaaa80211045252a1c",
+            measurementId: "G-0S99YE5NR1"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        const els = {
+            gold24ct: document.getElementById('gold24ct'),
+            gold22ct: document.getElementById('gold22ct'),
+            silverPrice: document.getElementById('silverPrice'),
+            previewGold24ct: document.getElementById('previewGold24ct'),
+            previewGold22ct: document.getElementById('previewGold22ct'),
+            previewSilver: document.getElementById('previewSilver'),
+            saveGoldBtn: document.getElementById('saveGoldBtn'),
+            saveSilverBtn: document.getElementById('saveSilverBtn'),
+            goldPriceForm: document.getElementById('goldPriceForm'),
+            silverPriceForm: document.getElementById('silverPriceForm'),
+            goldStatusMessage: document.getElementById('goldStatusMessage'),
+            silverStatusMessage: document.getElementById('silverStatusMessage')
+        };
+
+        const fmt = (n) => n ? `₹${parseFloat(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '₹--';
+
+        function showStatus(message, type = 'success', duration = 3000, card = 'gold') {
+            const el = card === 'silver' ? els.silverStatusMessage : els.goldStatusMessage;
+            if (!el) return;
+            el.textContent = message;
+            el.className = `card-status-message card-status-${type}`;
+            if (duration) setTimeout(() => { el.className = 'card-status-message'; }, duration);
+        }
+        function updatePreviews() {
+            els.previewGold24ct.textContent = fmt(els.gold24ct.value);
+            els.previewGold22ct.textContent = fmt(els.gold22ct.value);
+            els.previewSilver.textContent = fmt(els.silverPrice.value);
+        }
+
+        // ==========================================
+        // SYNC TO LOCALSTORAGE FOR MARQUEE UPDATE
+        // ==========================================
+        function syncToLocalStorage(type, marketPrice, skjPrice) {
+            const today = new Date().toLocaleDateString();
+            let priceHistory = JSON.parse(localStorage.getItem('skj_prices')) || [];
+            
+            const existingIndex = priceHistory.findIndex(p => p.date === today);
+            
+            const newEntry = {
+                date: today,
+                goldMarketPrice: type === 'gold' ? marketPrice : (priceHistory[priceHistory.length - 1]?.goldMarketPrice || ''),
+                goldSKJPrice: type === 'gold' ? skjPrice : (priceHistory[priceHistory.length - 1]?.goldSKJPrice || ''),
+                silverMarketPrice: type === 'silver' ? marketPrice : (priceHistory[priceHistory.length - 1]?.silverMarketPrice || '')
+            };
+            
+            if (existingIndex >= 0) {
+                priceHistory[existingIndex] = newEntry;
+            } else {
+                priceHistory.push(newEntry);
+            }
+            
+            if (priceHistory.length > 30) {
+                priceHistory = priceHistory.slice(-30);
+            }
+            
+            localStorage.setItem('skj_prices', JSON.stringify(priceHistory));
+            
+            window.dispatchEvent(new StorageEvent('storage', {
+                key: 'skj_prices',
+                newValue: JSON.stringify(priceHistory)
+            }));
+            
+            console.log('✅ Synced to localStorage:', newEntry);
+        }
+
+        // ==========================================
+        // REAL-TIME SYNC WITH ONSNAPSHOT
+        // ==========================================
+        function startPriceListener() {
+            return db.collection('prices').doc('current').onSnapshot((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (!document.activeElement || !['gold24ct', 'gold22ct', 'silverPrice'].includes(document.activeElement.id)) {
+                        if (data.goldMarketPrice !== undefined) els.gold24ct.value = data.goldMarketPrice;
+                        if (data.goldSKJPrice !== undefined) els.gold22ct.value = data.goldSKJPrice;
+                        if (data.silverMarketPrice !== undefined) els.silverPrice.value = data.silverMarketPrice;
+                        updatePreviews();
+                    }
+                }
+            }, (error) => {
+                console.error('❌ Price listener error:', error);
+                if (error.code === 'permission-denied') {
+                    showStatus('🔐 Permission denied. Check Firebase rules.', 'error', 5000);
+                }
+            });
+        }
+
+        // ==========================================
+        // ARCHIVE & SAVE GOLD PRICES
+        // ==========================================
+        async function saveGoldPrices(e) {
+            e.preventDefault();
+            const g24 = parseFloat(els.gold24ct.value);
+            const g22 = parseFloat(els.gold22ct.value);
+            
+            if (isNaN(g24) || isNaN(g22) || g24 <= 0 || g22 <= 0) {
+                showStatus('Please enter valid gold prices', 'error');
+                return;
+            }
+            
+            els.saveGoldBtn.disabled = true;
+            els.saveGoldBtn.textContent = 'Archiving & Saving...';
+            
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('Not authenticated');
+
+                const currentPriceDoc = await db.collection('prices').doc('current').get();
+                
+                if (currentPriceDoc.exists) {
+                    const existing = currentPriceDoc.data();
+                    if (existing.goldMarketPrice || existing.goldSKJPrice) {
+                        await db.collection('priceHistory').add({
+                            type: 'gold',
+                            marketPrice: existing.goldMarketPrice || g24,
+                            skjPrice: existing.goldSKJPrice || g22,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            updatedBy: existing.updatedBy || user.uid
+                        });
+                    }
+                }
+                
+                await db.collection('prices').doc('current').set({
+                    goldMarketPrice: g24,
+                    goldSKJPrice: g22,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedBy: user.uid
+                }, { merge: true });
+                
+                syncToLocalStorage('gold', g24, g22);
+                
+                showStatus('Gold price archived & updated!', 'success', 3000, 'gold');
+                updatePreviews();
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                showStatus(` Error: ${error.message}`, 'error', 5000, 'gold');
+            } finally {
+                els.saveGoldBtn.disabled = false;
+                els.saveGoldBtn.textContent = 'Save Gold Price';
+            }
+        }
+
+        // ==========================================
+        // ARCHIVE & SAVE SILVER PRICES
+        // ==========================================
+        async function saveSilverPrices(e) {
+            e.preventDefault();
+            const s = parseFloat(els.silverPrice.value);
+            
+            if (isNaN(s) || s <= 0) {
+                showStatus('Please enter a valid silver price', 'error');
+                return;
+            }
+            
+            els.saveSilverBtn.disabled = true;
+            els.saveSilverBtn.textContent = 'Archiving & Saving...';
+            
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('Not authenticated');
+
+                const currentPriceDoc = await db.collection('prices').doc('current').get();
+                
+                if (currentPriceDoc.exists) {
+                    const existing = currentPriceDoc.data();
+                    if (existing.silverMarketPrice) {
+                        await db.collection('priceHistory').add({
+                            type: 'silver',
+                            marketPrice: existing.silverMarketPrice,
+                            skjPrice: existing.silverMarketPrice,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            updatedBy: existing.updatedBy || user.uid
+                        });
+                    }
+                }
+                
+                await db.collection('prices').doc('current').set({
+                    silverMarketPrice: s,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedBy: user.uid
+                }, { merge: true });
+                
+                syncToLocalStorage('silver', s, s);
+                
+                showStatus('Silver price archived & updated!', 'success', 3000, 'silver');
+                updatePreviews();
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                showStatus(`Error: ${error.message}`, 'error', 5000, 'silver');
+            } finally {
+                els.saveSilverBtn.disabled = false;
+                els.saveSilverBtn.textContent = 'Save Silver Price';
+            }
+        }
+
+        window.logout = async function() {
+            try {
+                await auth.signOut();
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+
+        let unsubscribePrices;
+        
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (!userDoc.exists || userDoc.data().role !== 'admin') {
+                    window.location.href = 'index.html';
+                    return;
+                }
+            } catch (error) {
+                console.warn('⚠️ Could not verify admin:', error.message);
+            }
+            unsubscribePrices = startPriceListener();
+            try {
+                const priceDoc = await db.collection('prices').doc('current').get();
+                if (priceDoc.exists) {
+                    const data = priceDoc.data();
+                    if (data.goldMarketPrice !== undefined) els.gold24ct.value = data.goldMarketPrice;
+                    if (data.goldSKJPrice !== undefined) els.gold22ct.value = data.goldSKJPrice;
+                    if (data.silverMarketPrice !== undefined) els.silverPrice.value = data.silverMarketPrice;
+                    updatePreviews();
+                }
+            } catch (error) {
+                console.warn('⚠️ Could not load initial prices:', error.message);
+            }
+        });
+
+        els.goldPriceForm.addEventListener('submit', saveGoldPrices);
+        els.silverPriceForm.addEventListener('submit', saveSilverPrices);
+        els.gold24ct.addEventListener('input', updatePreviews);
+        els.gold22ct.addEventListener('input', updatePreviews);
+        els.silverPrice.addEventListener('input', updatePreviews);
+
+        window.addEventListener('beforeunload', () => {
+            if (unsubscribePrices) unsubscribePrices();
+        });
+
+        updatePreviews();
+    </script>
+</body>
+</html>

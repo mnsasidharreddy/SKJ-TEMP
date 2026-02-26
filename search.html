@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Sai Kiran Jewelleries A/C</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="firebase-config.js"></script>
+    <script src="components.js"></script>
+    <style>
+        :root { --royal-green: #004d40; --gold: #D4AF37; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        
+        /* Search Result Card */
+        .result-card {
+            background: white;
+            border-radius: 2rem;
+            padding: 1rem;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .result-card:hover {
+            border-color: var(--gold);
+            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.15);
+            transform: translateY(-4px);
+        }
+        
+        /* Image Container */
+        .image-container {
+            position: relative;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            height: 200px;
+            margin-bottom: 1rem;
+        }
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .result-card:hover .image-container img {
+            transform: scale(1.05);
+        }
+        
+        /* Category Badge */
+        .category-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: linear-gradient(135deg, var(--royal-green) 0%, #00695c 100%);
+            color: white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 10;
+        }
+        
+        /* Heart Button */
+        .heart-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        .heart-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .heart-btn i {
+            color: #9ca3af;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+        }
+        .heart-btn.heart-active i {
+            color: #ef4444;
+        }
+        
+        /* Action Buttons */
+        .action-btn {
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-cart {
+            background: linear-gradient(135deg, var(--royal-green) 0%, #00695c 100%);
+            color: white;
+            flex: 1;
+        }
+        .btn-cart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 77, 64, 0.3);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        .empty-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 3rem;
+            color: #0369a1;
+        }
+        
+        /* Search Input Large */
+        .search-box {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 0.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 0.5rem;
+            border: 2px solid var(--gold);
+            margin-left: 5px;
+        }
+        .search-input-large {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--royal-green);
+            border-radius: 1rem;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+            width: 60vw;
+        }
+        .search-input-large:focus {
+            border-color: var(--gold);
+        }
+        .search-btn-large {
+            background: linear-gradient(135deg, var(--royal-green) 0%, #00695c 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .search-btn-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 77, 64, 0.3);
+        }
+        
+        /* Section Title */
+        .section-title {
+            position: relative;
+            display: inline-block;
+            padding-bottom: 0.75rem;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        
+        /* Filter Tags */
+        .filter-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 2px solid var(--gold);
+            color: var(--royal-green);
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .filter-tag button {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 0;
+            font-size: 1rem;
+            line-height: 1;
+        }
+        .filter-tag button:hover {
+            color: #ef4444;
+        }
+
+        /* Loading line animation */
+@keyframes loadSlide {
+    0%   { width: 0%; }
+    60%  { width: 80%; }
+    100% { width: 100%; }
+}
+.load-line-active {
+    animation: loadSlide 0.6s ease forwards;
+}
+
+/* Skeleton card */
+.skeleton-card {
+    background: white;
+    border-radius: 2rem;
+    padding: 1rem;
+    overflow: hidden;
+}
+.skeleton-pulse {
+    background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 0.75rem;
+}
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+    <div id="mobile-nav-placeholder"></div>
+    
+    <main class="main-content">
+        <!-- Hero Section with Search -->
+        <section class="bg-gradient-to-br from-[#004d40] via-[#00695c] to-[#004d40] py-12 md:py-20 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute top-0 left-0 w-72 h-72 bg-[#D4AF37] rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 right-0 w-96 h-96 bg-[#D4AF37] rounded-full blur-3xl"></div>
+            </div>
+            <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 relative z-10">
+                <h1 class="font-cinzel text-2xl md:text-4xl font-bold text-white mb-6 text-center tracking-wide">
+                    Search Results
+                </h1>
+                <form id="searchFormLarge" class="search-box" onsubmit="handleLargeSearch(event)">
+                    <input 
+                        type="text" 
+                        id="largeSearchInput" 
+                        class="search-input-large" 
+                        placeholder="Search for jewelry, categories, or collections..."
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="search-btn-large">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <span class="hidden sm:inline">Search</span>
+                    </button>
+                </form>
+                <div id="search-meta" class="mt-4 text-center">
+                    <!-- Will be populated by JS -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Results Section -->
+        <section class="py-8 md:py-12">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Filter/Query Display -->
+                <div id="filter-display" class="mb-6 hidden">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-gray-600 text-sm">Searching for:</span>
+                        <div class="filter-tag">
+                            <span id="current-query"></span>
+                            <button onclick="clearSearch()" title="Clear search">×</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Default Welcome State (shown before any search) -->
+<div id="welcome-state" class="text-center py-10">
+    <div style="font-size:3.5rem;margin-bottom:1rem;">💍</div>
+    <h2 class="font-cinzel text-2xl md:text-3xl font-bold text-[#004d40] mb-3">What are you looking for?</h2>
+    <p class="text-gray-500 mb-8 max-w-md mx-auto">Search by item name or browse a category below</p>
+    <div class="flex flex-wrap justify-center gap-3">
+        <a href="rings.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Rings</a>
+        <a href="chains.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Chains</a>
+        <a href="bracelets.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Bracelets</a>
+        <a href="necklaces.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Necklaces</a>
+        <a href="bangles.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Bangles</a>
+        <a href="harams.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Harams</a>
+        <a href="earrings.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Earrings</a>
+        <a href="coins.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Coins</a>
+        <a href="other.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Other</a>
+    </div>
+</div>
+
+<!-- No Results State (shown only when search returns nothing) -->
+<div id="empty-results" class="empty-state hidden">
+    <div class="empty-icon">
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+    <h2 class="font-cinzel text-2xl md:text-3xl font-bold text-[#004d40] mb-3">No Products Found</h2>
+    <p class="text-gray-600 mb-2 max-w-md mx-auto">We couldn't find anything matching "<span id="empty-query" class="font-semibold text-[#004d40]"></span>"</p>
+    <p class="text-gray-500 text-sm mb-6 max-w-md mx-auto">Try a different spelling or browse a category instead.</p>
+    <div class="flex flex-wrap justify-center gap-3">
+        <a href="rings.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Rings</a>
+        <a href="chains.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Chains</a>
+        <a href="bracelets.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Bracelets</a>
+        <a href="necklaces.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Necklaces</a>
+        <a href="bangles.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Bangles</a>
+        <a href="harams.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Harams</a>
+        <a href="earrings.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Earrings</a>
+        <a href="coins.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Coins</a>
+        <a href="other.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Other</a>
+    </div>
+</div>
+                
+                <!-- Results Grid -->
+<div id="results-container" class="gap-4 md:gap-6" style="display:grid;">
+    <!-- Results will be rendered here by JavaScript -->
+</div>
+
+<!-- Loading Sentinel -->
+<div id="load-sentinel" class="hidden mt-6 py-4 flex flex-col items-center gap-2">
+    <div id="load-line" class="w-full h-1 rounded-full overflow-hidden bg-gray-200">
+        <div id="load-line-bar" class="h-full bg-gradient-to-r from-[#004d40] via-[#D4AF37] to-[#004d40] animate-pulse" style="width:0%;transition:width 0.4s ease;"></div>
+    </div>
+    <span class="text-xs text-gray-400">Loading more items...</span>
+</div>
+
+<!-- Results Count -->
+<div id="results-count" class="mt-8 text-center text-gray-600 text-sm hidden">
+    Found <span id="result-number" class="font-bold text-[#004d40]">0</span> items
+</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Item Detail Popup -->
+<div id="item-popup-overlay" onclick="closeItemPopup()"
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9500;backdrop-filter:blur(4px);"></div>
+
+<div id="item-popup"
+    style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:min(90vw,900px);max-height:90vh;background:white;border-radius:2rem;
+    z-index:9501;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,0.3);">
+    <button onclick="closeItemPopup()"
+        style="position:absolute;top:1rem;right:1rem;z-index:10;background:white;border:none;
+        width:40px;height:40px;border-radius:50%;font-size:1.4rem;cursor:pointer;
+        box-shadow:0 2px 8px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;">×</button>
+    <div id="item-popup-content" style="overflow-y:auto;max-height:90vh;display:flex;flex-wrap:wrap;">
+        <!-- filled by JS -->
+    </div>
+</div>
+    
+    <div id="footer-placeholder"></div>
+    <div id="cta-placeholder"></div>
+    
+    <script>
+    // ===================== CONFIG =====================
+    const CATEGORIES = ['rings','chains','bracelets','necklaces','bangles','harams','earrings','coins','other'];
+    const CARD_HEIGHT = 340;   // approximate px per card row
+    const CARD_MIN_W  = 220;   // min card width for column calculation
+
+    // ===================== STATE =====================
+    let currentQuery    = '';
+    let allFetchedItems = [];   // all docs fetched for current query
+    let renderedCount   = 0;
+    let isLoadingMore   = false;
+    let batchSize       = 8;    // recalculated on init
+    let colCount        = 2;
+    let sentinel        = null;
+    let observer        = null;
+
+    // ===================== GRID SIZING =====================
+    function calcLayout() {
+        const header = document.querySelector('header') || { offsetHeight: 100 };
+        const headerH = header.offsetHeight || 100;
+        const availH  = window.innerHeight - headerH;
+        const availW  = window.innerWidth;
+
+        colCount  = Math.max(2, Math.floor(availW / CARD_MIN_W));
+        const rows = Math.ceil(availH / CARD_HEIGHT) + 1;   // +1 row buffer
+        batchSize  = colCount * rows;
+
+        const container = document.getElementById('results-container');
+        if (container) {
+            container.style.gridTemplateColumns = `repeat(${colCount}, minmax(0, 1fr))`;
+        }
+    }
+
+    // ===================== FIREBASE SEARCH =====================
+    async function fetchFromFirebase(query) {
+    if (typeof firebase === 'undefined' || !firebase.firestore) {
+        throw new Error('Firebase not available');
+    }
+        const db = firebase.firestore();
+        const q  = query.trim().toLowerCase();
+
+        // Category match → fetch entire category
+        if (CATEGORIES.includes(q)) {
+            const snap = await db.collection('products')
+                .where('category', '==', q)
+                .where('inStock', '==', true)
+                .get();
+            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+
+        // Name prefix search using nameLower field
+        // NOTE: your Firestore products must have a `nameLower` field = name.toLowerCase()
+        // If you don't have it yet, store it when uploading products.
+        const snap = await db.collection('products')
+            .where('nameLower', '>=', q)
+            .where('nameLower', '<=', q + '\uf8ff')
+            .where('inStock', '==', true)
+            .get();
+
+        const results = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        // Also try category contains (if user typed partial category like "brac")
+        const matchedCats = CATEGORIES.filter(c => c.startsWith(q));
+        if (matchedCats.length > 0 && matchedCats[0] !== q) {
+            const catSnaps = await Promise.all(
+                matchedCats.map(cat =>
+                    db.collection('products')
+                        .where('category', '==', cat)
+                        .where('inStock', '==', true)
+                        .get()
+                )
+            );
+            for (const s of catSnaps) {
+                for (const d of s.docs) {
+                    if (!results.find(r => r.id === d.id)) {
+                        results.push({ id: d.id, ...d.data() });
+                    }
+                }
+            }
+        }
+
+        return results;
+    }
+
+    // ===================== PRICE CALC =====================
+    function calcPrice(product) {
+        const prices = (typeof cachedPrices !== 'undefined' && cachedPrices) || { gold: 6400, skjg: 6200, silver: 750 };
+        let price = product.offerPrice || product.price || 0;
+        if (product.metalType === 'gold' && product.weight && product.dynamicPricing !== false) {
+            const rate = product.carat === '24CT' ? prices.gold : (prices.skjg || 6200);
+            const making = (product.makingCharges || 0) * parseFloat(product.weight);
+            const basePrice = Math.round(parseFloat(product.weight) * rate + making);
+            let discountAmt = product.discountAmount || 0;
+            if (!discountAmt && product.discountPercent > 0) {
+                discountAmt = Math.round((basePrice * product.discountPercent) / 100);
+            }
+            price = basePrice - discountAmt;
+        } else if (product.metalType === 'silver' && product.weight && product.dynamicPricing !== false) {
+            const rate = (prices.silver || 750) / 10;
+            const making = (product.makingCharges || 0) * parseFloat(product.weight);
+            const basePrice = Math.round(parseFloat(product.weight) * rate + making);
+            let discountAmt = product.discountAmount || 0;
+            if (!discountAmt && product.discountPercent > 0) {
+                discountAmt = Math.round((basePrice * product.discountPercent) / 100);
+            }
+            price = basePrice - discountAmt;
+        }
+        return price;
+    }
+
+    function calcBasePrice(product) {
+        const prices = (typeof cachedPrices !== 'undefined' && cachedPrices) || { gold: 6400, skjg: 6200, silver: 750 };
+        let price = product.offerPrice || product.price || 0;
+        if (product.metalType === 'gold' && product.weight && product.dynamicPricing !== false) {
+            const rate = product.carat === '24CT' ? prices.gold : (prices.skjg || 6200);
+            const making = (product.makingCharges || 0) * parseFloat(product.weight);
+            price = Math.round(parseFloat(product.weight) * rate + making);
+        } else if (product.metalType === 'silver' && product.weight && product.dynamicPricing !== false) {
+            const rate = (prices.silver || 750) / 10;
+            const making = (product.makingCharges || 0) * parseFloat(product.weight);
+            price = Math.round(parseFloat(product.weight) * rate + making);
+        }
+        return price;
+    }
+
+    // ===================== CARD HTML =====================
+    function buildCard(product) {
+    const price         = calcPrice(product);
+    const originalPrice = calcBasePrice(product) || product.originalPrice || price;
+    const discount      = originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+    const image         = (product.images && product.images[0]) || './images/placeholder.jpg';
+    const safeName      = (product.name || 'Product').replace(/'/g, "\\'");
+    const inWishlist    = (typeof wishlist !== 'undefined') && wishlist.some(w => w.id === product.id);
+    const heartCls      = inWishlist ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+    const heartColor    = inWishlist ? '#ef4444' : '#9ca3af';
+    const inCart        = (typeof cart !== 'undefined') && cart[product.id];
+    const qty           = inCart ? inCart.qty : 0;
+
+    return `
+    <div class="result-card" onclick="openItemPopup('${product.id}')">
+        <div class="image-container">
+            ${discount > 0 ? `<span style="position:absolute;bottom:12px;left:12px;background:#ef4444;color:white;padding:0.2rem 0.6rem;border-radius:999px;font-size:0.7rem;font-weight:700;z-index:10;">${discount}% OFF</span>` : ''}
+            <button onclick="event.stopPropagation(); toggleWishlist(event,'${product.id}','${safeName}',this)"
+                class="heart-btn ${inWishlist ? 'heart-active' : ''}">
+                <i class="${heartCls}" style="color:${heartColor};font-size:1.1rem;"></i>
+            </button>
+            <img src="${(product.images && product.images[0]) || './images/placeholder.jpg'}"
+                alt="${product.name || ''}"
+                onerror="this.src='./images/placeholder.jpg'"
+                loading="lazy">
+        </div>
+        <h3 class="font-bold text-gray-800 text-base mb-1 line-clamp-1">${product.name || 'Product'}</h3>
+        <div class="flex items-baseline gap-2 mb-3">
+            ${originalPrice > price ? `<span class="text-gray-400 text-sm line-through">₹${originalPrice.toLocaleString()}</span>` : ''}
+            <span class="text-amber-600 font-bold text-lg">₹${price.toLocaleString()}</span>
+        </div>
+        <div class="flex gap-2" id="cart-ctrl-${product.id}">
+            ${qty > 0
+                ? `<div class="flex items-center gap-2 w-full justify-between bg-[#004d40] rounded-xl px-3 py-2">
+                    <button onclick="event.stopPropagation(); changeQty('${product.id}','${safeName}',${price},-1)" class="text-white text-xl font-bold w-7 h-7 flex items-center justify-center hover:text-[#D4AF37] transition">−</button>
+                    <span class="text-white font-bold">${qty}</span>
+                    <button onclick="event.stopPropagation(); changeQty('${product.id}','${safeName}',${price},1)" class="text-white text-xl font-bold w-7 h-7 flex items-center justify-center hover:text-[#D4AF37] transition">+</button>
+                   </div>`
+                : `<button onclick="event.stopPropagation(); handleCartClick('${product.id}','${safeName}',${price})"
+                    class="action-btn btn-cart w-full">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    Add to Cart
+                  </button>`
+            }
+        </div>
+    </div>`;
+}
+
+
+
+// Open login if guest, else add to cart and show qty controls
+function handleCartClick(id, name, price) {
+    const user = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+    if (!user) {
+        if (typeof toggleLoginPanel === 'function') toggleLoginPanel();
+        return;
+    }
+    if (typeof addToCart === 'function') addToCart(id, name, price);
+    updateCartCtrl(id, name, price);
+}
+
+function changeQty(id, name, price, delta) {
+    const user = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+    if (!user) {
+        if (typeof toggleLoginPanel === 'function') toggleLoginPanel();
+        return;
+    }
+    if (typeof cart === 'undefined') return;
+    const current = cart[id] ? cart[id].qty : 0;
+    const newQty = current + delta;
+    if (newQty <= 0) {
+        delete cart[id];
+    } else {
+        if (typeof addToCart === 'function') addToCart(id, name, price);
+        if (delta < 0 && cart[id]) cart[id].qty = newQty;
+    }
+    if (typeof updateCartUI === 'function') updateCartUI();
+    updateCartCtrl(id, name, price);
+}
+
+
+async function openItemPopup(id) {
+    const overlay = document.getElementById('item-popup-overlay');
+    const popup   = document.getElementById('item-popup');
+    const content = document.getElementById('item-popup-content');
+
+    overlay.style.display = 'block';
+    popup.style.display   = 'block';
+    document.body.style.overflow = 'hidden';
+
+    // Find in already-fetched items first
+    let product = allFetchedItems.find(p => p.id === id);
+
+    // Fallback: fetch from Firestore
+    if (!product) {
+        content.innerHTML = `<div style="width:100%;padding:3rem;text-align:center;">
+            <i class="fas fa-spinner fa-spin text-3xl" style="color:#004d40;"></i></div>`;
+        try {
+            const doc = await firebase.firestore().collection('products').doc(id).get();
+            if (doc.exists) product = { id: doc.id, ...doc.data() };
+        } catch(e) { console.error(e); }
+    }
+
+    if (!product) {
+        content.innerHTML = `<div style="width:100%;padding:3rem;text-align:center;color:#ef4444;">
+            Could not load product details.</div>`;
+        return;
+    }
+
+    const price         = calcPrice(product);
+    const originalPrice = calcBasePrice(product) || product.originalPrice || price;
+    const discount      = originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+    const images        = product.images && product.images.length ? product.images : ['./images/placeholder.jpg'];
+    const safeName      = (product.name || 'Product').replace(/'/g, "\\'");
+    const inWishlist    = (typeof wishlist !== 'undefined') && wishlist.some(w => w.id === product.id);
+    const heartCls      = inWishlist ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+    const heartColor    = inWishlist ? '#ef4444' : '#9ca3af';
+    const qty           = (typeof cart !== 'undefined' && cart[id]) ? cart[id].qty : 0;
+
+    content.innerHTML = `
+        <!-- Images side -->
+        <div style="flex:1;min-width:280px;max-width:420px;background:#f8fafc;padding:1.5rem;display:flex;flex-direction:column;gap:0.75rem;">
+            <img id="popup-main-img" src="${images[0]}" onerror="this.src='./images/placeholder.jpg'"
+                style="width:100%;height:300px;object-fit:cover;border-radius:1.5rem;">
+            ${images.length > 1 ? `<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                ${images.map((img, i) => `
+                    <img src="${img}" onerror="this.src='./images/placeholder.jpg'"
+                        onclick="document.getElementById('popup-main-img').src='${img}'"
+                        style="width:64px;height:64px;object-fit:cover;border-radius:0.75rem;cursor:pointer;
+                        border:2px solid ${i===0?'#D4AF37':'#e5e7eb'};transition:border 0.2s;">`).join('')}
+            </div>` : ''}
+        </div>
+
+        <!-- Details side -->
+        <div style="flex:1;min-width:260px;padding:2rem;display:flex;flex-direction:column;gap:1rem;">
+            <div>
+                ${discount > 0 ? `<span style="background:#ef4444;color:white;padding:0.2rem 0.7rem;border-radius:999px;font-size:0.75rem;font-weight:700;">${discount}% OFF</span>` : ''}
+                <h2 style="font-family:'Cinzel',serif;font-size:1.4rem;font-weight:700;color:#004d40;margin-top:0.5rem;line-height:1.3;">${product.name || 'Product'}</h2>
+                <p style="color:#6b7280;font-size:0.85rem;text-transform:capitalize;">${product.category || ''}</p>
+            </div>
+
+            <div style="display:flex;align-items:baseline;gap:0.75rem;">
+                ${originalPrice > price ? `<span style="color:#9ca3af;text-decoration:line-through;font-size:1rem;">₹${originalPrice.toLocaleString()}</span>` : ''}
+                <span style="color:#d97706;font-weight:800;font-size:1.75rem;">₹${price.toLocaleString()}</span>
+            </div>
+
+            ${product.weight ? `<div style="display:flex;gap:1rem;flex-wrap:wrap;">
+                <div style="background:#f0fdf4;padding:0.5rem 1rem;border-radius:0.75rem;font-size:0.85rem;">
+                    <span style="color:#6b7280;">Weight</span><br>
+                    <strong style="color:#004d40;">${product.weight}g</strong>
+                </div>
+                ${product.carat ? `<div style="background:#f0fdf4;padding:0.5rem 1rem;border-radius:0.75rem;font-size:0.85rem;">
+                    <span style="color:#6b7280;">Purity</span><br>
+                    <strong style="color:#004d40;">${product.carat}</strong>
+                </div>` : ''}
+                ${product.metalType ? `<div style="background:#f0fdf4;padding:0.5rem 1rem;border-radius:0.75rem;font-size:0.85rem;">
+                    <span style="color:#6b7280;">Metal</span><br>
+                    <strong style="color:#004d40;text-transform:capitalize;">${product.metalType}</strong>
+                </div>` : ''}
+            </div>` : ''}
+
+            ${product.description ? `<p style="color:#4b5563;font-size:0.9rem;line-height:1.6;">${product.description}</p>` : ''}
+
+            <!-- Cart + Wishlist -->
+            <div style="display:flex;gap:0.75rem;margin-top:auto;padding-top:1rem;">
+                <div id="popup-cart-ctrl-${id}" style="flex:1;">
+                    ${qty > 0
+                        ? `<div style="display:flex;align-items:center;justify-content:space-between;background:#004d40;border-radius:1rem;padding:0.6rem 1rem;">
+                            <button onclick="changeQty('${id}','${safeName}',${price},-1); refreshPopupCart('${id}','${safeName}',${price})"
+                                style="background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;">−</button>
+                            <span style="color:white;font-weight:700;" id="popup-qty-${id}">${qty}</span>
+                            <button onclick="changeQty('${id}','${safeName}',${price},1); refreshPopupCart('${id}','${safeName}',${price})"
+                                style="background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;">+</button>
+                           </div>`
+                        : `<button onclick="handleCartClick('${id}','${safeName}',${price}); refreshPopupCart('${id}','${safeName}',${price})"
+                            style="width:100%;background:linear-gradient(135deg,#004d40,#00695c);color:white;border:none;
+                            padding:0.85rem;border-radius:1rem;font-weight:700;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
+                            <i class="fa-solid fa-bag-shopping"></i> Add to Cart
+                          </button>`
+                    }
+                </div>
+                <button onclick="toggleWishlist(event,'${id}','${safeName}',this)"
+                    id="popup-heart-${id}"
+                    class="${inWishlist ? 'heart-active' : ''}"
+                    style="width:48px;height:48px;border-radius:1rem;background:#f3f4f6;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">
+                    <i class="${heartCls}" style="color:${heartColor};"></i>
+                </button>
+            </div>
+        </div>`;
+}
+
+function refreshPopupCart(id, name, price) {
+    // Update popup qty display
+    const ctrl = document.getElementById(`popup-cart-ctrl-${id}`);
+    if (!ctrl) return;
+    updateCartCtrl(id, name, price); // update card too
+    const qty = (typeof cart !== 'undefined' && cart[id]) ? cart[id].qty : 0;
+    const safeName = name.replace(/'/g, "\\'");
+    if (qty > 0) {
+        ctrl.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#004d40;border-radius:1rem;padding:0.6rem 1rem;">
+                <button onclick="changeQty('${id}','${safeName}',${price},-1); refreshPopupCart('${id}','${safeName}',${price})"
+                    style="background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;">−</button>
+                <span style="color:white;font-weight:700;">${qty}</span>
+                <button onclick="changeQty('${id}','${safeName}',${price},1); refreshPopupCart('${id}','${safeName}',${price})"
+                    style="background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;">+</button>
+            </div>`;
+    } else {
+        ctrl.innerHTML = `
+            <button onclick="handleCartClick('${id}','${safeName}',${price}); refreshPopupCart('${id}','${safeName}',${price})"
+                style="width:100%;background:linear-gradient(135deg,#004d40,#00695c);color:white;border:none;
+                padding:0.85rem;border-radius:1rem;font-weight:700;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
+                <i class="fa-solid fa-bag-shopping"></i> Add to Cart
+            </button>`;
+    }
+}
+
+function closeItemPopup() {
+    document.getElementById('item-popup-overlay').style.display = 'none';
+    document.getElementById('item-popup').style.display         = 'none';
+    document.body.style.overflow = '';
+}
+
+// Close popup on Escape key
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeItemPopup(); });
+
+function updateCartCtrl(id, name, price) {
+    const ctrl = document.getElementById(`cart-ctrl-${id}`);
+    if (!ctrl) return;
+    const qty = (typeof cart !== 'undefined' && cart[id]) ? cart[id].qty : 0;
+    const safeName = name.replace(/'/g, "\\'");
+    if (qty > 0) {
+        ctrl.innerHTML = `
+            <div class="flex items-center gap-2 w-full justify-between bg-[#004d40] rounded-xl px-3 py-2">
+                <button onclick="event.stopPropagation(); changeQty('${id}','${safeName}',${price},-1)" class="text-white text-xl font-bold w-7 h-7 flex items-center justify-center hover:text-[#D4AF37] transition">−</button>
+                <span class="text-white font-bold">${qty}</span>
+                <button onclick="event.stopPropagation(); changeQty('${id}','${safeName}',${price},1)" class="text-white text-xl font-bold w-7 h-7 flex items-center justify-center hover:text-[#D4AF37] transition">+</button>
+            </div>`;
+    } else {
+        ctrl.innerHTML = `
+            <button onclick="event.stopPropagation(); handleCartClick('${id}','${safeName}',${price})"
+                class="action-btn btn-cart w-full">
+                <i class="fa-solid fa-bag-shopping"></i>
+                Add to Cart
+            </button>`;
+    }
+}
+
+    function buildSkeleton(n) {
+        return Array.from({ length: n }, () => `
+        <div class="skeleton-card">
+            <div class="skeleton-pulse" style="height:200px;margin-bottom:1rem;"></div>
+            <div class="skeleton-pulse" style="height:16px;width:70%;margin-bottom:0.5rem;"></div>
+            <div class="skeleton-pulse" style="height:16px;width:40%;margin-bottom:1rem;"></div>
+            <div class="skeleton-pulse" style="height:40px;"></div>
+        </div>`).join('');
+    }
+
+    // ===================== RENDER BATCH =====================
+    function renderNextBatch() {
+        if (renderedCount >= allFetchedItems.length) {
+            hideSentinel();
+            return;
+        }
+
+        const batch = allFetchedItems.slice(renderedCount, renderedCount + batchSize);
+        const container = document.getElementById('results-container');
+
+        // Remove skeleton placeholders if any
+        container.querySelectorAll('.skeleton-card').forEach(el => el.remove());
+
+        batch.forEach(product => {
+            const div = document.createElement('div');
+            div.innerHTML = buildCard(product);
+            container.appendChild(div.firstElementChild);
+        });
+
+        renderedCount += batch.length;
+
+        const countEl = document.getElementById('result-number');
+        if (countEl) countEl.textContent = allFetchedItems.length;
+
+        if (renderedCount < allFetchedItems.length) {
+            showSentinel();
+        } else {
+            hideSentinel();
+        }
+    }
+
+    // ===================== SENTINEL / OBSERVER =====================
+    function showSentinel() {
+        sentinel = document.getElementById('load-sentinel');
+        if (!sentinel) return;
+        sentinel.classList.remove('hidden');
+        sentinel.style.display = 'flex';
+
+        // Animate the loading line
+        const bar = document.getElementById('load-line-bar');
+        if (bar) {
+            bar.style.width = '0%';
+            requestAnimationFrame(() => {
+                bar.classList.add('load-line-active');
+            });
+        }
+
+        if (!observer) {
+            observer = new IntersectionObserver(entries => {
+                if (entries[0].isIntersecting && !isLoadingMore) {
+                    isLoadingMore = true;
+                    const bar = document.getElementById('load-line-bar');
+                    if (bar) {
+                        bar.style.width = '0%';
+                        bar.classList.remove('load-line-active');
+                        void bar.offsetWidth; // reflow
+                        bar.classList.add('load-line-active');
+                    }
+                    setTimeout(() => {
+                        renderNextBatch();
+                        isLoadingMore = false;
+                    }, 500); // small delay so user sees the line animate
+                }
+            }, { threshold: 0.1 });
+        }
+        observer.observe(sentinel);
+    }
+
+    function hideSentinel() {
+        sentinel = document.getElementById('load-sentinel');
+        if (sentinel) {
+            sentinel.classList.add('hidden');
+            sentinel.style.display = 'none';
+        }
+        if (observer && sentinel) {
+            observer.unobserve(sentinel);
+        }
+    }
+
+    // ===================== PERFORM SEARCH =====================
+    async function performSearch(query) {
+        if (!query || !query.trim()) { showEmptySearch(); return; }
+        document.getElementById('welcome-state')?.classList.add('hidden');
+        calcLayout();
+
+        const container     = document.getElementById('results-container');
+        const emptyState    = document.getElementById('empty-results');
+        const filterDisplay = document.getElementById('filter-display');
+        const currentQueryEl = document.getElementById('current-query');
+        const resultsCount  = document.getElementById('results-count');
+
+        // Reset state
+        allFetchedItems = [];
+        renderedCount   = 0;
+        hideSentinel();
+        if (observer) { observer.disconnect(); observer = null; }
+
+        // Show filter tag
+        if (filterDisplay) filterDisplay.classList.remove('hidden');
+        if (currentQueryEl) currentQueryEl.textContent = query;
+        if (emptyState) emptyState.classList.add('hidden');
+        if (resultsCount) resultsCount.classList.remove('hidden');
+
+        // Show skeleton while loading
+        container.style.gridTemplateColumns = `repeat(${colCount}, minmax(0, 1fr))`;
+        container.innerHTML = buildSkeleton(batchSize);
+
+        try {
+            allFetchedItems = await fetchFromFirebase(query);
+        } catch (e) {
+            console.error('Search error:', e);
+            container.innerHTML = `<div style="grid-column:1/-1;" class="text-center py-12 text-red-500">
+                <i class="fa-solid fa-triangle-exclamation text-3xl mb-3"></i>
+                <p>Could not load results. Please check your connection and try again.</p>
+            </div>`;
+            return;
+        }
+
+        container.innerHTML = ''; // clear skeletons
+
+        if (allFetchedItems.length === 0) {
+    document.getElementById('welcome-state')?.classList.add('hidden');
+    const emptyQuery = document.getElementById('empty-query');
+    if (emptyQuery) emptyQuery.textContent = query;
+    emptyState?.classList.remove('hidden');
+    resultsCount?.classList.add('hidden');
+    return;
+}
+
+        renderNextBatch(); // renders first batchSize items
+    }
+
+    // ===================== SHOW EMPTY =====================
+    function showEmptySearch() {
+    document.getElementById('results-container').innerHTML = '';
+    document.getElementById('welcome-state')?.classList.remove('hidden');
+    document.getElementById('empty-results')?.classList.add('hidden');
+    document.getElementById('filter-display')?.classList.add('hidden');
+    document.getElementById('results-count')?.classList.add('hidden');
+    hideSentinel();
+}
+
+    // ===================== CLEAR SEARCH =====================
+    function clearSearch() {
+        document.getElementById('largeSearchInput').value = '';
+        currentQuery = '';
+        window.history.pushState({}, '', window.location.pathname);
+        showEmptySearch();
+    }
+
+    // ===================== LARGE SEARCH FORM =====================
+    let searchDebounce = null;
+    function handleLargeSearch(e) {
+        if (e) e.preventDefault();
+        const query = document.getElementById('largeSearchInput').value.trim().toLowerCase();
+        if (!query) { showEmptySearch(); return; }
+        currentQuery = query;
+        const newUrl = window.location.pathname + '?q=' + encodeURIComponent(query);
+        window.history.pushState({ path: newUrl }, '', newUrl);
+        performSearch(query);
+    }
+
+    // Live search as user types (debounced 400ms)
+    function onSearchInput() {
+    clearTimeout(searchDebounce);
+    const query = document.getElementById('largeSearchInput').value.trim().toLowerCase();
+    if (!query) { showEmptySearch(); return; }
+    searchDebounce = setTimeout(() => {
+        currentQuery = query;
+        const newUrl = window.location.pathname + '?q=' + encodeURIComponent(query);
+        window.history.pushState({ path: newUrl }, '', newUrl);
+        waitForFirebaseThenSearch(query);
+    }, 400);
+}
+
+    // ===================== VIEW ITEM =====================
+    function viewItem(id, category) {
+        window.location.href = `${category}.html?item=${id}`;
+    }
+
+    // ===================== WISHLIST SYNC =====================
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'wishlist') {
+            if (typeof wishlist !== 'undefined') wishlist = JSON.parse(e.newValue) || [];
+            if (currentQuery) performSearch(currentQuery);
+        }
+    });
+
+    // ===================== INIT =====================
+    // Wait for Firebase to be ready, then search
+function waitForFirebaseThenSearch(query) {
+    // If Firebase is already ready, search immediately
+    if (typeof firebase !== 'undefined' && firebase.firestore) {
+        performSearch(query);
+        return;
+    }
+
+    // Otherwise wait for the firebase-ready event fired by firebase-config.js
+    const onReady = () => {
+        window.removeEventListener('firebase-ready', onReady);
+        performSearch(query);
+    };
+    window.addEventListener('firebase-ready', onReady);
+
+    // Safety fallback — if event never fires after 8s show error
+    setTimeout(() => {
+        if (typeof firebase === 'undefined' || !firebase.firestore) {
+            window.removeEventListener('firebase-ready', onReady);
+            console.error('Firebase never became available');
+            const container = document.getElementById('results-container');
+            if (container) container.innerHTML = `
+                <div style="grid-column:1/-1;" class="text-center py-12 text-red-500">
+                    <i class="fa-solid fa-triangle-exclamation text-3xl mb-3 block"></i>
+                    <p>Connection error. Please refresh the page and try again.</p>
+                </div>`;
+        }
+    }, 8000);
+}
+    // Re-render search results when gold/silver prices change
+    window.onPricesUpdated = function(newPrices) {
+        if (allFetchedItems && allFetchedItems.length > 0 && renderedCount > 0) {
+            // Re-render all currently displayed cards with new prices
+            const container = document.getElementById('results-container');
+            if (!container) return;
+            container.innerHTML = '';
+            const toRender = allFetchedItems.slice(0, renderedCount);
+            toRender.forEach(product => {
+                const div = document.createElement('div');
+                div.innerHTML = buildCard(product);
+                container.appendChild(div.firstElementChild);
+            });
+        }
+    };
+
+document.addEventListener('DOMContentLoaded', function() {
+    calcLayout();
+
+    const inp = document.getElementById('largeSearchInput');
+    if (inp) inp.addEventListener('input', onSearchInput);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
+    if (query) {
+        currentQuery = query;
+        if (inp) inp.value = query;
+        waitForFirebaseThenSearch(query);
+    } else {
+        showEmptySearch();
+    }
+
+    window.addEventListener('resize', () => {
+        calcLayout();
+        const container = document.getElementById('results-container');
+        if (container) container.style.gridTemplateColumns = `repeat(${colCount}, minmax(0, 1fr))`;
+    });
+});
+</script>
+</body>
+</html>

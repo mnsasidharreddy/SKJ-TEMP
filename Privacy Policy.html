@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Privacy Policy | SKJ Jewelleries</title>
+    <link rel="icon" type="image/png" href="./images/Screenshot_12-2-2026_195823_localhost.jpeg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --royal-green: #004d40; --gold: #D4AF37; }
+        
+        .policy-container { max-width: 900px; margin: 0 auto; }
+        .policy-section { background: white; border-radius: 1.5rem; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #f3f4f6; }
+        .policy-section h3 { color: var(--royal-green); font-weight: 700; margin-bottom: 1rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+        .policy-section h3 i { color: var(--gold); }
+        .policy-section p, .policy-section li { color: #4b5563; line-height: 1.7; font-size: 0.95rem; }
+        .policy-section ul { padding-left: 1.5rem; }
+        .policy-section li { margin-bottom: 0.5rem; }
+        
+        .hero-section { background: linear-gradient(135deg, var(--royal-green) 0%, #00695c 100%); color: white; padding: 3rem 2rem; border-radius: 1.5rem; margin-bottom: 2rem; text-align: center; }
+        .hero-section h1 { font-family: 'Cinzel', serif; font-size: 2rem; margin-bottom: 0.5rem; }
+        .hero-section p { opacity: 0.9; margin: 0; }
+        
+        .last-updated { display: inline-block; background: var(--gold); color: white; padding: 0.5rem 1rem; border-radius: 999px; font-size: 0.875rem; font-weight: 600; margin-top: 1rem; }
+        
+        .contact-box { background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); border-left: 4px solid var(--gold); padding: 1.5rem; border-radius: 0 1rem 1rem 0; margin-top: 2rem; }
+        .contact-box h4 { color: var(--royal-green); margin-bottom: 0.5rem; }
+        
+        @media (max-width: 768px) {
+            .policy-section { padding: 1.5rem; }
+            .hero-section { padding: 2rem 1rem; }
+            .hero-section h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<!-- Just before </body> -->
+<script src="firebase-config.js"></script>
+<script>
+// Minimal auth check - no Firestore needed
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Static page loaded - auth should persist');
+});
+</script>
+<script src="components.js"></script>
+<body class="bg-slate-50">
+    <div id="header-placeholder"></div>
+    <div id="cta-placeholder"></div>
+
+    <main class="main-content lg:mt-12">
+        <div class="policy-container px-4 py-8">
+            <div class="hero-section">
+                <h1><i class="fa-solid fa-shield-halved mr-3"></i>Privacy Policy</h1>
+                <p>Your privacy is important to us. Learn how we protect your data.</p>
+                <span class="last-updated">Last Updated: 13 February 2026</span>
+            </div>
+
+            <div class="policy-section">
+                <h3><i class="fa-solid fa-circle-info"></i>Introduction</h3>
+                <p>At Sai Kiran Jewelleries ("SKJ", "we", "us", or "our"), we respect your privacy and are committed to protecting the personal information you share with us. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or interact with our services.</p>
+                <p>By using our website, you agree to the collection and use of information in accordance with this policy.</p>
+            </div>
+
+            <div class="policy-section">
+                <h3><i class="fa-solid fa-database"></i>Information We Collect</h3>
+                <ul>
+                    <li><strong>Personal Information:</strong> Name, email address, phone number, shipping address, and billing information when you create an account or place an order.</li>
+                    <li><strong>Transaction Information:</strong> Order history, payment confirmations (we do not store full card details on our servers).</li>
+                    <li><strong>Usage Data:</strong> Pages visited, search queries, device and browser details, IP address, and analytics data.</li>
+                    <li><strong>Cookies:</strong> We use cookies to enhance your browsing experience and analyze website traffic.</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h3><i class="fa-solid fa-bullseye"></i>How We Use Your Information</h3>
+                <ul>
+                    <li>Process and fulfill orders, contact you about your order, and provide customer support</li>
+                    <li>Personalize your experience and show relevant product recommendations</li>
+                    <li>Improve our website, products, and services</li>
+                    <li>Send promotional communications (with your consent)</li>
+                    <li>Comply with legal obligations and prevent fraudulent activities</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h3><i class="fa-solid fa-share-nodes"></i>Information Sharing</h3>
+                <p>We do not sell your personal information. We may share your information with:</p>
+                <ul>
+                    <li><strong>Service Providers:</strong> Payment processors, shipping partners, and IT service providers who assist in our operations</li>
+                    <li><strong>Legal Requirements:</strong> When required by law, court order, or governmental regulation</li>
+                    <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or sale of assets</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h3><i class="fa-solid fa-cookie-bite"></i>Cookies & Tracking</h3>
+                <p>We use cookies and similar tracking technologies to operate the site, provide analytics, and deliver personalized content. You can control cookie preferences through your browser settings.</p>
+            </div>
+
+            <div class="policy-section">
+                <h3><i class="fa-solid fa-lock"></i>Data Security</h3>
+                <p>We implement appropriate technical and organizational measures to protect your personal data, including:</p>
+                <ul>
+                    <li>SSL/TLS encryption for data transmission</li>
+                    <li>Secure payment processing through trusted third parties</li>
+                    <li>Regular security assessments and updates</li>
+                    <li>Access controls and authentication measures</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h3><i class="fa-solid fa-user-shield"></i>Your Rights</h3>
+                <p>You have the right to:</p>
+                <ul>
+                    <li>Access the personal data we hold about you</li>
+                    <li>Request correction of inaccurate or incomplete data</li>
+                    <li>Request deletion of your personal data (subject to legal obligations)</li>
+                    <li>Opt-out of marketing communications</li>
+                    <li>Request data portability where applicable</li>
+                </ul>
+            </div>
+
+            <div class="contact-box">
+                <h4><i class="fa-solid fa-envelope mr-2"></i>Contact Us</h4>
+                <p class="mb-2">For questions about this Privacy Policy or to exercise your rights, contact us at:</p>
+                <p class="mb-1"><strong>Email:</strong> privacy@saikiranjewelleries.com</p>
+                <p class="mb-1"><strong>Phone:</strong> +91 98765 43210</p>
+                <p><strong>Address:</strong> Sai Kiran Jewelleries A/C Showroom, Shop #12, Gold Souk, Main Road, Vijayawada - 520001</p>
+            </div>
+
+            <div class="text-center mt-8">
+                <a href="index.html" class="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-900 font-semibold transition">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Home
+                </a>
+            </div>
+        </div>
+
+        <div id="footer-placeholder"></div>
+    </main>
+
+    <div id="mobile-nav-placeholder"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="components.js"></script>
+</body>
+
+</html>

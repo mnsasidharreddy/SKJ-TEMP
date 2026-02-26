@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price History - Sai Kiran Jewelleries</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase CDN -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    
+    <script src="components.js"></script>
+    <style>
+        :root { 
+            --royal-green: #004d40; 
+            --gold: #D4AF37; 
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); 
+        }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+            cursor: pointer;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, var(--royal-green) 0%, #00695c 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .action-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 77, 64, 0.3);
+        }
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .table-container:hover {
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Today's price highlight */
+        .today-row {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
+            border-left: 4px solid var(--gold);
+            position: relative;
+            margin-left: 0;
+        }
+        .today-badge {
+            background: var(--gold);
+            color: white;
+            font-size: 0.65rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 0.5rem;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* LIVE indicator - inline instead of absolute */
+        .live-indicator {
+            background: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.25rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 0.5rem;
+            display: inline-block;
+            vertical-align: middle;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Real-time update animation */
+        .price-updated {
+            animation: highlightUpdate 1s ease;
+        }
+        @keyframes highlightUpdate {
+            0% { background-color: rgba(212, 175, 55, 0.3); }
+            100% { background-color: transparent; }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+    <div id="mobile-nav-placeholder"></div>
+    
+    <main class="main-content lg:mt-12">
+        <section class="bg-gradient-to-br from-[#004d40] via-[#00695c] to-[#004d40] py-16 md:py-20 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute top-0 left-0 w-72 h-72 bg-[#D4AF37] rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 right-0 w-96 h-96 bg-[#D4AF37] rounded-full blur-3xl"></div>
+            </div>
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <h1 class="font-cinzel text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-wide">
+                    Price History
+                </h1>
+                <p class="text-amber-200/80 text-base md:text-lg max-w-2xl mx-auto">
+                    Today's live prices and historical updates for Gold and Silver.
+                </p>
+            </div>
+        </section>
+        
+        <section class="py-8 md:py-12 -mt-8 relative z-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="bg-white p-6 rounded-2xl shadow-lg mb-8 border-2 border-transparent hover:border-[#D4AF37] transition-all duration-300">
+                    <div class="flex flex-wrap gap-4 items-end justify-between">
+                        <div class="flex flex-wrap gap-4 items-end">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">From Date</label>
+                                <input type="date" id="fromDate" class="form-input" max="">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">To Date</label>
+                                <input type="date" id="toDate" class="form-input" max="">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Metal Type</label>
+                                <select id="typeFilter" class="form-input" onchange="onFilterChange()">
+                                    <option value="gold">Gold</option>
+                                    <option value="silver">Silver</option>
+                                </select>
+                            </div>
+                            <button onclick="applyFilters()" id="filterBtn" class="action-btn">
+                                <i class="fas fa-filter"></i> Apply Filters
+                            </button>
+                        </div>
+                        <div class="text-sm text-gray-500" id="recordCount"></div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead id="tableHeader" class="bg-[#004d40] text-white"></thead>
+                            <tbody id="historyTable" class="divide-y divide-gray-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+    
+    <div id="footer-placeholder"></div>
+    <div id="cta-placeholder"></div>
+    
+    <script>
+        // ==========================================
+        // FIREBASE CONFIGURATION (CDN)
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyATmseHSU3qimkm6pSCJ_xA1EL3_KiHtXs",
+            authDomain: "skj-jewelry-store.firebaseapp.com",
+            projectId: "skj-jewelry-store",
+            storageBucket: "skj-jewelry-store.firebasestorage.app",
+            messagingSenderId: "531463279637",
+            appId: "1:531463279637:web:2ab8aaaa80211045252a1c",
+            measurementId: "G-0S99YE5NR1"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ==========================================
+        // STATE MANAGEMENT
+        // ==========================================
+        let currentFilter = { type: 'gold', from: null, to: null };
+        let currentPriceData = null;
+        let todayUnsubscribe = null;
+        let historyUnsubscribe = null;
+        
+        // Cache for user names to avoid repeated lookups
+        const userNameCache = new Map();
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set max date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fromDate').max = today;
+            document.getElementById('toDate').max = today;
+            
+            // Start real-time listeners
+            setupRealtimeListeners();
+        });
+
+        // Clean up listeners when page unloads
+        window.addEventListener('beforeunload', () => {
+            if (todayUnsubscribe) todayUnsubscribe();
+            if (historyUnsubscribe) historyUnsubscribe();
+        });
+
+        // ==========================================
+        // REAL-TIME LISTENERS (onSnapshot)
+        // ==========================================
+        function setupRealtimeListeners() {
+            const typeFilter = document.getElementById('typeFilter').value;
+            const fromDateVal = document.getElementById('fromDate').value;
+            const toDateVal = document.getElementById('toDate').value;
+            
+            currentFilter = { type: typeFilter, from: fromDateVal, to: toDateVal };
+            
+            // Clean up existing listeners
+            if (todayUnsubscribe) todayUnsubscribe();
+            if (historyUnsubscribe) historyUnsubscribe();
+            
+            // Render headers immediately
+            renderHeaders(typeFilter);
+            
+            // Show initial skeleton
+            showSkeleton(typeFilter === 'gold' ? 6 : 5);
+            
+            // Setup today's price real-time listener
+            setupTodayListener(typeFilter);
+            
+            // Setup historical data listener
+            setupHistoryListener(typeFilter, fromDateVal, toDateVal);
+        }
+
+        function setupTodayListener(typeFilter) {
+            // Real-time listener for today's price
+            todayUnsubscribe = db.collection('prices').doc('current')
+                .onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        currentPriceData = data;
+                        
+                        // Update today's row immediately
+                        updateTodayRow(data, typeFilter);
+                    } else {
+                        console.warn('No current price document found');
+                    }
+                }, (error) => {
+                    console.error('Error in today listener:', error);
+                });
+        }
+
+        function setupHistoryListener(typeFilter, fromDateVal, toDateVal) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            yesterday.setHours(23, 59, 59, 999);
+            
+            // Build query
+            let query = db.collection('priceHistory')
+                .where('type', '==', typeFilter)
+                .where('updatedAt', '<=', firebase.firestore.Timestamp.fromDate(yesterday))
+                .orderBy('updatedAt', 'desc')
+                .limit(100);
+            
+            // Apply date filters
+            if (fromDateVal) {
+                const fromDate = new Date(fromDateVal);
+                fromDate.setHours(0, 0, 0, 0);
+                query = query.where('updatedAt', '>=', firebase.firestore.Timestamp.fromDate(fromDate));
+            }
+            
+            if (toDateVal) {
+                const toDate = new Date(toDateVal);
+                toDate.setHours(23, 59, 59, 999);
+                if (toDate < today) {
+                    query = query.where('updatedAt', '<=', firebase.firestore.Timestamp.fromDate(toDate));
+                }
+            }
+            
+            // Real-time listener for historical data
+            historyUnsubscribe = query.onSnapshot(async (snapshot) => {
+                await processAndRenderHistory(snapshot, typeFilter);
+            }, (error) => {
+                console.error('Error in history listener:', error);
+                showError(error, typeFilter);
+            });
+        }
+
+        // ==========================================
+        // RENDER FUNCTIONS
+        // ==========================================
+        
+        function updateTodayRow(data, typeFilter) {
+            const tbody = document.getElementById('historyTable');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayStr = formatDate(today);
+            
+            // Build today's row data
+            let todayRowData = null;
+            
+            if (typeFilter === 'gold' && data.goldMarketPrice && data.goldSKJPrice) {
+                todayRowData = {
+                    isToday: true,
+                    date: todayStr,
+                    type: 'gold',
+                    marketPrice: data.goldMarketPrice,
+                    skjPrice: data.goldSKJPrice,
+                    updatedAt: data.updatedAt || firebase.firestore.Timestamp.now(),
+                    updatedBy: data.updatedBy || data.updatedByName || 'Siva Anand',
+                    updatedByName: data.updatedByName
+                };
+            } else if (typeFilter === 'silver' && data.silverMarketPrice) {
+                todayRowData = {
+                    isToday: true,
+                    date: todayStr,
+                    type: 'silver',
+                    marketPrice: data.silverMarketPrice,
+                    skjPrice: data.silverMarketPrice,
+                    updatedAt: data.updatedAt || firebase.firestore.Timestamp.now(),
+                    updatedBy: data.updatedBy || data.updatedByName || 'Siva Anand',
+                    updatedByName: data.updatedByName
+                };
+            }
+            
+            if (!todayRowData) return;
+            
+            // Check if today row already exists
+            const existingTodayRow = document.getElementById('today-row');
+            
+            if (existingTodayRow) {
+                // Update existing row with animation
+                const newRow = createRow(todayRowData, typeFilter);
+                newRow.id = 'today-row';
+                newRow.classList.add('price-updated');
+                existingTodayRow.replaceWith(newRow);
+                
+                // Remove animation class after animation completes
+                setTimeout(() => {
+                    newRow.classList.remove('price-updated');
+                }, 1000);
+            } else {
+                // Insert new today row at the top
+                const newRow = createRow(todayRowData, typeFilter);
+                newRow.id = 'today-row';
+                
+                if (tbody.firstChild) {
+                    tbody.insertBefore(newRow, tbody.firstChild);
+                } else {
+                    tbody.appendChild(newRow);
+                }
+            }
+            
+            updateRecordCount();
+        }
+
+        async function processAndRenderHistory(snapshot, typeFilter) {
+            const tbody = document.getElementById('historyTable');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayStr = formatDate(today);
+            
+            // Keep today row if it exists
+            const todayRow = document.getElementById('today-row');
+            
+            // Clear table but preserve today row
+            tbody.innerHTML = '';
+            if (todayRow) {
+                tbody.appendChild(todayRow);
+            }
+            
+            // Process historical data (latest per day)
+            const latestPerDate = new Map();
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const rawDate = safeGetDate(data.updatedAt);
+                if (!rawDate) return;
+                
+                const dateKey = formatDate(rawDate);
+                
+                // Skip if it's today (we handle today separately)
+                if (dateKey === todayStr) return;
+                
+                // Keep only the first (latest) entry per date
+                if (!latestPerDate.has(dateKey)) {
+                    latestPerDate.set(dateKey, {
+                        isToday: false,
+                        date: dateKey,
+                        type: data.type,
+                        marketPrice: data.marketPrice,
+                        skjPrice: data.skjPrice,
+                        updatedAt: data.updatedAt,
+                        updatedBy: data.updatedBy,
+                        updatedByName: data.updatedByName
+                    });
+                }
+            });
+            
+            // Convert to array and sort by date descending
+            const historyRows = Array.from(latestPerDate.values()).sort((a, b) => {
+                return parseDate(b.date) - parseDate(a.date);
+            });
+            
+            if (historyRows.length === 0 && !todayRow) {
+                const colCount = typeFilter === 'gold' ? 6 : 5;
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${colCount}" class="px-6 py-8 text-center text-gray-500 font-semibold">
+                            <i class="fas fa-inbox text-4xl mb-3 text-gray-300 block"></i>
+                            No price history records found.
+                        </td>
+                    </tr>
+                `;
+                updateRecordCount(0);
+                return;
+            }
+            
+            // Collect user IDs for lookup
+            const userIdsToFetch = new Set();
+            historyRows.forEach(row => {
+                const identifier = row.updatedByName || row.updatedBy;
+                if (identifier && !userNameCache.has(identifier) && looksLikeUid(identifier)) {
+                    userIdsToFetch.add(identifier);
+                }
+            });
+            
+            // Fetch user names if needed
+            if (userIdsToFetch.size > 0) {
+                await fetchUsersBatch([...userIdsToFetch]);
+            }
+            
+            // Render historical rows
+            historyRows.forEach(rowData => {
+                const row = createRow(rowData, typeFilter);
+                tbody.appendChild(row);
+            });
+            
+            updateRecordCount();
+        }
+
+        // ==========================================
+        // UI HELPERS
+        // ==========================================
+        
+        function showSkeleton(colCount) {
+            const tbody = document.getElementById('historyTable');
+            tbody.innerHTML = Array(3).fill(0).map(() => `
+                <tr>
+                    <td colspan="${colCount}" class="px-6 py-4">
+                        <div class="skeleton h-4 rounded w-full"></div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showError(error, typeFilter) {
+            const tbody = document.getElementById('historyTable');
+            const colCount = typeFilter === 'gold' ? 6 : 5;
+            
+            if (error.message?.includes('index')) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${colCount}" class="px-6 py-8 text-center text-amber-600 font-semibold">
+                            <i class="fas fa-database text-2xl mb-2 block"></i>
+                            Database index required. Please create the index in Firebase Console.<br>
+                            <code class="text-xs bg-gray-100 p-2 rounded mt-2 inline-block">${error.message}</code>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${colCount}" class="px-6 py-8 text-center text-red-500 font-semibold">
+                            <i class="fas fa-exclamation-circle text-2xl mb-2 block"></i>
+                            Error loading data. Please try again later.<br>
+                            <span class="text-sm text-gray-500">${error.message}</span>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function onFilterChange() {
+            // Real-time update when filter changes
+            setupRealtimeListeners();
+        }
+
+        function applyFilters() {
+            // Button click handler - also triggers real-time update
+            setupRealtimeListeners();
+        }
+
+        // ==========================================
+        // ROW CREATION (Same as before)
+        // ==========================================
+        
+        function renderHeaders(typeFilter) {
+            const thead = document.getElementById('tableHeader');
+            const baseClasses = "px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider font-cinzel";
+            
+            let html = '<tr>';
+            
+            if (typeFilter === 'gold') {
+                html += `<th class="${baseClasses}">Date</th>`;
+                html += `<th class="${baseClasses}">Type</th>`;
+                html += `<th class="${baseClasses}">SKJ 24CT gold</th>`;
+                html += `<th class="${baseClasses}">SKJ 22CT gold</th>`;
+                html += `<th class="${baseClasses} text-[#D4AF37]">22CT 8gm Gold</th>`;
+                html += `<th class="${baseClasses}">Updated By</th>`;
+            } else {
+                html += `<th class="${baseClasses}">Date</th>`;
+                html += `<th class="${baseClasses}">Type</th>`;
+                html += `<th class="${baseClasses}">SKJ silver Price</th>`;
+                html += `<th class="${baseClasses} text-slate-300">1kg 999 Silver</th>`;
+                html += `<th class="${baseClasses}">Updated By</th>`;
+            }
+            
+            html += '</tr>';
+            thead.innerHTML = html;
+        }
+
+        function createRow(rowData, typeFilter) {
+            const row = document.createElement('tr');
+            const isToday = rowData.isToday;
+            
+            row.className = `hover:bg-gray-50 transition-colors border-b border-gray-100 ${isToday ? 'today-row' : ''}`;
+            
+            const typeBadge = `
+                <span class="px-3 py-1 text-xs font-bold rounded-full ${
+                    rowData.type === 'gold'
+                        ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                        : 'bg-slate-100 text-slate-800 border border-slate-200'
+                }">
+                    ${(rowData.type || 'UNKNOWN').toUpperCase()}
+                </span>
+            `;
+
+            // Get admin name with priority: cached name > updatedByName field > lookup from cache > fallback to ID
+            let adminName = 'Siva Anand';
+            const identifier = rowData.updatedByName || rowData.updatedBy;
+            
+            if (identifier) {
+                if (userNameCache.has(identifier)) {
+                    adminName = userNameCache.get(identifier);
+                } else if (rowData.updatedByName) {
+                    adminName = rowData.updatedByName;
+                    userNameCache.set(identifier, adminName);
+                } else if (!looksLikeUid(identifier)) {
+                    adminName = identifier;
+                    userNameCache.set(identifier, adminName);
+                } else {
+                    adminName = 'Siva Anand';
+                }
+            }
+            
+            // Date cell with today badge and live indicator inline
+            let dateCell;
+            if (isToday) {
+                dateCell = `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
+                    ${rowData.date} 
+                    <span class="today-badge">TODAY</span>
+                    <span class="live-indicator">LIVE</span>
+                </td>`;
+            } else {
+                dateCell = `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${rowData.date}</td>`;
+            }
+
+            let html = '';
+
+            if (typeFilter === 'gold') {
+                const unitString = '/gm';
+                const marketPrice = safeNumber(rowData.marketPrice);
+                const skjPrice = safeNumber(rowData.skjPrice);
+                const price8gm = skjPrice * 8;
+
+                html += dateCell;
+                html += `<td class="px-6 py-4 whitespace-nowrap">${typeBadge}</td>`;
+                html += `<td class="px-6 py-4 whitespace-nowrap text-sm ${isToday ? 'font-bold text-amber-700' : 'text-gray-600'}">₹${formatCurrency(marketPrice)}${unitString}</td>`;
+                html += `<td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#004d40]">₹${formatCurrency(skjPrice)}${unitString}</td>`;
+                html += `<td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#D4AF37]">₹${formatCurrency(price8gm)}</td>`;
+                html += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${adminName}</td>`;
+            } else {
+                const unitString = '/10gm';
+                const skjPrice = safeNumber(rowData.skjPrice);
+                const price1kg = skjPrice * 100;
+
+                html += dateCell;
+                html += `<td class="px-6 py-4 whitespace-nowrap">${typeBadge}</td>`;
+                html += `<td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#004d40]">₹${formatCurrency(skjPrice)}${unitString}</td>`;
+                html += `<td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-500">₹${formatCurrency(price1kg)}</td>`;
+                html += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${adminName}</td>`;
+            }
+            
+            row.innerHTML = html;
+            return row;
+        }
+
+        // Check if string looks like a Firebase UID (28 characters, alphanumeric)
+        function looksLikeUid(str) {
+            if (!str || typeof str !== 'string') return false;
+            return /^[a-zA-Z0-9]{28,32}$/.test(str);
+        }
+
+        async function fetchUsersBatch(userIds) {
+            if (userIds.length === 0) return;
+            
+            const batches = [];
+            
+            for (let i = 0; i < userIds.length; i += 10) {
+                batches.push(userIds.slice(i, i + 10));
+            }
+
+            await Promise.all(batches.map(async (batch) => {
+                try {
+                    const snapshot = await db.collection('users')
+                        .where(firebase.firestore.FieldPath.documentId(), 'in', batch)
+                        .get();
+                    
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const uid = doc.id;
+                        const displayName = data.displayName || data.name || data.email || uid;
+                        userNameCache.set(uid, displayName);
+                        
+                        if (data.email) {
+                            userNameCache.set(data.email, displayName);
+                        }
+                    });
+
+                    batch.forEach(uid => {
+                        if (!userNameCache.has(uid)) {
+                            if (!looksLikeUid(uid)) {
+                                userNameCache.set(uid, uid);
+                            } else {
+                                userNameCache.set(uid, 'Siva Anand');
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.warn('Error fetching users batch:', e);
+                    batch.forEach(uid => {
+                        if (!userNameCache.has(uid)) {
+                            userNameCache.set(uid, looksLikeUid(uid) ? 'Siva Anand' : uid);
+                        }
+                    });
+                }
+            }));
+        }
+
+        function updateRecordCount() {
+            const tbody = document.getElementById('historyTable');
+            const count = tbody.querySelectorAll('tr').length;
+            const el = document.getElementById('recordCount');
+            el.textContent = `Showing ${count} date${count !== 1 ? 's' : ''} (today + history)`;
+        }
+
+        // ==========================================
+        // UTILITY FUNCTIONS
+        // ==========================================
+        
+        function safeGetDate(timestamp) {
+            if (!timestamp) return null;
+            try {
+                if (timestamp.toDate) return timestamp.toDate();
+                if (timestamp instanceof Date) return timestamp;
+                if (typeof timestamp === 'number') return new Date(timestamp);
+                return new Date(timestamp);
+            } catch (e) {
+                console.warn('Invalid date:', timestamp);
+                return null;
+            }
+        }
+
+        function formatDate(date) {
+            const d = date instanceof Date ? date : new Date(date);
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yyyy = d.getFullYear();
+            return `${dd}-${mm}-${yyyy}`;
+        }
+
+        function parseDate(dateStr) {
+            const [dd, mm, yyyy] = dateStr.split('-').map(Number);
+            return new Date(yyyy, mm - 1, dd);
+        }
+
+        function safeNumber(val) {
+            const num = parseFloat(val);
+            return isNaN(num) ? 0 : num;
+        }
+
+        function formatCurrency(num) {
+            return num.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+        }
+
+        // Make functions globally available
+        window.loadHistory = setupRealtimeListeners;
+        window.onFilterChange = onFilterChange;
+        window.applyFilters = applyFilters;
+    </script>
+</body>
+</html>

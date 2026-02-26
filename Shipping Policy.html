@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Shipping Policy | SKJ Jewelleries</title>
+    <link rel="icon" type="image/png" href="./images/Screenshot_12-2-2026_195823_localhost.jpeg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --royal-green: #004d40; --gold: #D4AF37; }
+        
+        .policy-container { max-width: 900px; margin: 0 auto; }
+        .policy-section { background: white; border-radius: 1.5rem; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #f3f4f6; }
+        .policy-section h3 { color: var(--royal-green); font-weight: 700; margin-bottom: 1rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+        .policy-section h3 i { color: var(--gold); }
+        .policy-section p, .policy-section li { color: #4b5563; line-height: 1.7; font-size: 0.95rem; }
+        .policy-section ul { padding-left: 1.5rem; }
+        .policy-section li { margin-bottom: 0.5rem; }
+        
+        .hero-section { background: linear-gradient(135deg, var(--royal-green) 0%, #00695c 100%); color: white; padding: 3rem 2rem; border-radius: 1.5rem; margin-bottom: 2rem; text-align: center; }
+        .hero-section h1 { font-family: 'Cinzel', serif; font-size: 2rem; margin-bottom: 0.5rem; }
+        .hero-section p { opacity: 0.9; margin: 0; }
+        
+        .last-updated { display: inline-block; background: var(--gold); color: white; padding: 0.5rem 1rem; border-radius: 999px; font-size: 0.875rem; font-weight: 600; margin-top: 1rem; }
+        
+        .shipping-card { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #86efac; border-radius: 1rem; padding: 1.5rem; margin: 1rem 0; }
+        .shipping-card h4 { color: var(--royal-green); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .shipping-card i { color: var(--gold); }
+        
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+        .feature-item { background: #f9fafb; padding: 1rem; border-radius: 0.75rem; text-align: center; }
+        .feature-item i { font-size: 1.5rem; color: var(--gold); margin-bottom: 0.5rem; }
+        .feature-item h5 { font-size: 0.875rem; color: var(--royal-green); margin: 0; }
+        
+        @media (max-width: 768px) {
+            .policy-section { padding: 1.5rem; }
+            .hero-section { padding: 2rem 1rem; }
+            .hero-section h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<!-- Just before </body> -->
+<script src="firebase-config.js"></script>
+<script>
+// Minimal auth check - no Firestore needed
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Static page loaded - auth should persist');
+});
+</script>
+<script src="components.js"></script>
+<body class="bg-slate-50">
+    <div id="header-placeholder"></div>
+    <div id="cta-placeholder"></div>
+
+    <main class="main-content lg:mt-12">
+        <div class="policy-container px-4 py-8">
+            <div class="hero-section">
+                <h1><i class="fa-solid fa-truck-fast mr-3"></i>Shipping Policy</h1>
+                <p>Fast, secure, and insured delivery of your precious jewelry.</p>
+                <span class="last-updated">Last Updated: 13 February 2026</span>
+            </div>
+
+            <div class="policy-section">
+                <h3><i class="fa-solid fa-box-open"></i>Order Processing</h3>
+                <p>We understand that you're excited to receive your jewelry. Here's how we process orders:</p>
+                <ul>
+                    <li>Orders are processed within 1-3 business days after payment confirmation</li>
+                    <li>Customized or made-to-order pieces may require additional processing time (7-14 days)</li>
+                    <li>You will receive an order confirmation email immediately after placing your order</li>
+                    <li>A shipping confirmation email with tracking details will be sent once your order is dispatched</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h3><i class="fa-solid fa-truck"></i>Shipping Methods & Delivery Times</h3>
+                
+                <div class="shipping-card">
+                    <h4><i class="fa-solid fa-shipping-fast"></i>Standard Delivery</h4>
+                    <p>3-7 business days within major cities. Free shipping on orders above ₹10,000.</p>
+                </div>
+                
+                <div class="shipping-card">
+                    <h4><i class="fa-solid fa-bolt"></i>Express Delivery</h4>
+                    <p>1-2 business days (available in select cities). Additional charges apply based on location.</p>
+                </div>
+                
+                <div class="shipping-card">
+                    <h4><i class="fa-solid fa-plane"></i>International Shipping</h4>
+                    <p>7-14 business days depending on destination. Customs duties and taxes may apply.</p>
+                </div>
+            </div>
+
+            <div class="policy-section">
+                <h3><i class="fa-solid fa-shield-heart"></i>Insurance & Security</h3>
+                <p>Your jewelry's safety is our top priority:</p>
+                <ul>
+                    <li>All shipments are fully insured against loss, theft, or damage during transit</li>
+                    <li>Packages are discreetly packed without branding to ensure security</li>
+                    <li>Tamper-evident packaging ensures your order arrives intact</li>
+                    <li>Signature confirmation is required for all deliveries</li>
+                    <li>High-value orders may require additional verification at delivery</li>
+                </ul>
+                
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <i class="fa-solid fa-shield-check"></i>
+                        <h5>Fully Insured</h5>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-box"></i>
+                        <h5>Secure Packaging</h5>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-signature"></i>
+                        <h5>Signature Required</h5>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <h5>Real-time Tracking</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="policy-section">
+                <h3><i class="fa-solid fa-money-bill"></i>Shipping Charges</h3>
+                <ul>
+                    <li><strong>Free Shipping:</strong> Available on all orders above ₹10,000 within India</li>
+                    <li><strong>Standard Shipping:</strong> ₹150 for orders below ₹10,000</li>
+                    <li><strong>Express Shipping:</strong> ₹350 (calculated at checkout based on location)</li>
+                    <li><strong>Cash on Delivery (COD):</strong> Additional ₹100 handling fee applies</li>
+                    <li><strong>International:</strong> Calculated based on destination and order value</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h3><i class="fa-solid fa-map-location-dot"></i>Delivery Areas</h3>
+                <p>We deliver to most locations across India including:</p>
+                <ul>
+                    <li>All major metropolitan cities (Mumbai, Delhi, Bangalore, Chennai, Hyderabad, Kolkata, Pune)</li>
+                    <li>Tier-2 and Tier-3 cities through our courier partners</li>
+                    <li>Remote areas may require additional delivery time</li>
+                    <li>International shipping available to select countries (contact us for details)</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h3><i class="fa-solid fa-circle-exclamation"></i>Important Notes</h3>
+                <ul>
+                    <li>Delivery times are estimates and may vary due to unforeseen circumstances</li>
+                    <li>We are not responsible for delays caused by courier services or natural disasters</li>
+                    <li>Please ensure the shipping address is accurate and complete</li>
+                    <li>Failed delivery attempts may result in additional charges for re-delivery</li>
+                    <li>For high-value orders, we may contact you to verify delivery details</li>
+                </ul>
+            </div>
+
+            <div class="text-center mt-8">
+                <a href="index.html" class="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-900 font-semibold transition">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Home
+                </a>
+            </div>
+        </div>
+
+        <div id="footer-placeholder"></div>
+    </main>
+
+    <div id="mobile-nav-placeholder"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="components.js"></script>
+</body>
+
+</html>

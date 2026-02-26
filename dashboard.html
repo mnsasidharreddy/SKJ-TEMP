@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Dashboard - SKJ Jewellers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin-layout.css">
+    <!--<style>
+        /* Sidebar width match - ensure consistency with analytics.html */
+        #sidebar-container, .sidebar, .admin-sidebar {
+            width: 256px !important; /* w-64 = 256px */
+            min-width: 256px !important;
+        }
+        .main-content {
+            margin-left: 256px !important;
+        }
+        @media (max-width: 1023px) {
+            #sidebar-container, .sidebar, .admin-sidebar {
+                width: 100% !important;
+                min-width: auto !important;
+                position: fixed;
+                left: -100%;
+                z-index: 50;
+                transition: left 0.3s ease;
+            }
+            #sidebar-container.open, .sidebar.open, .admin-sidebar.open {
+                left: 0 !important;
+            }
+            .main-content {
+                margin-left: 0 !important;
+            }
+        }
+        /* Active state styling for toggle blocks */
+        .block-active {
+            border-left: 4px solid #10b981 !important;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%) !important;
+        }
+        .block-active .info-block-title i {
+            color: #10b981 !important;
+        }
+        /* Permission error banner */
+        .permission-error {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            color: #92400e;
+        }
+        .permission-error code {
+            background: #fde68a;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+        }
+        /* Text truncation helpers */
+        .text-truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .text-truncate-2 {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        /* Toggle switch styling */
+        .toggle-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .toggle-wrapper input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-track {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #d1d5db;
+            transition: .3s;
+            border-radius: 24px;
+        }
+        .toggle-track:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-track {
+            background-color: #10b981;
+        }
+        input:checked + .toggle-track:before {
+            transform: translateX(20px);
+        }
+    </style>-->
+</head>
+<body>
+
+    <!-- === SIDEBAR CONTAINER (Loaded via JS) === -->
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <header class="bg-white shadow-sm px-4 md:px-6 py-3 flex justify-between items-center sticky top-0 z-40">
+            <div class="min-w-0">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800 text-truncate">Dashboard</h2>
+                <p class="text-gray-600 text-sm">Welcome, <span id="adminName" class="font-medium">Admin</span></p>
+            </div>
+            <div class="flex items-center space-x-3 flex-shrink-0">
+                <span class="text-xs md:text-sm text-gray-500 hidden sm:inline" id="currentDate"></span>
+                <button onclick="logout()" class="bg-royal-green text-white w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 hover:bg-opacity-90 transition" title="Logout">
+                    <i class="fas fa-sign-out-alt text-sm"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="content-wrapper p-4 md:p-6">
+            <!-- Permission Error Banner -->
+            <div id="permissionError" class="permission-error hidden">
+                <strong>⚠️ Firebase Permission Error:</strong> Missing or insufficient permissions.<br>
+                <code>Fix:</code> Update your Firestore Security Rules (see console for details).
+            </div>
+
+            <!-- Market Rates Section -->
+            <h3 class="text-base md:text-lg font-semibold text-gray-700 mb-3 text-truncate">Current Market Rates</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- 24CT Gold -->
+                <div class="stat-card bg-white rounded-lg shadow border-l-4 border-yellow-500 p-4">
+                    <div class="flex justify-between items-start">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-truncate-2 text-sm text-gray-500">SKJ 24CT Gold/gm</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1" id="statGoldMarket">₹--</p>
+                        </div>
+                        <i class="fas fa-coins text-yellow-500 text-xl flex-shrink-0 ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- 22CT Gold -->
+                <div class="stat-card bg-white rounded-lg shadow border-l-4 border-orange-500 p-4">
+                    <div class="flex justify-between items-start">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-truncate-2 text-sm text-gray-500">SKJ 22CT Gold/gm</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1" id="statGoldSKJ">₹--</p>
+                        </div>
+                        <i class="fas fa-coins text-yellow-500 text-xl flex-shrink-0 ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- Silver -->
+                <div class="stat-card bg-white rounded-lg shadow border-l-4 border-gray-400 p-4">
+                    <div class="flex justify-between items-start">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-truncate-2 text-sm text-gray-500">SKJ Silver/10gm</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1" id="statSilverMarket">₹--</p>
+                        </div>
+                        <i class="fas fa-ring text-gray-400 text-xl flex-shrink-0 ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- Gold Display Toggle -->
+                <div class="stat-card bg-white rounded-lg shadow border-l-4 border-blue-500 p-4" id="goldDisplayBlock">
+                    <div class="flex justify-between items-start">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-truncate text-sm font-semibold text-gray-700">SKJ 24CT DISPLAY</p>
+                            <p class="text-xs text-gray-400 mt-1">Show/hide 24CT in marquee</p>
+                        </div>
+                        <label class="toggle-wrapper flex-shrink-0 ml-2">
+                            <input type="checkbox" id="toggleGoldDisplay" onchange="toggleGoldDisplay()"/>
+                            <span class="toggle-track"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                <!-- Gold Safety -->
+                <div class="info-block bg-white rounded-lg shadow p-4" id="goldSafetyBlock">
+                    <div class="info-block-header flex justify-between items-start">
+                        <div class="info-block-title flex items-center gap-2 min-w-0 flex-1">
+                            <i class="fas fa-shield-alt text-lg text-gold flex-shrink-0"></i>
+                            <h4 class="text-truncate font-semibold text-gray-700">Gold Safety (Protection)</h4>
+                        </div>
+                        <label class="toggle-wrapper flex-shrink-0">
+                            <input type="checkbox" id="toggleGoldSafety" onchange="toggleGoldSafety()"/>
+                            <span class="toggle-track"></span>
+                        </label>
+                    </div>
+                    <p class="info-block-desc text-sm text-gray-500 mt-2">Enable/Disable Ups and Downs Protection logic for price stability.</p>
+                </div>
+
+                <!-- Store Status -->
+                <div class="info-block bg-white rounded-lg shadow p-4" id="storeStatusBlock">
+                    <div class="info-block-header flex justify-between items-start">
+                        <div class="info-block-title flex-1 min-w-0">
+                            <h4 class="text-truncate font-semibold text-gray-700">Store Status</h4>
+                        </div>
+                        <label class="toggle-wrapper flex-shrink-0">
+                            <input type="checkbox" id="toggleStoreStatus" onchange="toggleStoreStatus()"/>
+                            <span class="toggle-track"></span>
+                        </label>
+                    </div>
+                    <p class="info-block-desc text-sm text-gray-500 mt-2" id="storeStatusText">Store is closed</p>
+                </div>
+            </div>
+
+            <!-- Overview Stats -->
+            <div class="mt-6 pb-4">
+                <h3 class="text-base md:text-lg font-semibold text-gray-700 mb-3 text-truncate">Overview</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Total Enquiries -->
+                    <div class="bg-white p-4 md:p-5 rounded-lg shadow flex items-center justify-between">
+                        <div class="min-w-0">
+                            <p class="text-gray-500 text-xs md:text-sm text-truncate">Total Enquiries</p>
+                            <p class="text-2xl md:text-3xl font-bold text-royal-green mt-1" id="totalOrders">0</p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full flex-shrink-0">
+                            <i class="fas fa-clipboard-list text-green-600 text-lg"></i>
+                        </div>
+                    </div>
+                    <!-- Price Updates Today -->
+                    <div class="bg-white p-4 md:p-5 rounded-lg shadow flex items-center justify-between">
+                        <div class="min-w-0">
+                            <p class="text-gray-500 text-xs md:text-sm text-truncate">Price Updates Today</p>
+                            <p class="text-2xl md:text-3xl font-bold text-blue-600 mt-1" id="priceUpdatesToday">0</p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full flex-shrink-0">
+                            <i class="fas fa-chart-line text-blue-600 text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Load Firebase Compat SDK first (matches firebase-config.js) -->
+    <script src="firebase-config.js"></script>
+    <script src="sidebar.js"></script>
+
+    <!-- Dashboard Logic - Uses Compat SDK to match firebase-config.js -->
+    <script>
+        // ===================== DASHBOARD INIT =====================
+        let dashboardInitialized = false;
+        let priceListener = null;
+        let settingsListener = null;
+        let ordersListener = null;
+
+        // Wait for Firebase to be ready
+        window.addEventListener('firebase-ready', () => {
+            setTimeout(initDashboard, 500);
+        });
+
+        // Fallback if event already fired
+        if (typeof firebase !== 'undefined' && firebase.apps?.length > 0) {
+            setTimeout(initDashboard, 300);
+        }
+
+        async function initDashboard() {
+            if (dashboardInitialized) return;
+            dashboardInitialized = true;
+            
+            console.log('🔧 Dashboard init started');
+            
+            // Check auth using Compat SDK
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+            
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) {
+                    console.log('⚠️ No user - redirecting to login');
+                    setTimeout(() => window.location.href = 'login.html', 1500);
+                    return;
+                }
+                
+                // Verify admin role
+                try {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (!userDoc.exists || userDoc.data().role !== 'admin') {
+                        console.log('⚠️ Not admin - redirecting');
+                        setTimeout(() => window.location.href = 'index.html', 1500);
+                        return;
+                    }
+                    // Update welcome name
+                    const nameEl = document.getElementById('adminName');
+                    if (nameEl) {
+                        nameEl.textContent = userDoc.data().displayName || user.email?.split('@')[0] || 'Admin';
+                    }
+                } catch(e) {
+                    console.error('Role check error:', e);
+                    showPermissionError();
+                    return;
+                }
+                
+                // Load all data
+                await loadMarketRates();
+                await loadSettings();
+                await loadOverviewStats();
+                
+                // Setup real-time listeners
+                setupRealTimeListeners();
+                
+                console.log('✅ Dashboard loaded');
+            });
+            
+            // Set date
+            const dateEl = document.getElementById('currentDate');
+            if (dateEl) {
+                dateEl.textContent = new Date().toLocaleDateString('en-IN', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                });
+            }
+        }
+
+        // ===================== DATA LOADING =====================
+        async function loadMarketRates() {
+            try {
+                const db = firebase.firestore();
+                const doc = await db.collection('prices').doc('current').get();
+                
+                if (doc.exists) {
+                    const data = doc.data();
+                    updatePriceDisplay('statGoldMarket', data.goldMarketPrice);
+                    updatePriceDisplay('statGoldSKJ', data.goldSKJPrice);
+                    updatePriceDisplay('statSilverMarket', data.silverMarketPrice);
+                }
+            } catch(e) {
+                console.error('Rates error:', e);
+                if (e.code === 'permission-denied') showPermissionError();
+            }
+        }
+
+        function updatePriceDisplay(id, value) {
+            const el = document.getElementById(id);
+            if (el && value !== undefined && value !== null) {
+                el.textContent = `₹${Number(value).toLocaleString('en-IN')}`;
+                el.classList.remove('text-gray-400');
+                el.classList.add('text-gray-800', 'font-bold');
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                const db = firebase.firestore();
+                const doc = await db.collection('settings').doc('dashboard').get();
+                const data = doc.exists ? doc.data() : {};
+                
+                // Gold Display Toggle
+                const goldToggle = document.getElementById('toggleGoldDisplay');
+                if (goldToggle) {
+                    goldToggle.checked = data.goldDisplayEnabled === true;
+                    updateGoldDisplayUI(data.goldDisplayEnabled === true);
+                }
+                
+                // Gold Safety Toggle
+                const safetyToggle = document.getElementById('toggleGoldSafety');
+                if (safetyToggle) {
+                    safetyToggle.checked = data.goldSafetyEnabled === true;
+                    updateGoldSafetyUI(data.goldSafetyEnabled === true);
+                }
+                
+                // Store Status Toggle
+                const storeToggle = document.getElementById('toggleStoreStatus');
+                const statusText = document.getElementById('storeStatusText');
+                if (storeToggle && statusText) {
+                    const isOpen = data.storeOpen === true;
+                    storeToggle.checked = isOpen;
+                    updateStoreStatusUI(isOpen);
+                }
+            } catch(e) {
+                console.error('Settings error:', e);
+                if (e.code === 'permission-denied') showPermissionError();
+            }
+        }
+
+        async function loadOverviewStats() {
+            try {
+                const db = firebase.firestore();
+                
+                // Count enquiries (fallback if count() unsupported)
+                let enquiryCount = 0;
+                try {
+                    const snap = await db.collection('enquiries').count().get();
+                    enquiryCount = snap.data().count || 0;
+                } catch {
+                    const snap = await db.collection('enquiries').get();
+                    enquiryCount = snap.size;
+                }
+                const el1 = document.getElementById('totalOrders');
+                if (el1) el1.textContent = enquiryCount.toLocaleString();
+                
+                // Price updates today (simplified - show 0 if error)
+                const el2 = document.getElementById('priceUpdatesToday');
+                if (el2) {
+                    try {
+                        const today = new Date();
+                        today.setHours(0,0,0,0);
+                        // Try Timestamp-based query first, fallback to full fetch
+                        let count = 0;
+                        try {
+                            const snap = await db.collection('priceHistory')
+                                .where('updatedAt', '>=', firebase.firestore.Timestamp.fromDate(today))
+                                .get();
+                            count = snap.size;
+                        } catch {
+                            // If priceHistory doesn't exist or timestamp fails,
+                            // check prices/current doc's updatedAt instead
+                            try {
+                                const priceDoc = await db.collection('prices').doc('current').get();
+                                if (priceDoc.exists) {
+                                    const updatedAt = priceDoc.data().updatedAt;
+                                    const updatedDate = updatedAt?.toDate ? updatedAt.toDate() : new Date(updatedAt);
+                                    count = updatedDate >= today ? 1 : 0;
+                                }
+                            } catch { count = 0; }
+                        }
+                        el2.textContent = count.toLocaleString();
+                    } catch {
+                        el2.textContent = '0';
+                    }
+                }
+            } catch(e) {
+                console.error('Stats error:', e);
+            }
+        }
+
+        // ===================== REAL-TIME LISTENERS =====================
+        function setupRealTimeListeners() {
+            const db = firebase.firestore();
+            
+            // Prices listener
+            if (priceListener) priceListener();
+            priceListener = db.collection('prices').doc('current').onSnapshot((doc) => {
+                if (doc.exists) {
+                    const d = doc.data();
+                    updatePriceDisplay('statGoldMarket', d.goldMarketPrice);
+                    updatePriceDisplay('statGoldSKJ', d.goldSKJPrice);
+                    updatePriceDisplay('statSilverMarket', d.silverMarketPrice);
+                }
+            }, (err) => {
+                console.error('Price listener error:', err);
+                if (err.code === 'permission-denied') showPermissionError();
+            });
+            
+            // Settings listener
+            if (settingsListener) settingsListener();
+            settingsListener = db.collection('settings').doc('dashboard').onSnapshot((doc) => {
+                if (doc.exists) {
+                    const d = doc.data();
+                    const goldToggle = document.getElementById('toggleGoldDisplay');
+                    const safetyToggle = document.getElementById('toggleGoldSafety');
+                    const storeToggle = document.getElementById('toggleStoreStatus');
+                    const statusText = document.getElementById('storeStatusText');
+                    
+                    if (goldToggle && goldToggle.checked !== d.goldDisplayEnabled) {
+                        goldToggle.checked = d.goldDisplayEnabled === true;
+                        updateGoldDisplayUI(d.goldDisplayEnabled === true);
+                    }
+                    if (safetyToggle && safetyToggle.checked !== d.goldSafetyEnabled) {
+                        safetyToggle.checked = d.goldSafetyEnabled === true;
+                        updateGoldSafetyUI(d.goldSafetyEnabled === true);
+                    }
+                    if (storeToggle && statusText && storeToggle.checked !== d.storeOpen) {
+                        storeToggle.checked = d.storeOpen === true;
+                        updateStoreStatusUI(d.storeOpen === true);
+                    }
+                }
+            }, (err) => {
+                if (err.code === 'permission-denied') showPermissionError();
+            });
+            
+            // Orders listener for total enquiries
+            if (ordersListener) ordersListener();
+            ordersListener = db.collection('orders').onSnapshot((snap) => {
+                const el = document.getElementById('totalOrders');
+                if (el) el.textContent = snap.size.toLocaleString();
+            }, (err) => {
+                console.warn('Orders listener:', err);
+            });
+        }
+
+        // ===================== TOGGLE FUNCTIONS =====================
+        window.toggleGoldDisplay = async function() {
+            const toggle = document.getElementById('toggleGoldDisplay');
+            if (!toggle) return;
+            const isEnabled = toggle.checked;
+            try {
+                await firebase.firestore().collection('settings').doc('dashboard')
+                    .set({ goldDisplayEnabled: isEnabled, updatedAt: new Date().toISOString() }, { merge: true });
+                updateGoldDisplayUI(isEnabled);
+                // Sync to localStorage for marquee on index.html
+                localStorage.setItem('skj_gold24ct_display', isEnabled ? 'true' : 'false');
+            } catch (error) {
+                console.error('❌ Gold Display error:', error);
+                toggle.checked = !isEnabled;
+                updateGoldDisplayUI(!isEnabled);
+                if (error.code === 'permission-denied') showPermissionError();
+            }
+        };
+
+        function updateGoldDisplayUI(isEnabled) {
+            const block = document.getElementById('goldDisplayBlock');
+            if (block) {
+                isEnabled ? block.classList.add('block-active') : block.classList.remove('block-active');
+            }
+        }
+
+        window.toggleGoldSafety = async function() {
+            const toggle = document.getElementById('toggleGoldSafety');
+            if (!toggle) return;
+            const isEnabled = toggle.checked;
+            try {
+                await firebase.firestore().collection('settings').doc('dashboard')
+                    .set({ goldSafetyEnabled: isEnabled, updatedAt: new Date().toISOString() }, { merge: true });
+                updateGoldSafetyUI(isEnabled);
+            } catch (error) {
+                console.error('❌ Gold Safety error:', error);
+                toggle.checked = !isEnabled;
+                updateGoldSafetyUI(!isEnabled);
+                if (error.code === 'permission-denied') showPermissionError();
+            }
+        };
+
+        function updateGoldSafetyUI(isEnabled) {
+            const block = document.getElementById('goldSafetyBlock');
+            if (block) {
+                isEnabled ? block.classList.add('block-active') : block.classList.remove('block-active');
+            }
+        }
+
+        window.toggleStoreStatus = async function() {
+            const toggle = document.getElementById('toggleStoreStatus');
+            if (!toggle) return;
+            const isOpen = toggle.checked;
+            try {
+                await firebase.firestore().collection('settings').doc('dashboard')
+                    .set({ storeOpen: isOpen, updatedAt: new Date().toISOString() }, { merge: true });
+                updateStoreStatusUI(isOpen);
+                // No redirect for admin — all other users (index.html) will be
+                // redirected automatically by the real-time listener already in index.html
+            } catch (error) {
+                console.error('❌ Store Status error:', error);
+                toggle.checked = !isOpen;
+                updateStoreStatusUI(!isOpen);
+                if (error.code === 'permission-denied') showPermissionError();
+            }
+        };
+
+        function updateStoreStatusUI(isOpen) {
+            const block = document.getElementById('storeStatusBlock');
+            const statusText = document.getElementById('storeStatusText');
+            if (block && statusText) {
+                if (isOpen) {
+                    block.classList.add('block-active');
+                    statusText.textContent = 'Store is currently open';
+                } else {
+                    block.classList.remove('block-active');
+                    statusText.textContent = 'Store is currently closed';
+                }
+            }
+        }
+
+        // ===================== UTILITIES =====================
+        function showPermissionError() {
+            const banner = document.getElementById('permissionError');
+            if (banner) banner.classList.remove('hidden');
+            console.error('🔐 Firebase Permission Error: Check Firestore Security Rules');
+        }
+
+        window.logout = async function() {
+            if (!confirm('Are you sure you want to logout?')) return;
+            try {
+                await firebase.auth().signOut();
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+
+        // Cleanup listeners on unload
+        window.addEventListener('beforeunload', () => {
+            if (priceListener) priceListener();
+            if (settingsListener) settingsListener();
+            if (ordersListener) ordersListener();
+        });
+
+        // Initialize on DOM ready if Firebase already loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                if (typeof firebase !== 'undefined' && firebase.apps?.length > 0) {
+                    setTimeout(initDashboard, 300);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

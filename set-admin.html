@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Setup Admin - SKJ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+        <h1 class="text-2xl font-bold text-center mb-6 text-green-800">SKJ Admin Setup</h1>
+        
+        <div id="step1" class="space-y-4">
+            <h2 class="font-semibold">Step 1: Create Admin Account</h2>
+            <input type="email" id="email" placeholder="Admin Email" class="w-full border p-2 rounded" value="admin@skj.com">
+            <input type="password" id="password" placeholder="Password" class="w-full border p-2 rounded">
+            <button onclick="createAdmin()" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
+                Create Admin User
+            </button>
+        </div>
+
+        <div id="step2" class="hidden space-y-4">
+            <h2 class="font-semibold text-green-600"><i class="fas fa-check"></i> Admin Created!</h2>
+            <p class="text-sm text-gray-600">You can now login at <a href="login.html" class="text-blue-600">login.html</a></p>
+        </div>
+
+        <div id="error" class="hidden mt-4 p-3 bg-red-100 text-red-700 rounded"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyATmseHSU3qimkm6pSCJ_xA1EL3_KiHtXs",
+            authDomain: "skj-jewelry-store.firebaseapp.com",
+            projectId: "skj-jewelry-store",
+            storageBucket: "skj-jewelry-store.firebasestorage.app",
+            messagingSenderId: "531463279637",
+            appId: "1:531463279637:web:2ab8aaaa80211045252a1c",
+            measurementId: "G-0S99YE5NR1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.createAdmin = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('error');
+            
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Create admin document
+                await setDoc(doc(db, 'users', user.uid), {
+                    uid: user.uid,
+                    email: email,
+                    displayName: 'Admin',
+                    role: 'admin',
+                    createdAt: serverTimestamp()
+                });
+
+                document.getElementById('step1').classList.add('hidden');
+                document.getElementById('step2').classList.remove('hidden');
+                
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            }
+        };
+    </script>
+</body>
+</html>

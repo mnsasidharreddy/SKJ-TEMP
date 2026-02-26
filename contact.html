@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Sai Kiran Jewelleries A/C</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="components.js"></script>
+    <style>
+        :root { --royal-green: #004d40; --gold: #D4AF37; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        
+        /* Contact Card Styles */
+        .contact-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .contact-card:hover {
+            border-color: var(--gold);
+            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.15);
+            transform: translateY(-4px);
+        }
+        .contact-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Form Styles */
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+        .form-input::placeholder { color: #94a3b8; }
+        
+        /* Submit Button */
+        .submit-btn {
+            background: linear-gradient(135deg, var(--royal-green) 0%, #00695c 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 77, 64, 0.3);
+        }
+        
+        /* Map Container */
+        .map-container {
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .map-container:hover {
+            border-color: var(--gold);
+        }
+        
+        /* Business Hours */
+        .hours-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .hours-row:last-child { border-bottom: none; }
+        
+        /* Social Icons */
+        .social-link {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+            background: white;
+            border: 2px solid #e2e8f0;
+            color: var(--royal-green);
+        }
+        .social-link:hover {
+            border-color: var(--gold);
+            background: var(--gold);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        /* Section Title */
+        .section-title {
+            position: relative;
+            display: inline-block;
+            padding-bottom: 0.75rem;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+    </style>
+</head>
+    <!-- Just before </body> -->
+<script src="firebase-config.js"></script>
+<script>
+// Minimal auth check - no Firestore needed
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Static page loaded - auth should persist');
+});
+</script>
+<script src="components.js"></script>
+<body>
+    <div id="header-placeholder"></div>
+    <div id="mobile-nav-placeholder"></div>
+    
+    <main class="main-content lg:mt-12">
+        <!-- Hero Section -->
+        <section class="bg-gradient-to-br from-[#004d40] via-[#00695c] to-[#004d40] py-16 md:py-24 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute top-0 left-0 w-72 h-72 bg-[#D4AF37] rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 right-0 w-96 h-96 bg-[#D4AF37] rounded-full blur-3xl"></div>
+            </div>
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <h1 class="font-cinzel text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-wide">
+                    Get in Touch
+                </h1>
+                <p class="text-amber-200/80 text-base md:text-lg max-w-2xl mx-auto">
+                    We'd love to hear from you. Visit our showroom or reach out through any of our channels.
+                </p>
+            </div>
+        </section>
+        
+        <!-- Contact Cards Section -->
+        <section class="py-12 md:py-16 -mt-8 relative z-20">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <!-- Phone -->
+                    <a href="tel:+919876543210" class="contact-card text-center group">
+                        <div class="contact-icon bg-emerald-100 text-emerald-700 mx-auto group-hover:bg-emerald-700 group-hover:text-white transition">
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800 mb-1">Phone</h3>
+                        <p class="text-sm text-gray-600">+91 98765 43210</p>
+                        <span class="text-xs text-amber-600 font-medium mt-2 inline-block">Call Now →</span>
+                    </a>
+                    
+                    <!-- WhatsApp -->
+                    <a href="https://wa.me/919876543210?text=Hello%20Sai%20Kiran%20Jewelleries" class="contact-card text-center group">
+                        <div class="contact-icon bg-green-100 text-green-600 mx-auto group-hover:bg-green-500 group-hover:text-white transition">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800 mb-1">WhatsApp</h3>
+                        <p class="text-sm text-gray-600">+91 98765 43210</p>
+                        <span class="text-xs text-amber-600 font-medium mt-2 inline-block">Chat Now →</span>
+                    </a>
+                    
+                    <!-- Email -->
+                    <a href="mailto:info@saikiranjewelleries.com" class="contact-card text-center group">
+                        <div class="contact-icon bg-amber-100 text-amber-600 mx-auto group-hover:bg-amber-500 group-hover:text-white transition">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800 mb-1">Email</h3>
+                        <p class="text-sm text-gray-600">info@saikiranjewelleries.com</p>
+                        <span class="text-xs text-amber-600 font-medium mt-2 inline-block">Send Email →</span>
+                    </a>
+                    
+                    <!-- Address -->
+                    <a href="https://maps.google.com/?q=Gold+Souk+Vijayawada" target="_blank" class="contact-card text-center group">
+                        <div class="contact-icon bg-red-100 text-red-500 mx-auto group-hover:bg-red-500 group-hover:text-white transition">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800 mb-1">Address</h3>
+                        <p class="text-sm text-gray-600">Gold Souk, Vijayawada</p>
+                        <span class="text-xs text-amber-600 font-medium mt-2 inline-block">Get Directions →</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Main Content Grid -->
+        <section class="py-8 md:py-12">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+                    <!-- Contact Form -->
+                    <div class="bg-white rounded-3xl p-6 md:p-8 shadow-lg border-2 border-transparent hover:border-[#D4AF37] transition-all duration-300">
+                        <h2 class="font-cinzel text-2xl md:text-3xl font-bold text-[#004d40] mb-6 section-title">
+                            Send us a Message
+                        </h2>
+                        <form id="contactForm" class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                                <input type="text" name="name" placeholder="Enter your full name" class="form-input" required>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                                    <input type="email" name="email" placeholder="your@email.com" class="form-input" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
+                                    <input type="tel" name="phone" placeholder="+91 98765 43210" class="form-input" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Message</label>
+                                <textarea name="message" rows="4" placeholder="How can we help you today?" class="form-input resize-none" required></textarea>
+                            </div>
+                            <button type="submit" class="submit-btn flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Map & Business Hours -->
+                    <div class="space-y-6">
+                        <!-- Map -->
+                        <div class="map-container h-64 md:h-72">
+                            <iframe 
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3824.1234567890123!2d80.6245!3d16.5062!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a35eff123456789%3A0xabcdef1234567890!2sGold%20Souk%2C%20Vijayawada!5e0!3m2!1sen!2sin!4v1234567890123!5m2!1sen!2sin"
+                                width="100%" 
+                                height="100%" 
+                                style="border:0;" 
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade">
+                            </iframe>
+                        </div>
+                        
+                        <!-- Business Hours -->
+                        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-lg border-2 border-transparent hover:border-[#D4AF37] transition-all duration-300">
+                            <h3 class="font-cinzel text-xl md:text-2xl font-bold text-[#004d40] mb-4 flex items-center gap-3">
+                                <i class="fa-regular fa-clock text-[#D4AF37]"></i>
+                                Business Hours
+                            </h3>
+                            <div class="space-y-1">
+                                <div class="hours-row">
+                                    <span class="text-gray-600">Monday - Friday</span>
+                                    <span class="font-semibold text-[#004d40]">10:00 AM - 8:00 PM</span>
+                                </div>
+                                <div class="hours-row">
+                                    <span class="text-gray-600">Saturday</span>
+                                    <span class="font-semibold text-[#004d40]">10:00 AM - 9:00 PM</span>
+                                </div>
+                                <div class="hours-row">
+                                    <span class="text-gray-600">Sunday</span>
+                                    <span class="font-semibold text-red-500">11:00 AM - 6:00 PM</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Social Media -->
+                        <div class="bg-gradient-to-br from-[#004d40] to-[#00695c] rounded-3xl p-6 md:p-8 text-white">
+                            <h3 class="font-cinzel text-xl md:text-2xl font-bold mb-4 text-center">Follow Us</h3>
+                            <p class="text-center text-emerald-100/80 text-sm mb-6">Stay updated with our latest collections and offers</p>
+                            <div class="flex justify-center gap-4">
+                                <a href="https://facebook.com" target="_blank" class="social-link">
+                                    <i class="fa-brands fa-facebook-f"></i>
+                                </a>
+                                <a href="https://instagram.com" target="_blank" class="social-link">
+                                    <i class="fa-brands fa-instagram"></i>
+                                </a>
+                                <a href="https://youtube.com" target="_blank" class="social-link">
+                                    <i class="fa-brands fa-youtube"></i>
+                                </a>
+                                <a href="https://wa.me/919876543210" target="_blank" class="social-link">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <div id="footer-placeholder"></div>
+    <div id="cta-placeholder"></div>
+    
+    <script>
+        // Handle contact form submission
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('.submit-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Message Sent!';
+                btn.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+                this.reset();
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                    btn.disabled = false;
+                }, 3000);
+            }, 1500);
+        });
+    </script>
+</body>
+
+</html>

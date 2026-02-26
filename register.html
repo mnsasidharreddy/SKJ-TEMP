@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - SKJ Jewellers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --royal-green: #004d40;
+            --gold: #D4AF37;
+        }
+        .bg-royal-green { background-color: var(--royal-green); }
+        .text-gold { color: var(--gold); }
+        .text-royal-green { color: var(--royal-green); }
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center py-8">
+
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md mx-4">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-royal-green mb-2">SKJ</h1>
+            <p class="text-gray-600">Sai Kiran Jewellers</p>
+            <h2 class="text-xl font-semibold mt-4">Create Account</h2>
+            <p class="text-gray-500 text-sm">Join our family of valued customers</p>
+        </div>
+
+        <form id="registerForm">
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Full Name *</label>
+                <input type="text" id="fullName" required 
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-royal-green"
+                    placeholder="Enter your full name">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Email Address *</label>
+                <input type="email" id="email" required 
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-royal-green"
+                    placeholder="Enter your email">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Phone Number *</label>
+                <input type="tel" id="phone" pattern="[0-9]{10}" required 
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-royal-green"
+                    placeholder="10-digit mobile number">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Password *</label>
+                <div class="relative">
+                    <input type="password" id="password" required 
+                        class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-royal-green"
+                        placeholder="Create a strong password">
+                    <button type="button" onclick="togglePassword('password', 'eyeIcon1')" class="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-eye" id="eyeIcon1"></i>
+                    </button>
+                </div>
+                <div class="mt-2">
+                    <div class="password-strength bg-gray-200 w-full" id="strengthBar"></div>
+                    <p class="text-xs text-gray-500 mt-1" id="strengthText">Password strength: Weak</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">Confirm Password *</label>
+                <div class="relative">
+                    <input type="password" id="confirmPassword" required 
+                        class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-royal-green"
+                        placeholder="Confirm your password">
+                    <button type="button" onclick="togglePassword('confirmPassword', 'eyeIcon2')" class="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-eye" id="eyeIcon2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="flex items-start">
+                    <input type="checkbox" id="terms" required class="mt-1 mr-2">
+                    <span class="text-sm text-gray-600">I agree to the <a href="#" class="text-royal-green hover:underline">Terms & Conditions</a> and <a href="#" class="text-royal-green hover:underline">Privacy Policy</a> *</span>
+                </label>
+            </div>
+
+            <div class="mb-6">
+                <label class="flex items-center">
+                    <input type="checkbox" id="newsletter" checked class="mr-2">
+                    <span class="text-sm text-gray-600">Subscribe to our newsletter for exclusive offers</span>
+                </label>
+            </div>
+
+            <button type="submit" id="submitBtn" 
+                class="w-full bg-royal-green text-white py-3 rounded-lg font-semibold hover:bg-opacity-90 transition flex items-center justify-center">
+                <span>Create Account</span>
+            </button>
+        </form>
+
+        <div id="errorMessage" class="mt-4 p-3 bg-red-100 text-red-700 rounded-lg hidden text-sm"></div>
+        <div id="successMessage" class="mt-4 p-3 bg-green-100 text-green-700 rounded-lg hidden text-sm"></div>
+
+        <div class="mt-6 text-center">
+            <div class="relative">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-white text-gray-500">Already a member?</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <a href="login.html" 
+                class="w-full block text-center border border-royal-green text-royal-green py-3 rounded-lg font-semibold hover:bg-royal-green hover:text-white transition">
+                Sign In
+            </a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './firebase-config.js';
+        import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        // Password strength checker
+        document.getElementById('password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthText = document.getElementById('strengthText');
+            
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (password.length >= 12) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-400', 'bg-green-600'];
+            const widths = ['20%', '40%', '60%', '80%', '100%'];
+            const texts = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
+
+            strengthBar.className = `password-strength ${colors[strength - 1] || 'bg-gray-200'}`;
+            strengthBar.style.width = widths[strength - 1] || '0%';
+            strengthText.textContent = `Password strength: ${texts[strength - 1] || 'Weak'}`;
+        });
+
+        window.togglePassword = function(inputId, iconId) {
+            const password = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(iconId);
+            if (password.type === 'password') {
+                password.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                password.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        };
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating account...';
+            errorDiv.classList.add('hidden');
+            successDiv.classList.add('hidden');
+
+            try {
+                const fullName = document.getElementById('fullName').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const newsletter = document.getElementById('newsletter').checked;
+
+                // Validation
+                if (password !== confirmPassword) {
+                    throw new Error('Passwords do not match');
+                }
+
+                if (password.length < 6) {
+                    throw new Error('Password must be at least 6 characters');
+                }
+
+                if (!/^\d{10}$/.test(phone)) {
+                    throw new Error('Please enter a valid 10-digit phone number');
+                }
+
+                // Create user
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Update profile
+                await updateProfile(user, { displayName: fullName });
+
+                // Save user data
+                await setDoc(doc(db, 'users', user.uid), {
+                    uid: user.uid,
+                    email: email,
+                    displayName: fullName,
+                    phone: phone,
+                    role: 'customer',
+                    newsletter: newsletter,
+                    createdAt: serverTimestamp(),
+                    preferences: {
+                        notifications: true,
+                        newsletter: newsletter
+                    }
+                });
+
+                successDiv.textContent = 'Account created successfully! Redirecting to login...';
+                successDiv.classList.remove('hidden');
+
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2500);
+
+            } catch (error) {
+                let errorMsg = error.message;
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMsg = 'An account with this email already exists.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMsg = 'Password is too weak. Please use a stronger password.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMsg = 'Please enter a valid email address.';
+                }
+                
+                errorDiv.textContent = errorMsg;
+                errorDiv.classList.remove('hidden');
+                
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Create Account</span>';
+            }
+        });
+    </script>
+</body>
+</html>

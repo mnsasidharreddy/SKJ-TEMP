@@ -1,0 +1,1628 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chains | SKJ Jewelleries</title>
+    <link rel="icon" type="image/png" href="./images/Screenshot_12-2-2026_195823_localhost.jpeg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --royal-green: #004d40; --gold: #D4AF37; }
+        a{text-decoration: none !important;}
+       /* Product Grid - Equal size cards */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; align-items: stretch; }
+        @media (max-width: 640px) { .products-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } }
+        
+        .product-card { background: white; border-radius: 1rem; overflow: hidden; border: 2px solid #e5e7eb; transition: all 0.3s ease; position: relative; display: flex; flex-direction: column; height: 100%; }
+        
+        .product-image-main { height: 200px !important; }
+        @media (max-width: 640px) { .product-image-main { height: 150px !important; } }
+        @media (min-width: 1024px) { .product-image-main { height: 220px !important; } }
+        
+        .product-info { flex: 1; display: flex; flex-direction: column; padding: 0.5rem; }
+        .product-name { flex: 1; }
+        .product-price { margin-bottom: 0.5rem; }
+        .add-to-cart-btn, .qty-control, .out-of-stock-btn { margin-top: auto; }
+        
+        @media (min-width: 1024px) {
+            .product-card { border: 3px solid transparent; }
+            .product-card:hover { border-color: var(--gold); box-shadow: 0 15px 30px rgba(212, 175, 55, 0.2); transform: translateY(-4px); }
+        }
+        
+        /* Out of Stock - Simple styling */
+        .product-card.out-of-stock {
+            opacity: 0.6;
+        }
+        
+        .out-of-stock-btn {
+            width: 100%; 
+            background: #9ca3af; 
+            color: white; 
+            border: none; 
+            padding: 0.5rem; 
+            border-radius: 0.5rem; 
+            font-weight: 600; 
+            font-size: 0.75rem; 
+            cursor: not-allowed; 
+            margin-top: auto; 
+            text-transform: uppercase;
+        }
+        
+        /* Product Image Gallery Template - SAME AS CHAINS.HTML */
+        .product-image-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        
+        .product-image-main {
+            position: relative;
+            height: 220px;
+            overflow: hidden;
+            background: #f9f9f9;
+            flex-shrink: 0;
+        }
+        @media (max-width: 640px) { .product-image-main { height: 160px; } }
+        
+        .product-image-main img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+            cursor: pointer;
+        }
+        
+        @media (min-width: 1024px) {
+            .product-card:hover .product-image-main img { transform: scale(1.05); }
+        }
+        
+        .product-image-thumbnails {
+            display: grid;
+            gap: 0.25rem;
+            min-height: 50px;
+            flex-shrink: 0;
+        }
+        
+        /* Dynamic grid classes based on image count */
+        .thumbnails-grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .thumbnails-grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .thumbnails-grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .thumbnails-grid-1 {
+            grid-template-columns: 1fr;
+            max-width: 60px;
+            margin: 0 auto;
+        }
+        
+        .thumbnails-grid-0 {
+            display: none;
+        }
+        
+        .product-image-thumbnail {
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 0.35rem;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        @media (min-width: 1024px) {
+            .product-image-thumbnail:hover {
+                border-color: var(--gold);
+            }
+        }
+        
+        .product-image-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        @media (min-width: 1024px) {
+            .product-image-thumbnail:hover img { transform: scale(1.1); }
+        }
+        
+        .discount-badge { 
+            position: absolute; 
+            top: 8px; 
+            left: 8px; 
+            background: #ef4444; 
+            color: white; 
+            padding: 3px 8px; 
+            border-radius: 999px; 
+            font-size: 10px; 
+            font-weight: 700; 
+            z-index: 10; 
+            display: none;
+        }
+        
+        .discount-badge.show {
+            display: block;
+        }
+        
+        .wishlist-btn { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; background: rgba(255,255,255,0.85); border: 2px solid #e5e7eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; z-index: 10; }
+        
+        @media (min-width: 1024px) {
+            .wishlist-btn { border: none; }
+            .wishlist-btn:hover { transform: scale(1.15); background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        }
+        
+        .wishlist-btn i { font-size: 0.8rem; }
+        .wishlist-btn.active i { color: #ef4444; }
+        
+        .product-info { 
+            padding: 0.75rem; 
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: flex-end;
+        }
+        @media (max-width: 640px) { .product-info { padding: 0.5rem; } }
+        
+        .product-name { font-weight: 700; color: #1f2937; margin-bottom: 0.2rem; font-size: 0.85rem; line-height: 1.2; }
+
+        @media (max-width: 640px) { .product-name { font-size: 0.75rem; } }
+        
+        .product-price { display: flex; align-items: baseline; gap: 0.35rem; margin-bottom: 0.5rem; min-height: 1.5rem; }
+        .original-price { color: #9ca3af; text-decoration: line-through; font-size: 0.7rem; }
+        @media (max-width: 640px) { .original-price { font-size: 0.65rem; } }
+        .offer-price { color: var(--gold); font-weight: 800; font-size: 0.9rem; }
+        @media (max-width: 640px) { .offer-price { font-size: 0.8rem; } }
+        
+        /* Price when no discount - show original price as offer price */
+        .single-price {
+            color: var(--gold);
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+        
+        .add-to-cart-btn { 
+            width: 100%; 
+            background: var(--royal-green); 
+            color: white; 
+            border: none; 
+            padding: 0.5rem; 
+            border-radius: 0.5rem; 
+            font-weight: 600; 
+            font-size: 0.75rem; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            text-transform: uppercase; 
+        }
+        
+        @media (min-width: 1024px) {
+            .add-to-cart-btn:hover { background: #00332b; }
+        }
+        
+        .qty-control { display: flex; align-items: center; justify-content: space-between; background: #f3f4f6; border-radius: 0.5rem; padding: 0.2rem; margin-top: auto; }
+        .qty-btn { width: 28px; height: 28px; background: var(--royal-green); color: white; border: none; border-radius: 0.35rem; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+        .qty-display { font-weight: 700; color: var(--royal-green); min-width: 24px; text-align: center; font-size: 0.8rem; }
+        
+        /* Popup - RESPONSIVE CENTERED MODAL - SAME AS CHAINS.HTML */
+        .product-popup { 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0,0,0,0.85); 
+            z-index: 9500; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 1rem; 
+            backdrop-filter: blur(4px); 
+        }
+        .product-popup.active { display: flex; }
+        
+        .popup-content { 
+            background: white; 
+            border-radius: 1.5rem; 
+            max-width: 900px; 
+            width: 90vw; 
+            max-height: 85vh; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column;
+            position: relative;
+            margin: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        @media (min-width: 768px) { 
+            .popup-content { 
+                flex-direction: row; 
+                width: 85vw;
+            } 
+        }
+        
+        @media (max-width: 767px) {
+            .popup-content {
+                width: 95vw;
+                max-height: 90vh;
+                border-radius: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .popup-content {
+                width: 100vw;
+                max-height: 100vh;
+                border-radius: 0.75rem;
+                margin: 0.5rem;
+            }
+        }
+        
+        .popup-image-section { 
+            position: relative; 
+            height: 350px; 
+            background: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        @media (min-width: 768px) { 
+            .popup-image-section { 
+                flex: 0 0 45%; 
+                height: auto;
+                min-height: 450px;
+            } 
+        }
+        
+        @media (max-width: 767px) {
+            .popup-image-section { 
+                height: 280px;
+                min-height: 280px;
+            }
+        }
+        
+        .popup-image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .popup-main-img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            cursor: zoom-in;
+            transition: all 0.3s ease;
+        }
+        
+        .popup-main-img.zoomed {
+            cursor: zoom-out;
+        }
+        
+        .popup-zoom-controls {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 20;
+        }
+        
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 2px solid var(--gold);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--gold);
+            transition: all 0.3s;
+        }
+        
+        .zoom-btn:hover:not([disabled]) {
+            background: var(--gold);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .zoom-btn[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .popup-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: #ef4444;
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 15;
+            display: none;
+        }
+        
+        .popup-badge.show {
+            display: block;
+        }
+        
+        .popup-heart-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 15;
+            font-size: 1.2rem;
+        }
+        
+        @media (min-width: 1024px) {
+            .popup-heart-btn:hover {
+                transform: scale(1.15);
+                background: #ffe6e6;
+            }
+        }
+        
+        .popup-heart-btn i {
+            color: #9ca3af;
+            transition: color 0.3s;
+        }
+        
+        .popup-heart-btn.active i {
+            color: #ef4444;
+        }
+        
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            z-index: 12;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .carousel-btn.prev { left: 0.75rem; }
+        .carousel-btn.next { right: 0.75rem; }
+        
+        @media (min-width: 1024px) {
+            .carousel-btn:hover {
+                background: white;
+                transform: translateY(-50%) scale(1.1);
+            }
+        }
+        
+        .popup-details {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        @media (min-width: 768px) {
+            .popup-details {
+                padding: 2rem;
+                min-width: 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .popup-details {
+                padding: 1rem;
+            }
+        }
+        
+        .close-popup {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 36px;
+            height: 36px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        @media (min-width: 1024px) {
+            .close-popup:hover {
+                color: #ef4444;
+                transform: scale(1.1);
+            }
+        }
+        
+        .popup-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--royal-green);
+            margin-bottom: 0.75rem;
+            font-family: 'Cinzel', serif;
+            line-height: 1.2;
+        }
+        
+        @media (min-width: 768px) {
+            .popup-title {
+                font-size: 1.75rem;
+                margin-bottom: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .popup-title {
+                font-size: 1.25rem;
+            }
+        }
+        
+        .popup-specs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            padding: 0.875rem;
+            background: #f9f9f9;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+        
+        @media (min-width: 768px) {
+            .popup-specs {
+                gap: 1rem;
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+        
+        .popup-specs-label {
+            color: #6b7280;
+            font-size: 0.8rem;
+            margin-bottom: 0.125rem;
+        }
+        
+        .popup-specs-value {
+            color: var(--royal-green);
+            font-weight: 600;
+        }
+        
+        .popup-price-section {
+            margin-bottom: 1rem;
+        }
+        
+        @media (min-width: 768px) {
+            .popup-price-section {
+                margin-bottom: 1.5rem;
+            }
+        }
+        
+        .popup-original-price {
+            color: #9ca3af;
+            text-decoration: line-through;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .popup-original-price.hidden {
+            display: none;
+        }
+        
+        .popup-offer-price {
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: var(--gold);
+        }
+        
+        @media (min-width: 768px) {
+            .popup-offer-price {
+                font-size: 2rem;
+            }
+        }
+        
+        .popup-add-to-cart {
+            width: 100%;
+            background: var(--royal-green);
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: auto;
+        }
+        
+        .popup-add-to-cart:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        @media (min-width: 1024px) {
+            .popup-add-to-cart:hover:not(:disabled) {
+                background: #00332b;
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0, 77, 64, 0.3);
+            }
+        }
+        
+        .popup-qty-control {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f3f4f6;
+            border-radius: 0.75rem;
+            padding: 0.375rem;
+            margin-top: auto;
+        }
+        
+        .popup-qty-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--royal-green);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .popup-qty-display {
+            font-weight: 700;
+            color: var(--royal-green);
+            font-size: 1rem;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        @media (max-width:320px){
+            .products-grid{
+                grid-template-columns: repeat(1, 1fr);
+            }
+
+            .product-image-main img{
+                max-height: 20% !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="header-placeholder"></div>
+    <div id="cta-placeholder"></div>
+
+    <main class="main-content">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <div class="text-center mb-8 mt-8 lg:mt-12">
+                <h1 class="text-3xl md:text-4xl font-bold text-emerald-950 uppercase tracking-wider mb-2">Chains Collection</h1>
+                <p class="text-gray-600">Elegant gold chains crafted with precision</p>
+            </div>
+            
+            <div class="products-grid" id="products-container"></div>
+        </div>
+        
+        <div id="footer-placeholder"></div>
+    </main>
+    <script>
+        // Product data storage
+        let firebaseProducts = [];
+        let productImages = {};
+        let currentPopupId = '';
+        let currentImageIndex = 0;
+        let zoomLevel = 1;
+        
+        // Touch/Drag variables
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let isDragging = false;
+        let imageOffsetX = 0;
+        let imageOffsetY = 0;
+        
+        // Load products from Firebase Inventory
+               // Load products from Firebase Inventory
+        async function loadProductsFromInventory() {
+            try {
+                // Check if firebase is ready
+                if (typeof firebase === 'undefined' || !firebase.firestore) {
+                    throw new Error('Firebase not initialized');
+                }
+                
+                const db = firebase.firestore();
+                window.db = db; // Ensure window.db is set
+                
+                const productsRef = db.collection('products');
+                const q = productsRef
+                    .where('category', '==', 'chains')
+                    .where('isActive', '==', true)
+                    .where('onlineEnabled', '==', true);
+                
+                // Real-time listener
+                q.onSnapshot((querySnapshot) => {
+                    firebaseProducts = [];
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        firebaseProducts.push({
+                            id: doc.id,
+                            ...data
+                        });
+                    });
+                    
+                    if (firebaseProducts.length === 0) {
+                        generateFallbackProducts();
+                    } else {
+                        renderInventoryProducts();
+                    }
+                }, (error) => {
+                    console.error('Error in snapshot:', error);
+                    generateFallbackProducts();
+                });
+                
+            } catch (error) {
+                console.error('Error loading products:', error);
+                generateFallbackProducts();
+            }
+        }
+
+
+        // Fallback products when Firebase fails
+function generateFallbackProducts() {
+    const container = document.getElementById('products-container');
+    container.innerHTML = `
+        <div class="col-span-full text-center py-12">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-circle text-3xl text-gray-400"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-800 mb-2">Unable to load products</h3>
+            <p class="text-gray-500 mb-4">Please check your connection and try again</p>
+            <button onclick="loadProductsFromInventory()" class="px-6 py-2 bg-emerald-950 text-white rounded-lg hover:bg-emerald-800 transition">
+                Retry
+            </button>
+        </div>
+    `;
+}
+
+
+
+        // Get grid class based on thumbnail count
+        function getThumbnailGridClass(thumbnailCount) {
+            if (thumbnailCount >= 4) return 'thumbnails-grid-4';
+            if (thumbnailCount === 3) return 'thumbnails-grid-3';
+            if (thumbnailCount === 2) return 'thumbnails-grid-2';
+            if (thumbnailCount === 1) return 'thumbnails-grid-1';
+            return 'thumbnails-grid-0';
+        }
+        
+        // Store current image order for each product
+        let productImageOrders = {};
+        
+        // Render products using chains.html card template
+        function renderInventoryProducts() {
+            const container = document.getElementById('products-container');
+            const params = new URLSearchParams(window.location.search);
+            const searchQuery = (params.get('q') || '').toLowerCase().trim();
+            
+            let html = '';
+            
+            firebaseProducts.forEach((product, index) => {
+                // Filter by search query
+                if (searchQuery && !product.name.toLowerCase().includes(searchQuery)) return;
+                
+                const weight = product.weight || (Math.random() * 8 + 2).toFixed(2);
+                const prices = (typeof cachedPrices !== 'undefined' && cachedPrices) || { gold: 6400, skjg: 6200, silver: 750 };
+
+                let offerPrice = product.offerPrice || product.price || 0;
+                let dynamicBasePrice = null;
+
+                if (product.metalType === 'gold' && product.weight && product.dynamicPricing !== false) {
+                    const ratePerGram = product.carat === '24CT' ? prices.gold : (prices.skjg || 6200);
+                    const makingCharges = (product.makingCharges || 0) * parseFloat(product.weight);
+                    const basePrice = Math.round((parseFloat(product.weight) * ratePerGram) + makingCharges);
+                    let discountAmt = product.discountAmount || 0;
+                    if (!discountAmt && product.discountPercent > 0) {
+                        discountAmt = Math.round((basePrice * product.discountPercent) / 100);
+                    }
+                    dynamicBasePrice = basePrice;
+                    offerPrice = basePrice - discountAmt;
+                } else if (product.metalType === 'silver' && product.weight && product.dynamicPricing !== false) {
+                    const ratePerGram = (prices.silver || 750) / 10;
+                    const makingCharges = (product.makingCharges || 0) * parseFloat(product.weight);
+                    const basePrice = Math.round((parseFloat(product.weight) * ratePerGram) + makingCharges);
+                    let discountAmt = product.discountAmount || 0;
+                    if (!discountAmt && product.discountPercent > 0) {
+                        discountAmt = Math.round((basePrice * product.discountPercent) / 100);
+                    }
+                    dynamicBasePrice = basePrice;
+                    offerPrice = basePrice - discountAmt;
+                }
+
+                const originalPrice = dynamicBasePrice || product.originalPrice || offerPrice;
+                const discount = originalPrice > offerPrice ? Math.round(((originalPrice - offerPrice) / originalPrice) * 100) : 0;
+
+                // Check if prices are same (no discount)
+                const hasDiscount = (originalPrice > offerPrice && discount > 0);
+                
+                // Use product images or fallback
+                const images = product.images && product.images.length > 0 
+                    ? [...product.images] 
+                    : Array.from({length: 5}, (_, i) => `https://picsum.photos/id/${index + 20 + i}/400/400`);
+                
+                // Initialize or get current image order
+                if (!productImageOrders[product.id]) {
+                    productImageOrders[product.id] = [...images];
+                }
+                const currentImages = productImageOrders[product.id];
+                
+                // Store for popup
+                productImages[product.id] = currentImages;
+                
+                // Calculate thumbnails (all images except first/main)
+                const thumbnails = currentImages.slice(1);
+                const thumbnailCount = thumbnails.length;
+                const gridClass = getThumbnailGridClass(thumbnailCount);
+                
+                const isWishlisted = wishlist.some(w => w.id === product.id);
+                const inCart = cart[product.id]?.qty || 0;
+                const isOutOfStock = !product.inStock;
+                
+                // Build price display
+                let priceHtml = '';
+                if (hasDiscount) {
+                    priceHtml = `
+                        <span class="original-price">₹${originalPrice.toLocaleString()}</span>
+                        <span class="offer-price">₹${offerPrice.toLocaleString()}</span>
+                    `;
+                } else {
+                    priceHtml = `<span class="single-price">₹${originalPrice.toLocaleString()}</span>`;
+                }
+                
+                // Build button based on stock status
+                let buttonHtml = '';
+                if (isOutOfStock) {
+                    // Out of stock - disabled button, no click action
+                    buttonHtml = `
+                        <button class="out-of-stock-btn" disabled>
+                            Out of Stock
+                        </button>
+                    `;
+                } else if (inCart > 0) {
+                    buttonHtml = `
+                        <div class="qty-control">
+                            <button class="qty-btn" onclick="event.stopPropagation(); updateCartItem('${product.id}', -1)">-</button>
+                            <span class="qty-display">${inCart}</span>
+                            <button class="qty-btn" onclick="event.stopPropagation(); updateCartItem('${product.id}', 1)">+</button>
+                        </div>
+                    `;
+                } else {
+                    buttonHtml = `
+                        <button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCartWithFeedback('${product.id}', '${product.name}', ${offerPrice})">
+                            Add to Cart
+                        </button>
+                    `;
+                }
+                
+                // Build discount badge (only if has discount)
+                const discountBadgeClass = hasDiscount ? 'show' : '';
+                
+                // Use chains.html card template EXACT structure with image swapping
+                html += `
+                    <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" data-product-id="${product.id}" onclick="${isOutOfStock ? '' : `openPopup('${product.id}', ${offerPrice}, ${originalPrice}, ${discount}, '${weight}', ${isOutOfStock})`}">
+                        <div class="product-image-gallery">
+                            <div class="product-image-main">
+                                <div class="discount-badge ${discountBadgeClass}">${discount}% OFF</div>
+                                <button onclick="event.stopPropagation(); toggleWishlistWithButton('${product.id}', '${product.name}', this)" 
+                                    class="wishlist-btn ${isWishlisted ? 'active' : ''}">
+                                    <i class="${isWishlisted ? 'fa-solid text-red-500' : 'fa-regular text-gray-600'} fa-heart"></i>
+                                </button>
+                                <img src="${currentImages[0]}" alt="${product.name}" loading="lazy" class="main-product-img">
+                            </div>
+                            <div class="product-image-thumbnails ${gridClass}">
+                                ${thumbnails.map((img, idx) => `
+                                    <div class="product-image-thumbnail" onclick="event.stopPropagation(); swapCardImage('${product.id}', ${idx})">
+                                        <img src="${img}" alt="${product.name} image ${idx + 2}" loading="lazy">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">${product.name}</h3>
+                            <div class="product-price">
+                                ${priceHtml}
+                            </div>
+                            ${buttonHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html || '<p class="text-center text-gray-500 col-span-full py-8">No chains found in inventory</p>';
+        }
+        
+        // Swap main image with clicked thumbnail - PROPER SWAP
+        function swapCardImage(productId, thumbnailIndex) {
+            // thumbnailIndex is 0-based for thumbnails array (which is images[1:])
+            // So actual image index in full array is thumbnailIndex + 1
+            
+            const currentImages = productImageOrders[productId];
+            if (!currentImages || thumbnailIndex + 1 >= currentImages.length) return;
+            
+            // Create new array with swapped positions
+            const newImages = [...currentImages];
+            const mainImageIndex = 0;
+            const clickedImageIndex = thumbnailIndex + 1;
+            
+            // Swap: main image goes to clicked position, clicked image becomes main
+            [newImages[mainImageIndex], newImages[clickedImageIndex]] = [newImages[clickedImageIndex], newImages[mainImageIndex]];
+            
+            // Update stored order
+            productImageOrders[productId] = newImages;
+            productImages[productId] = newImages;
+            
+            // Re-render just this card's images
+            const card = document.querySelector(`.product-card[data-product-id="${productId}"]`);
+            if (card) {
+                const mainImg = card.querySelector('.product-image-main img.main-product-img');
+                const thumbnailImgs = card.querySelectorAll('.product-image-thumbnail img');
+                
+                // Update main image
+                mainImg.src = newImages[0];
+                
+                // Update thumbnails (skip first/main image)
+                thumbnailImgs.forEach((thumb, idx) => {
+                    if (idx + 1 < newImages.length) {
+                        thumb.src = newImages[idx + 1];
+                    }
+                });
+            }
+        }
+        
+        // Fallback product generation (when Firebase not available)
+        async function generateProducts() {
+    const grid = document.getElementById('products-grid');
+    
+    // Filter specifically for "chains" from your inventory
+    const filtered = firebaseProducts.filter(p => p.category.toLowerCase() === 'chains');
+    
+    if (filtered.length === 0) {
+        grid.innerHTML = `
+            <div class="col-12 text-center py-5">
+                <p class="text-gray-500 italic">No Chains available in inventory.</p>
+            </div>`;
+        return;
+    }
+
+    grid.innerHTML = filtered.map(product => {
+        // Check if item is already in cart to show +/- buttons
+        const inCart = cart[product.id] ? cart[product.id].qty : 0;
+        
+        // Use the standardized card template
+        return createProductCard(product, inCart); 
+    }).join('');
+}
+        function toggleWishlistWithButton(id, name, btn) {
+            // Require login — open sidebar instantly
+            if (typeof isUserLoggedIn === 'function' && !isUserLoggedIn()) {
+                if (typeof openLoginSidebar === 'function') openLoginSidebar('Please login to add items to wishlist ❤️');
+                return;
+            }
+
+            const isActive = btn.classList.contains('active');
+            const icon = btn.querySelector('i');
+
+            // Find full product data from firebaseProducts
+            const product = firebaseProducts.find(p => p.id === id);
+
+            if (isActive) {
+                // Remove from wishlist
+                wishlist = wishlist.filter(w => w.id !== id);
+                btn.classList.remove('active');
+                icon.classList.remove('fa-solid', 'text-red-500');
+                icon.classList.add('fa-regular', 'text-gray-600');
+                if (typeof showToast === 'function') showToast('Removed from wishlist', 'info');
+            } else {
+                // Add to wishlist with COMPLETE product data
+                const wishlistItem = product ? {
+                    id: product.id,
+                    name: product.name,
+                    images: product.images || productImages[id] || [],
+                    price: product.offerPrice || product.price || 0,
+                    offerPrice: product.offerPrice || product.price || 0,
+                    originalPrice: product.originalPrice || product.offerPrice || product.price || 0,
+                    weight: product.weight || '0',
+                    discountPercent: product.discountPercent || 0,
+                    inStock: product.inStock !== false,
+                    category: product.category || 'chains'
+                } : {
+                    id: id,
+                    name: name,
+                    images: productImages[id] || [],
+                    price: 0,
+                    offerPrice: 0,
+                    originalPrice: 0,
+                    weight: '0',
+                    discountPercent: 0,
+                    inStock: true,
+                    category: 'chains'
+                };
+
+                wishlist.push(wishlistItem);
+                btn.classList.add('active');
+                icon.classList.remove('fa-regular', 'text-gray-600');
+                icon.classList.add('fa-solid', 'text-red-500');
+                if (typeof showToast === 'function') showToast('Added to wishlist ❤️', 'success');
+            }
+
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            updateWishlistUI();
+            if (typeof saveUserCartAndWishlist === 'function') saveUserCartAndWishlist(); // sync to Firebase
+        }
+
+
+
+
+
+        async function addToCartWithFeedback(id, name, price) {
+            // Require login — open sidebar instantly
+            if (typeof isUserLoggedIn === 'function' && !isUserLoggedIn()) {
+                if (typeof openLoginSidebar === 'function') openLoginSidebar('Please login to add items to cart 🛍️');
+                return;
+            }
+
+            // Check gold safety for gold items
+            const product = firebaseProducts.find(p => p.id === id);
+            if (product && product.metalType === 'gold' && typeof checkGoldSafetyBeforeAdd === 'function') {
+                let allowed = false;
+                await new Promise(resolve => {
+                    checkGoldSafetyBeforeAdd(id, name, (result) => {
+                        allowed = result;
+                        resolve();
+                    });
+                });
+                if (!allowed) return;
+            }
+
+            const currentQty = cart[id]?.qty || 0;
+            const newQty = currentQty + 1;
+
+            cart[id] = {
+                qty: newQty,
+                n: name,
+                name: name,
+                p: price
+            };
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartUI();
+            if (typeof saveUserCartAndWishlist === 'function') saveUserCartAndWishlist(); // sync to Firebase
+
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = 'Added!';
+            btn.style.background = '#059669';
+
+            setTimeout(() => {
+                if (firebaseProducts.length > 0) {
+                    renderInventoryProducts();
+                } else {
+                    generateFallbackProducts();
+                }
+            }, 500);
+        }
+
+        window.updateCartQty = async function(id, delta, price, originalPrice, name) {
+    // Check login for adding new items
+    if (delta > 0 && !cart[id]) {
+        if (!isUserLoggedIn()) {
+            openLoginSidebar('Please login to add items to cart 🛍️');
+            return;
+        }
+        
+        // Check gold safety for gold items
+        const product = typeof firebase !== 'undefined' ? 
+            await firebase.firestore().collection('products').doc(id).get().then(d => d.exists ? d.data() : null).catch(() => null) : null;
+            
+        if (product && product.metalType === 'gold' && typeof checkGoldSafetyBeforeAdd === 'function') {
+            let allowed = false;
+            await new Promise(resolve => {
+                checkGoldSafetyBeforeAdd(id, name, (result) => {
+                    allowed = result;
+                    resolve();
+                });
+            });
+            if (!allowed) return;
+        }
+    }
+    
+    const currentQty = cart[id]?.qty || 0;
+    const newQty = currentQty + delta;
+    
+    if (newQty <= 0) {
+        delete cart[id];
+    } else {
+        cart[id] = { 
+            qty: newQty, 
+            n: name, 
+            name: name,
+            p: price, 
+            op: originalPrice 
+        };
+    }
+    
+    localStorage.setItem('cart', JSON.stringify(cart));
+    await saveUserCartAndWishlist();
+    updateCartUI();
+    
+    // Update UI components
+    if (typeof updateCartItemsList === 'function') updateCartItemsList();
+    if (typeof renderCartItems === 'function') renderCartItems();
+    if (typeof updateTrendingCardUI === 'function') updateTrendingCardUI(id, newQty, price, originalPrice, name);
+    if (document.getElementById('item-popup')?.classList.contains('active')) {
+        updatePopupButton(id, price, Math.max(0, newQty), originalPrice);
+    }
+}
+
+        // Bridge for +/- buttons that call updateCartItem(id, delta)
+        window.updateCartItem = function(id, delta) {
+            const product = firebaseProducts.find(p => p.id === id);
+            if (!product) return;
+            const prices = (typeof cachedPrices !== 'undefined' && cachedPrices) || { gold: 6400, skjg: 6200, silver: 750 };
+            let offerPrice = product.offerPrice || product.price || 0;
+            let basePrice = offerPrice;
+            if (product.metalType === 'gold' && product.weight && product.dynamicPricing !== false) {
+                const rate = product.carat === '24CT' ? prices.gold : (prices.skjg || 6200);
+                const mc = (product.makingCharges || 0) * parseFloat(product.weight);
+                basePrice = Math.round(parseFloat(product.weight) * rate + mc);
+                let disc = product.discountAmount || 0;
+                if (!disc && product.discountPercent > 0) disc = Math.round((basePrice * product.discountPercent) / 100);
+                offerPrice = basePrice - disc;
+            } else if (product.metalType === 'silver' && product.weight && product.dynamicPricing !== false) {
+                const rate = (prices.silver || 750) / 10;
+                const mc = (product.makingCharges || 0) * parseFloat(product.weight);
+                basePrice = Math.round(parseFloat(product.weight) * rate + mc);
+                let disc = product.discountAmount || 0;
+                if (!disc && product.discountPercent > 0) disc = Math.round((basePrice * product.discountPercent) / 100);
+                offerPrice = basePrice - disc;
+            }
+            updateCartQty(id, delta, offerPrice, basePrice, product.name);
+            setTimeout(() => { if (firebaseProducts.length > 0) renderInventoryProducts(); }, 300);
+        };
+
+        // Touch/Swipe handlers for mobile
+        function handleTouchStart(e) {
+            if (zoomLevel > 1) {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }
+        }
+        
+        function handleTouchMove(e) {
+            if (zoomLevel > 1 && e.touches.length === 1) {
+                const touchX = e.touches[0].clientX;
+                const touchY = e.touches[0].clientY;
+                const deltaX = touchX - touchStartX;
+                const deltaY = touchY - touchStartY;
+                
+                const img = document.getElementById('popup-main-img');
+                if (img) {
+                    imageOffsetX += deltaX * 0.5;
+                    imageOffsetY += deltaY * 0.5;
+                    
+                    const maxOffset = 100 * (zoomLevel - 1) / 3;
+                    imageOffsetX = Math.max(-maxOffset, Math.min(maxOffset, imageOffsetX));
+                    imageOffsetY = Math.max(-maxOffset, Math.min(maxOffset, imageOffsetY));
+                    
+                    img.style.transform = `scale(${zoomLevel}) translate(${imageOffsetX / zoomLevel}px, ${imageOffsetY / zoomLevel}px)`;
+                }
+                
+                touchStartX = touchX;
+                touchStartY = touchY;
+                e.preventDefault();
+            }
+        }
+        
+        function handleTouchEnd() {}
+        
+        function handleMouseDown(e) {
+            if (zoomLevel > 1) {
+                isDragging = true;
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                const img = document.getElementById('popup-main-img');
+                if (img) {
+                    img.style.cursor = 'grabbing';
+                }
+            }
+        }
+        
+        function handleMouseMove(e) {
+            if (isDragging && zoomLevel > 1) {
+                const deltaX = e.clientX - dragStartX;
+                const deltaY = e.clientY - dragStartY;
+                
+                const img = document.getElementById('popup-main-img');
+                if (img) {
+                    imageOffsetX += deltaX * 0.5;
+                    imageOffsetY += deltaY * 0.5;
+                    
+                    const maxOffset = 100 * (zoomLevel - 1) / 3;
+                    imageOffsetX = Math.max(-maxOffset, Math.min(maxOffset, imageOffsetX));
+                    imageOffsetY = Math.max(-maxOffset, Math.min(maxOffset, imageOffsetY));
+                    
+                    img.style.transform = `scale(${zoomLevel}) translate(${imageOffsetX / zoomLevel}px, ${imageOffsetY / zoomLevel}px)`;
+                }
+                
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+            }
+        }
+        
+        function handleMouseUp() {
+            isDragging = false;
+            const img = document.getElementById('popup-main-img');
+           if (img) {
+                img.style.cursor = 'grab';
+            }
+        }
+        
+        function resetImageOffset() {
+            imageOffsetX = 0;
+            imageOffsetY = 0;
+        }
+
+        function openPopup(id, price, original, discount, weight, isOutOfStock = false) {
+            currentPopupId = id;
+            currentImageIndex = 0;
+            zoomLevel = 1;
+            
+            // Find product name from firebase or fallback
+            const product = firebaseProducts.find(p => p.id === id);
+            const productName = product ? product.name : (typeof id === 'string' ? `Product #${id}` : `Gold Ring #${id}`);
+            
+            document.getElementById('popup-title').innerText = productName;
+            document.getElementById('popup-weight').innerText = `~${weight} Grams`;
+            
+            // Handle price display
+            const hasDiscount = original > price && discount > 0;
+            const popupOriginal = document.getElementById('popup-original');
+            const popupPrice = document.getElementById('popup-price');
+            const popupDiscount = document.getElementById('popup-discount');
+            
+            if (hasDiscount) {
+                popupOriginal.innerText = `₹${original.toLocaleString()}`;
+                popupOriginal.classList.remove('hidden');
+                popupPrice.innerText = `₹${price.toLocaleString()}`;
+                popupDiscount.innerText = `${discount}% OFF`;
+                popupDiscount.classList.add('show');
+            } else {
+                popupOriginal.classList.add('hidden');
+                popupPrice.innerText = `₹${original.toLocaleString()}`;
+                popupDiscount.classList.remove('show');
+            }
+            
+            // Set images from current order
+            const currentImages = productImageOrders[id] || productImages[id] || [];
+            if (currentImages.length > 0) {
+                document.getElementById('popup-main-img').src = currentImages[0];
+            }
+            
+            updatePopupImage();
+            
+            const img = document.getElementById('popup-main-img');
+            if (img) {
+                img.addEventListener('touchstart', handleTouchStart);
+                img.addEventListener('touchmove', handleTouchMove);
+                img.addEventListener('touchend', handleTouchEnd);
+                img.addEventListener('mousedown', handleMouseDown);
+                img.style.cursor = 'grab';
+            }
+            
+            resetImageOffset();
+            
+            const isWishlisted = wishlist.some(w => w.id === id);
+            const heartBtn = document.getElementById('popup-heart-btn');
+            const heartIcon = heartBtn.querySelector('i');
+            if (isWishlisted) {
+                heartBtn.classList.add('active');
+                heartIcon.classList.remove('fa-regular');
+                heartIcon.classList.add('fa-solid');
+                heartIcon.style.color = '#ef4444';
+            } else {
+                heartBtn.classList.remove('active');
+                heartIcon.classList.add('fa-regular');
+                heartIcon.classList.remove('fa-solid');
+                heartIcon.style.color = '#9ca3af';
+            }
+            
+            const inCart = cart[id]?.qty || 0;
+            const actionsDiv = document.getElementById('popup-actions');
+            
+            if (isOutOfStock) {
+                // Out of stock in popup - disabled button
+                actionsDiv.innerHTML = `<button class="popup-add-to-cart" disabled>Out of Stock</button>`;
+            } else if (inCart > 0) {
+                actionsDiv.innerHTML = `
+                    <div class="popup-qty-control">
+                        <button class="popup-qty-btn" onclick="updateCartItem('${id}', -1); refreshPopup(false)">−</button>
+                        <span class="popup-qty-display">${inCart}</span>
+                        <button class="popup-qty-btn" onclick="updateCartItem('${id}', 1); refreshPopup(false)">+</button>
+                    </div>
+                `;
+            } else {
+                actionsDiv.innerHTML = `<button class="popup-add-to-cart" onclick="addToCartWithFeedback('${id}', '${productName}', ${price}); refreshPopup(false)">Add to Cart</button>`;
+            }
+            
+            document.getElementById('product-popup').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function updatePopupImage() {
+            const currentImages = productImageOrders[currentPopupId] || productImages[currentPopupId] || [];
+            if (!currentImages.length) return;
+            
+            const img = document.getElementById('popup-main-img');
+            img.src = currentImages[currentImageIndex];
+            img.style.transform = `scale(${zoomLevel}) translate(${imageOffsetX / zoomLevel}px, ${imageOffsetY / zoomLevel}px)`;
+            img.classList.remove('zoomed');
+        }
+
+        function changePopupImg(direction) {
+            const currentImages = productImageOrders[currentPopupId] || productImages[currentPopupId] || [];
+            if (!currentImages.length) return;
+            
+            currentImageIndex = (currentImageIndex + direction + currentImages.length) % currentImages.length;
+            zoomLevel = 1;
+            resetImageOffset();
+            updatePopupImage();
+            updateZoomButtons();
+        }
+
+        function zoomIn() {
+            if (zoomLevel < 4) {
+                zoomLevel += 1;
+                const img = document.getElementById('popup-main-img');
+                img.style.transform = `scale(${zoomLevel}) translate(${imageOffsetX / zoomLevel}px, ${imageOffsetY / zoomLevel}px)`;
+                img.classList.add('zoomed');
+                img.style.cursor = 'grab';
+                updateZoomButtons();
+            }
+        }
+
+        function zoomOut() {
+            if (zoomLevel > 1) {
+                zoomLevel -= 1;
+                const img = document.getElementById('popup-main-img');
+                img.style.transform = `scale(${zoomLevel}) translate(${imageOffsetX / zoomLevel}px, ${imageOffsetY / zoomLevel}px)`;
+                if (zoomLevel === 1) {
+                    img.classList.remove('zoomed');
+                    resetImageOffset();
+                    img.style.cursor = 'default';
+                }
+                updateZoomButtons();
+            }
+        }
+
+        function updateZoomButtons() {
+            const zoomInBtn = document.getElementById('zoom-in-btn');
+            const zoomOutBtn = document.getElementById('zoom-out-btn');
+            
+            zoomInBtn.disabled = zoomLevel >= 4;
+            zoomOutBtn.disabled = zoomLevel <= 1;
+        }
+
+        function togglePopupWishlist() {
+            const heartBtn = document.getElementById('popup-heart-btn');
+            const name = document.getElementById('popup-title').innerText;
+
+            // Find full product data from firebaseProducts
+            const product = firebaseProducts.find(p => p.id === currentPopupId);
+
+            const isActive = heartBtn.classList.contains('active');
+            const heartIcon = heartBtn.querySelector('i');
+
+            if (isActive) {
+                wishlist = wishlist.filter(w => w.id !== currentPopupId);
+                heartBtn.classList.remove('active');
+                heartIcon.classList.remove('fa-solid');
+                heartIcon.classList.add('fa-regular');
+                heartIcon.style.color = '#9ca3af';
+            } else {
+                // Add to wishlist with COMPLETE product data
+                const wishlistItem = product ? {
+                    id: product.id,
+                    name: product.name,
+                    images: product.images || productImages[currentPopupId] || [],
+                    price: product.offerPrice || product.price || 0,
+                    offerPrice: product.offerPrice || product.price || 0,
+                    originalPrice: product.originalPrice || product.offerPrice || product.price || 0,
+                    weight: product.weight || '0',
+                    discountPercent: product.discountPercent || 0,
+                    inStock: product.inStock !== false,
+                    category: product.category || 'chains'
+                } : {
+                    id: currentPopupId,
+                    name: name,
+                    images: productImages[currentPopupId] || [],
+                    price: 0,
+                    offerPrice: 0,
+                    originalPrice: 0,
+                    weight: '0',
+                    discountPercent: 0,
+                    inStock: true,
+                    category: 'chains'
+                };
+
+                wishlist.push(wishlistItem);
+                heartBtn.classList.add('active');
+                heartIcon.classList.remove('fa-regular');
+                heartIcon.classList.add('fa-solid');
+                heartIcon.style.color = '#ef4444';
+            }
+
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            updateWishlistUI();
+        }
+
+        function refreshPopup(isOutOfStock = false) {
+            const inCart = cart[currentPopupId]?.qty || 0;
+            const actionsDiv = document.getElementById('popup-actions');
+            const priceText = document.getElementById('popup-price').innerText.replace('₹', '').replace(/,/g, '');
+            const price = parseInt(priceText);
+            const productName = document.getElementById('popup-title').innerText;
+            
+            if (isOutOfStock) {
+                actionsDiv.innerHTML = `<button class="popup-add-to-cart" disabled>Out of Stock</button>`;
+            } else if (inCart > 0) {
+                actionsDiv.innerHTML = `
+                    <div class="popup-qty-control">
+                        <button class="popup-qty-btn" onclick="updateCartItem('${currentPopupId}', -1); refreshPopup(false)">−</button>
+                        <span class="popup-qty-display">${inCart}</span>
+                        <button class="popup-qty-btn" onclick="updateCartItem('${currentPopupId}', 1); refreshPopup(false)">+</button>
+                    </div>
+                `;
+            } else {
+                actionsDiv.innerHTML = `<button class="popup-add-to-cart" onclick="addToCartWithFeedback('${currentPopupId}', '${productName}', ${price}); refreshPopup(false)">Add to Cart</button>`;
+            }
+        }
+
+        function closePopup() {
+            document.getElementById('product-popup').classList.remove('active');
+            document.body.style.overflow = '';
+            zoomLevel = 1;
+            currentImageIndex = 0;
+        }
+
+        // Close popup on backdrop click
+        document.getElementById('product-popup')?.addEventListener('click', (e) => {
+            if (e.target.id === 'product-popup') closePopup();
+        });
+        
+        // Global mouse event listeners for drag
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        
+        // Initialize
+        // Auth is handled by components.js - no need to initialize here
+// Just log that page is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('chains page DOM ready');
+});
+
+
+// Initialize cart and login functions
+window.toggleCart = function() {
+    const sidebar = document.getElementById('cart-sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('translate-x-full');
+    }
+};
+
+window.toggleLoginPanel = function() {
+    const panel = document.getElementById('login-panel');
+    const overlay = document.getElementById('login-panel-overlay');
+    if (!panel) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const isOpen = panel.classList.contains('translate-x-0');
+    if (isOpen) {
+        panel.classList.remove('translate-x-0');
+        panel.classList.add('translate-x-full');
+        if (overlay) overlay.classList.add('hidden');
+    } else {
+        panel.classList.remove('translate-x-full');
+        panel.classList.add('translate-x-0');
+        if (overlay) overlay.classList.remove('hidden');
+    }
+};
+
+window.panelLogin = async function() {
+    const email = document.getElementById('panel-email')?.value;
+    const password = document.getElementById('panel-password')?.value;
+    const errEl = document.getElementById('login-panel-error');
+    
+    if (!email || !password) {
+        if (errEl) {
+            errEl.textContent = 'Please enter email and password.';
+            errEl.classList.remove('hidden');
+        }
+        return;
+    }
+    
+    try {
+        const { getAuth, signInWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js');
+        const auth = getAuth();
+        await signInWithEmailAndPassword(auth, email, password);
+        // Success - panel will update via auth state listener or reload
+        window.location.reload();
+    } catch (err) {
+        if (errEl) {
+            errEl.textContent = 'Login failed: ' + err.message;
+            errEl.classList.remove('hidden');
+        }
+    }
+};
+
+window.panelLogout = async function() {
+    try {
+        const { getAuth, signOut } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js');
+        await signOut(getAuth());
+        window.location.reload();
+    } catch (e) {
+        console.error('Logout error:', e);
+    }
+};
+
+    </script>
+
+    <div id="mobile-nav-placeholder"></div>
+
+    <!-- Product Popup -->
+    <div id="product-popup" class="product-popup">
+        <div class="popup-content relative">
+            <button class="close-popup" onclick="closePopup()">&times;</button>
+            
+            <div class="popup-image-section">
+                <div class="popup-badge" id="popup-discount"></div>
+                <button onclick="event.stopPropagation(); togglePopupWishlist()" class="popup-heart-btn" id="popup-heart-btn">
+                    <i class="fa-regular fa-heart"></i>
+                </button>
+                
+                <div class="popup-image-container">
+                    <img id="popup-main-img" src="" alt="Product" class="popup-main-img">
+                    <button onclick="changePopupImg(-1)" class="carousel-btn prev">❮</button>
+                    <button onclick="changePopupImg(1)" class="carousel-btn next">❯</button>
+                </div>
+                
+                <div class="popup-zoom-controls">
+                    <button class="zoom-btn" onclick="zoomIn()" id="zoom-in-btn" title="Zoom In">+</button>
+                    <button class="zoom-btn" onclick="zoomOut()" id="zoom-out-btn" title="Zoom Out" disabled>−</button>
+                </div>
+            </div>
+            
+            <div class="popup-details">
+                <h2 id="popup-title" class="popup-title"></h2>
+                
+                <div class="popup-specs">
+                    <div>
+                        <div class="popup-specs-label">Purity</div>
+                        <div class="popup-specs-value">22K / 916 Hallmark</div>
+                    </div>
+                    <div>
+                        <div class="popup-specs-label">Gross Weight</div>
+                        <div class="popup-specs-value" id="popup-weight"></div>
+                    </div>
+                </div>
+                
+                <div class="popup-price-section">
+                    <div class="popup-original-price" id="popup-original"></div>
+                    <div class="popup-offer-price" id="popup-price"></div>
+                </div>
+                
+                <div id="popup-actions"></div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="components.js"></script>
+    
+        <!-- Firebase Initialization - Compat SDK -->
+    <script src="firebase-config.js"></script>
+        <!-- Firebase already initialized by components.js, just set window.db -->
+   
+    
+    
+    
+     <script>
+        // Wait for firebase to be ready from components.js
+        function initFirebase() {
+            if (typeof firebase !== 'undefined' && firebase.firestore) {
+                window.db = firebase.firestore();
+                console.log('✅ Firebase ready');
+                loadProductsFromInventory();
+            } else {
+                console.log('⏳ Waiting for Firebase...');
+                setTimeout(initFirebase, 100);
+            }
+        }
+        
+        
+        
+        // Listen for inventory updates from other pages
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'inventoryUpdate') {
+                const update = JSON.parse(e.newValue);
+                if (update.category === 'chains') {
+                    console.log('🔄 Inventory updated, refreshing...');
+                    loadProductsFromInventory();
+                }
+            }
+        });
+
+        // Re-render products when gold/silver prices change
+        window.onPricesUpdated = function(newPrices) {
+            if (firebaseProducts && firebaseProducts.length > 0) {
+                renderInventoryProducts();
+            }
+        };
+
+        // Start checking
+        initFirebase();
+    </script>
+
+    
+</body>
+</html>

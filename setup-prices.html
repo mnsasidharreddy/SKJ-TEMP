@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Setup Prices - SKJ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg">
+        <h1 class="text-2xl font-bold text-center mb-2 text-green-800">SKJ Price Setup</h1>
+        <p class="text-center text-gray-600 mb-6">Set initial gold and silver rates</p>
+        
+        <form id="priceForm" class="space-y-6">
+            <!-- Gold Section -->
+            <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <h3 class="font-bold text-yellow-800 mb-3"><i class="fas fa-coins mr-2"></i>Gold Prices (per gram)</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Market Price</label>
+                        <input type="number" id="goldMarket" step="0.01" required 
+                            class="w-full border border-gray-300 rounded px-3 py-2" placeholder="6450">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">SKJ Price</label>
+                        <input type="number" id="goldSKJ" step="0.01" required 
+                            class="w-full border border-gray-300 rounded px-3 py-2" placeholder="6390">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Silver Section -->
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <h3 class="font-bold text-gray-800 mb-3"><i class="fas fa-ring mr-2"></i>Silver Prices (per gram)</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Market Price</label>
+                        <input type="number" id="silverMarket" step="0.01" required 
+                            class="w-full border border-gray-300 rounded px-3 py-2" placeholder="84">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">SKJ Price</label>
+                        <input type="number" id="silverSKJ" step="0.01" required 
+                            class="w-full border border-gray-300 rounded px-3 py-2" placeholder="82">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" 
+                class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                <i class="fas fa-save mr-2"></i>Save Prices
+            </button>
+        </form>
+
+        <div id="success" class="hidden mt-4 p-4 bg-green-100 text-green-700 rounded-lg text-center">
+            <i class="fas fa-check-circle text-2xl mb-2"></i>
+            <p>Prices saved successfully!</p>
+            <a href="settings.html" class="text-green-800 underline mt-2 inline-block">Go to Admin Settings</a>
+        </div>
+
+        <div id="error" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded-lg"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyATmseHSU3qimkm6pSCJ_xA1EL3_KiHtXs",
+            authDomain: "skj-jewelry-store.firebaseapp.com",
+            projectId: "skj-jewelry-store",
+            storageBucket: "skj-jewelry-store.firebasestorage.app",
+            messagingSenderId: "531463279637",
+            appId: "1:531463279637:web:2ab8aaaa80211045252a1c",
+            measurementId: "G-0S99YE5NR1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        document.getElementById('priceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    throw new Error('Please login first');
+                }
+
+                await setDoc(doc(db, 'prices', 'current'), {
+                    goldMarketPrice: parseFloat(document.getElementById('goldMarket').value),
+                    goldSKJPrice: parseFloat(document.getElementById('goldSKJ').value),
+                    silverMarketPrice: parseFloat(document.getElementById('silverMarket').value),
+                    silverSKJPrice: parseFloat(document.getElementById('silverSKJ').value),
+                    updatedAt: serverTimestamp(),
+                    updatedBy: user.uid
+                });
+
+                document.getElementById('priceForm').classList.add('hidden');
+                document.getElementById('success').classList.remove('hidden');
+
+            } catch (error) {
+                document.getElementById('error').textContent = error.message;
+                document.getElementById('error').classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save mr-2"></i>Save Prices';
+            }
+        });
+    </script>
+</body>
+</html>

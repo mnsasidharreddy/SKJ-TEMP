@@ -1,0 +1,2990 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SKJ | Sai Kiran Jewelleries</title>
+    <link rel="icon" type="image/png" href="./images/transparent.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script>
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                apiKey: "AIzaSyATmseHSU3qimkm6pSCJ_xA1EL3_KiHtXs",
+                authDomain: "skj-jewelry-store.firebaseapp.com",
+                projectId: "skj-jewelry-store",
+                storageBucket: "skj-jewelry-store.firebasestorage.app",
+                messagingSenderId: "531463279637",
+                appId: "1:531463279637:web:2ab8aaaa80211045252a1c",
+                measurementId: "G-0S99YE5NR1"
+            });
+        }
+    </script>
+    <style>
+        :root {
+            --royal-green: #004d40;
+            --gold: #D4AF37;
+            --luxury-black: #121212;
+            --metallic-gold: #D4AF37;
+            --off-white: #F5F5F5;
+            --ticker-gray: #1E1E1E;
+            --midnight-navy: #0A192F;
+            --warm-gold: #FFD700;
+            --ticker-navy: #112240;
+            --soft-ivory: #FAFAFA;
+            --champagne-gold: #B8860B;
+            --deep-charcoal: #2C2C2C;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        /* Main content scrollable area */
+        .main-content {
+            height: calc(100vh - 110px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            margin-top: 110px;
+            scroll-behavior: smooth;
+        }
+
+        @media (max-width: 1023px) {
+            .main-content {
+                height: calc(100vh - 100px);
+                margin-top: 100px;
+            }
+        }
+
+        /* Hero Carousel */
+        /* Hero Carousel */
+        .carousel-img-fixed {
+            height: 500px;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        /* Slow smooth carousel transition */
+        #heroCarousel .carousel-item {
+            transition: transform 1.2s ease-in-out !important;
+        }
+
+        @media (max-width: 768px) {
+            .carousel-img-fixed {
+                height: 300px;
+            }
+        }
+
+        /* Categories Grid - Responsive */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1200px) {
+            .categories-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+
+        .category-wrapper {
+            text-align: center;
+        }
+
+        .category-card {
+            aspect-ratio: 1;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            border: 2px solid #e5e7eb;
+            transition: all 0.4s ease;
+        }
+
+        @media (min-width: 1024px) {
+            .category-card {
+                border: 3px solid transparent;
+            }
+
+            .category-card:hover {
+                border-color: var(--gold);
+                transform: translateY(-8px);
+                box-shadow: 0 20px 40px rgba(212, 175, 55, 0.2);
+            }
+        }
+
+        .category-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        @media (min-width: 1024px) {
+            .category-card:hover img {
+                transform: scale(1.1);
+            }
+        }
+
+        .category-name {
+            margin-top: 0.75rem;
+            font-weight: 700;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #374151;
+            transition: color 0.3s;
+        }
+
+        @media (min-width: 1024px) {
+            .category-wrapper:hover .category-name {
+                color: var(--gold);
+            }
+        }
+
+
+        .toast-notification {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 10000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .toast-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .toast-error {
+            background: #ef4444;
+            color: white;
+        }
+
+        .toast-info {
+            background: #6b7280;
+            color: white;
+        }
+
+        /* ── Trending Section ────────────────────────────────── */
+        .trending-container {
+            overflow: hidden;           /* clips the scrolling inner track */
+            position: relative !important;
+            padding: 1rem 0;
+            isolation: isolate;
+        }
+
+        .trending-container.hidden {
+            display: none !important;
+        }
+
+        /* The direct child of .trending-container — used as a viewport */
+        #trending-container {
+            overflow: hidden;
+            width: 100%;
+            /* NO transition on transform — it fights the CSS animation and causes the flicker */
+        }
+
+        /* ── DESKTOP: inner marquee track (mirrors .marquee-track exactly) ── */
+        .trending-marquee-track {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 2rem;
+            width: fit-content;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            animation: trendScroll var(--scroll-duration, 90s) linear infinite;
+        }
+
+        .trending-container:hover .trending-marquee-track {
+            animation-play-state: paused;
+        }
+
+        /* ── Mobile pagination grid ── */
+        #trending-container.mobile-page-mode {
+            display: grid;
+            width: 100%;
+            gap: 1rem;
+            padding: 0 10px;
+            opacity: 1;
+            transition: opacity 0.35s ease;
+        }
+
+        @keyframes trendScroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Nav buttons — hidden by default, shown by JS */
+        .trending-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 45px;
+            height: 45px;
+            background: var(--gold);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .trending-nav-btn.prev { left: 10px; }
+        .trending-nav-btn.next { right: 10px; }
+        @media (min-width: 1024px) { .trending-nav-btn { display: none !important; } }
+
+
+        /* Trending card styles */
+        .trending-card {
+            min-width: 220px;
+            max-width: 220px;
+            width: 220px;
+            height: auto;
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 3px solid transparent;
+            /* Changed from border-top to border */
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 3% 3% 7% 3%;
+        }
+
+        @media (min-width: 1024px) {
+            .trending-card {
+                min-width: 260px;
+                max-width: 260px;
+            }
+
+            /* Gold border on ALL sides on hover */
+            .trending-card:hover {
+                border-color: var(--gold);
+                transform: translateY(-4px);
+                box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
+            }
+        }
+
+        @media (min-width: 1440px) {
+            .trending-card {
+                min-width: 320px;
+                max-width: 320px;
+            }
+        }
+
+        .card-image-section {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+            background: #f5f5f5;
+            flex-shrink: 0;
+            border-radius: 15px;
+        }
+
+        /* Mobile: make card images square so cards look balanced */
+        @media (max-width: 1023px) {
+            .trending-card {
+                padding: 3% 3% 10% 3%;
+            }
+            .card-image-section {
+                height: 0;
+                padding-bottom: 100%; /* 1:1 square ratio */
+                position: relative;
+            }
+            .card-image-section img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            /* Offer badge needs re-anchoring since parent is now relative+padding-bottom */
+            .offer-badge {
+                position: absolute;
+                top: 0.4rem;
+                left: 0.4rem;
+                z-index: 10;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .card-image-section {
+                height: 240px;
+            }
+        }
+
+        @media (min-width: 1440px) {
+            .card-image-section {
+                height: 280px;
+            }
+        }
+
+        .card-image-section img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        @media (min-width: 1024px) {
+            .trending-card:hover .card-image-section img {
+                transform: scale(1.05);
+            }
+        }
+
+        .offer-badge {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            background: #ef4444;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.65rem;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .card-content {
+            padding: 1rem;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            flex: 1;
+            min-height: 120px;
+        }
+
+        @media (min-width: 1440px) {
+            .card-content {
+                padding: 1.25rem;
+                gap: 0.9rem;
+                min-height: 140px;
+            }
+        }
+
+        .card-content h5 {
+            font-size: 0.95rem;
+            margin: 0;
+            font-weight: 700;
+            color: #1f2937;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 1440px) {
+            .card-content h5 {
+                font-size: 1.2rem;
+            }
+        }
+
+        .price-section {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            flex-shrink: 0;
+
+        }
+
+        .original-price {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            text-decoration: line-through;
+        }
+
+        @media (min-width: 1440px) {
+            .original-price {
+                font-size: 1rem;
+            }
+        }
+
+        .offer-price {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #d97706;
+        }
+
+        @media (min-width: 1440px) {
+            .offer-price {
+                font-size: 1.3rem;
+            }
+        }
+
+        .card-add-btn {
+            width: 100%;
+            margin-top: auto;
+            flex-shrink: 0;
+            height: 42px;
+        }
+
+        .card-add-btn button {
+            width: 100%;
+            height: 42px;
+            padding: 0;
+            font-size: 0.8rem;
+            background: #064e3b;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        @media (max-width: 320px) {
+            .card-add-btn button {
+                padding: 0.5rem;
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (min-width: 1440px) {
+            .card-add-btn button {
+                padding: 0.9rem;
+                font-size: 1rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .card-add-btn button:hover {
+                background: #065f46;
+            }
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 2px solid #064e3b;
+            border-radius: 0.6rem;
+            overflow: hidden;
+            background: white;
+            height: 42px;
+        }
+
+        .quantity-controls button {
+            flex: 1;
+            height: 42px;
+            padding: 0;
+            background: #064e3b;
+            color: white;
+            border: none;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        @media (max-width: 320px) {
+            .quantity-controls button {
+                padding: 0.7rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (min-width: 1440px) {
+            .quantity-controls button {
+                padding: 0.9rem;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .quantity-controls button:hover {
+                background: #065f46;
+            }
+        }
+
+        .quantity-controls span {
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: #064e3b;
+        }
+
+        @media (max-width: 320px) {
+            .quantity-controls span {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (min-width: 1440px) {
+            .quantity-controls span {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Marquee Styles */
+        .marquee-container {
+            overflow: hidden;
+        }
+
+        /* Marquee - Single Line Seamless */
+        .marquee-inner {
+            display: flex;
+            width: fit-content;
+            animation: marquee 80s linear infinite;
+            will-change: transform;
+            white-space: nowrap;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+
+        /* Cart Slider */
+        #cart-slider {
+            display: none !important;
+        }
+
+        /* Product Popup - Responsive Layout */
+        #item-popup {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9500;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+        }
+
+        #item-popup.active {
+            display: flex;
+        }
+
+        #item-popup .popup-container {
+            background: white;
+            border-radius: 2rem;
+            width: 100%;
+            height: 80vh;
+            max-height: 80vh;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            #item-popup .popup-container {
+                flex-direction: row;
+                height: 70vh;
+                max-height: 600px;
+            }
+        }
+
+        #item-popup .popup-image-section {
+            width: 100%;
+            height: 40vh;
+            background: #f3f4f6;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (min-width: 768px) {
+            #item-popup .popup-image-section {
+                width: 50%;
+                height: 100%;
+            }
+        }
+
+        #item-popup .popup-details-section {
+            width: 100%;
+            padding: 2rem 1.5rem 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            #item-popup .popup-details-section {
+                width: 50%;
+                padding: 2rem;
+            }
+        }
+
+        /* Popup image zoom effect */
+        #pop-img {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #pop-img.zoomed {
+            transform: scale(2);
+            cursor: zoom-out;
+        }
+
+        /* Popup heart button styling */
+        .popup-heart-btn {
+            background: transparent !important;
+            border: none !important;
+        }
+
+        .popup-heart-btn i {
+            transition: all 0.3s ease;
+            color: #ffffff;
+            font-size: 1.1rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        @media (min-width: 1025px) {
+            .popup-heart-btn:hover i {
+                color: #ef4444;
+                transform: scale(1.15);
+            }
+        }
+
+        .popup-heart-btn.active i {
+            color: #ef4444 !important;
+        }
+
+        #item-popup .popup-close {
+            position: absolute;
+            top: 2rem;
+            right: 1.2rem;
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #6b7280;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        #item-popup .popup-close:hover {
+            background: #f3f4f6;
+            color: #ef4444;
+        }
+
+
+
+        /* Testimonials */
+        /* Testimonials */
+.testimonial-slide { text-align: center; padding: 1.5rem 2rem; opacity: 0; position: absolute; top: 0; left: 0; width: 100%; transition: opacity 0.5s ease-in-out; visibility: hidden; pointer-events: none; }
+.testimonial-slide.active { opacity: 1; position: relative; visibility: visible; pointer-events: auto; }
+.testimonial-btn { background: white; border: 2px solid var(--gold); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; font-size: 1.5rem; color: var(--gold); flex-shrink: 0; }
+
+        @media (min-width: 1024px) {
+            .testimonial-btn:hover {
+                background: var(--gold);
+                color: white;
+            }
+        }
+
+        .btn-premium {
+            background: var(--royal-green);
+            color: white;
+            transition: all 0.3s;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-weight: 700;
+        }
+
+        @media (min-width: 1024px) {
+            .btn-premium:hover {
+                background: #00332b;
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        /* Heart button in cards */
+        .card-heart {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 20;
+            background: transparent;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        @media (min-width: 1024px) {
+            .card-heart {
+                border: none;
+            }
+
+            .card-heart:hover {
+                transform: scale(1.2);
+            }
+        }
+
+        .card-heart i {
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        /* Popup responsive adjustments */
+        @media (max-width: 767px) {
+            #item-popup .popup-container {
+                flex-direction: column;
+                height: 95vh;
+                border-radius: 1.5rem;
+            }
+
+            #item-popup .popup-image-section {
+                width: 100%;
+                height: 45vh;
+            }
+
+            #item-popup .popup-details-section {
+                width: 100%;
+                padding: 1.5rem 1rem 1rem;
+            }
+        }
+
+
+        /* Wishlist button styles */
+        .card-heart {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 20;
+            background: transparent;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .card-heart:hover {
+            transform: scale(1.15);
+        }
+
+        .card-heart.active,
+        .card-heart.heart-active {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .card-heart i {
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        /* Popup heart button */
+        .popup-heart-btn {
+            background: rgba(0, 0, 0, 0.3) !important;
+            backdrop-filter: blur(4px);
+        }
+
+        .popup-heart-btn:hover {
+            background: rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .popup-heart-btn.active i {
+            color: #ef4444 !important;
+        }
+
+        /* Toast animation */
+        @keyframes toastSlideIn {
+            from {
+                transform: translateX(-50%) translateY(100px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-notification {
+            animation: toastSlideIn 0.3s ease;
+        }
+
+        /* Add to Cart Button Animation */
+        .add-to-cart-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .add-to-cart-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .add-to-cart-btn:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .add-to-cart-btn.added {
+            background: #10b981 !important;
+            transform: scale(1.05);
+        }
+
+        .add-to-cart-btn.added::before {
+            content: '✓ ';
+        }
+
+        /* Quantity control animation */
+        .qty-control {
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Card add button in trending/index pages */
+        .card-add-btn button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card-add-btn button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .card-add-btn button:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .card-add-btn button.added {
+            background: #10b981 !important;
+        }
+
+        .card-add-btn button.added::before {
+            content: '✓ Added!';
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50">
+    <div id="styles-placeholder"></div>
+    <script>
+        // Store Status Check — uses compat SDK (same as firebase-config.js)
+        // Runs after Firebase compat scripts are loaded in <head>
+        (function initStoreStatusCheck() {
+            function doCheck() {
+                if (typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length) {
+                    setTimeout(doCheck, 150);
+                    return;
+                }
+                try {
+                    const db = firebase.firestore();
+                    const settingsRef = db.collection('settings').doc('dashboard');
+
+                    // Initial check
+                    settingsRef.get().then(function(docSnap) {
+                        if (docSnap.exists) {
+                            const data = docSnap.data();
+                            if (data.storeOpen === false) {
+                                window.location.replace('store-closed.html');
+                                return;
+                            } 
+                        }
+                        // Real-time listener — redirects ALL users the instant admin closes store
+                        settingsRef.onSnapshot(function(snap) {
+                            if (snap.exists) {
+                                if (snap.data().storeOpen === false) {
+                                    window.location.replace('store-closed.html');
+                                }
+                            }
+                        });
+                    }).catch(function(err) {
+                        console.warn('Store status check failed:', err);
+                    });
+                } catch(e) {
+                    console.warn('Store status init error:', e);
+                }
+            }
+            doCheck();
+        })();
+    </script>
+    <!-- Header Placeholder -->
+    <div id="header-placeholder"></div>
+
+    <!-- Desktop CTA -->
+    <div id="cta-placeholder"></div>
+
+    <main class="main-content">
+        <!-- Hero Carousel — images loaded from Firebase -->
+<div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+    <div class="carousel-inner" id="heroCarouselInner">
+        <!-- Images loaded dynamically from Firebase -->
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel"
+        data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel"
+        data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+</div>
+
+<script>
+// ── Hero Carousel — Firebase dynamic loader with 10-second onSnapshot delay ──
+(function() {
+    let carouselPendingTimer = null;
+
+    function applyCarouselImages(images) {
+        const inner = document.getElementById('heroCarouselInner');
+        if (!inner || !images.length) return;
+
+        inner.innerHTML = '';
+        images.forEach((img, idx) => {
+            const div = document.createElement('div');
+            div.className = 'carousel-item' + (idx === 0 ? ' active' : '');
+            div.innerHTML = `<img src="${img.url}" class="carousel-img-fixed d-block" alt="Banner ${idx + 1}" loading="${idx === 0 ? 'eager' : 'lazy'}">`;
+            inner.appendChild(div);
+        });
+
+       // Reinitialise Bootstrap carousel — wait for Bootstrap JS if not yet loaded
+        const carouselEl = document.getElementById('heroCarousel');
+        function initBootstrapCarousel() {
+            if (window.bootstrap && carouselEl) {
+                const existing = bootstrap.Carousel.getInstance(carouselEl);
+                if (existing) existing.dispose();
+                new bootstrap.Carousel(carouselEl, { interval: 5000, ride: 'carousel' });
+            }
+        }
+        if (window.bootstrap) {
+            initBootstrapCarousel();
+        } else {
+            // Bootstrap JS not yet loaded — wait for it
+            const bsScript = document.querySelector('script[src*="bootstrap.bundle"]');
+            if (bsScript) {
+                bsScript.addEventListener('load', initBootstrapCarousel);
+            } else {
+                // Fallback: poll until bootstrap is available
+                const poll = setInterval(() => {
+                    if (window.bootstrap) {
+                        clearInterval(poll);
+                        initBootstrapCarousel();
+                    }
+                }, 100);
+                setTimeout(() => clearInterval(poll), 10000);
+            }
+        }
+    }
+
+    function initCarouselListener() {
+        if (typeof firebase === 'undefined') return;
+        const db = firebase.firestore();
+
+        db.collection('coverImages')
+            .orderBy('order', 'asc')
+            .onSnapshot((snapshot) => {
+    const images = [];
+    snapshot.forEach(doc => images.push(doc.data()));
+
+    if (!images.length) return; // keep static fallback if collection empty
+
+    if (!window._carouselFirstLoad) {
+        // ── First load: cancel any pending timer, apply instantly ──
+        window._carouselFirstLoad = true;
+        if (carouselPendingTimer) clearTimeout(carouselPendingTimer);
+        applyCarouselImages(images);
+    } else {
+        // ── Subsequent changes: 10-second delay ──
+        if (carouselPendingTimer) clearTimeout(carouselPendingTimer);
+        carouselPendingTimer = setTimeout(() => {
+            applyCarouselImages(images);
+        }, 10000);
+    }
+}, (err) => {
+    console.warn('Carousel listener error:', err.message);
+});
+    }
+
+    // Wait for Firebase to be ready
+    if (typeof firebase !== 'undefined' && firebase.apps?.length > 0) {
+        initCarouselListener();
+    } else {
+        window.addEventListener('firebase-ready', initCarouselListener);
+        // Extra fallback
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (typeof firebase !== 'undefined') initCarouselListener();
+            }, 2000);
+        });
+    }
+})();
+</script>
+
+        <!-- Categories Section -->
+        <section id="categories" class="py-16 md:py-20 px-4 md:px-10 bg-slate-50">
+            <h2
+                class="text-2xl md:text-3xl font-bold text-emerald-950 mb-8 md:mb-12 text-center uppercase tracking-widest italic">
+                Categories</h2>
+            <div class="max-w-6xl mx-auto categories-grid" id="categories-container">
+                <!-- Injected by JS -->
+            </div>
+        </section>
+
+
+        <!-- Trending Section - Only shows if items exist -->
+        <section id="trending-section" class="py-16 md:py-20 bg-emerald-50/50 hidden">
+            <h2 class="text-center text-2xl md:text-3xl font-bold mb-8 md:mb-12 uppercase tracking-widest italic">
+                Trending Now</h2>
+            <div class="trending-container" id="trending-wrapper">
+                <button onclick="scrollTrendingItems(-1)" class="trending-nav-btn prev" id="trend-prev">❮</button>
+                <div class="trending-track" id="trending-container" style="overflow-x:auto;scrollbar-width:none;">
+                    <!-- Injected by JS -->
+                </div>
+                <button onclick="scrollTrendingItems(1)" class="trending-nav-btn next" id="trend-next">❯</button>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="py-20 bg-white">
+            <h2
+                class="text-center text-2xl md:text-3xl font-bold mb-8 md:mb-12 uppercase tracking-widest italic text-emerald-950">
+                Customer Reviews</h2>
+            <div style="max-width:960px;margin:0 auto;padding:0 1rem;position:relative;display:flex;align-items:center;gap:1rem;">
+                <button onclick="changeTestimonial(-1)" class="testimonial-btn" style="flex-shrink:0;">❮</button>
+                <div id="testimonials-wrapper" style="position:relative;min-height:280px;flex:1;overflow:hidden;">
+                    <!-- Injected by JS -->
+                </div>
+                <button onclick="changeTestimonial(1)" class="testimonial-btn" style="flex-shrink:0;">❯</button>
+            </div>
+        </section>
+
+        <!-- Services -->
+        <section class="py-16 md:py-20 bg-white">
+            <div class="container mx-auto px-4">
+                <h2
+                    class="text-center text-2xl md:text-3xl font-bold text-emerald-950 mb-12 md:mb-16 uppercase tracking-widest italic">
+                    Our Services</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 max-w-6xl mx-auto">
+                    <div class="service-card">
+                        <i class="fa-solid fa-certificate text-4xl text-amber-600 mb-6"></i>
+                        <h4 class="font-bold mb-3 text-emerald-950">BIS Hallmarked</h4>
+                        <p class="text-sm text-gray-500">100% purity guaranteed with government-approved hallmarking on
+                            all gold items.</p>
+                    </div>
+                    <div class="service-card">
+                        <i class="fa-solid fa-arrows-rotate text-4xl text-amber-600 mb-6"></i>
+                        <h4 class="font-bold mb-3 text-emerald-950">Easy Exchange</h4>
+                        <p class="text-sm text-gray-500">Transparent exchange policies for your old gold with maximum
+                            value returns.</p>
+                    </div>
+                    <div class="service-card">
+                        <i class="fa-solid fa-gem text-4xl text-amber-600 mb-6"></i>
+                        <h4 class="font-bold mb-3 text-emerald-950">Custom Designs</h4>
+                        <p class="text-sm text-gray-500">Turn your vision into reality with our expert bespoke jewelry
+                            design services.</p>
+                    </div>
+                    <div class="service-card">
+                        <i class="fa-solid fa-truck-fast text-4xl text-amber-600 mb-6"></i>
+                        <h4 class="font-bold mb-3 text-emerald-950">Insured Shipping</h4>
+                        <p class="text-sm text-gray-500">Secure and fully insured doorstep delivery for all your
+                            precious purchases.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Placeholder -->
+        <div id="footer-placeholder"></div>
+    </main>
+
+
+
+    <!-- Mobile Navigation -->
+    <div id="mobile-nav-placeholder"></div>
+
+
+
+    <!-- Product Popup -->
+    <div id="item-popup"
+        class="fixed inset-0 bg-black/90 hidden z-[9500] items-center justify-center p-4 backdrop-blur-md">
+        <div class="popup-container">
+            <button onclick="closePopup()" class="popup-close">&times;</button>
+
+            <!-- Image Section -->
+            <div class="popup-image-section">
+                <div id="pop-discount-label"
+                    class="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold z-20">
+                </div>
+
+                <!-- Carousel Buttons -->
+                <button onclick="changePopImg(-1)"
+                    class="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white border-none rounded-full w-10 h-10 flex items-center justify-center z-30 text-gray-800 font-bold">❮</button>
+                <button onclick="changePopImg(1)"
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white border-none rounded-full w-10 h-10 flex items-center justify-center z-30 text-gray-800 font-bold">❯</button>
+
+                <!-- Main Image -->
+                <img id="pop-img" src=""
+                    class="w-full h-full object-cover transition-transform duration-500 origin-center">
+
+                <!-- Controls Overlay -->
+                <div class="absolute bottom-3 right-3 flex gap-2 z-30">
+                    <button onclick="event.stopPropagation(); zoomPopupImage()"
+                        class="bg-white/80 hover:bg-white rounded-full w-9 h-9 flex items-center justify-center border-none transition"><img
+                            src="./images/Magnifier.png" style="width:18px;height:18px;"></button>
+                    <button onclick="event.stopPropagation(); togglePopupWishlist(currentPopId)"
+                        class="popup-heart-btn rounded-full w-9 h-9 flex items-center justify-center border-none transition text-lg"
+                        style="background: transparent;">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Details Section -->
+            <div class="popup-details-section">
+                <div>
+                    <h2 id="pop-title" class="text-xl md:text-3xl font-serif text-emerald-950 mb-3"></h2>
+                    <div class="space-y-2 mb-4 text-gray-600 border-y py-3 text-xs md:text-sm">
+                        <p class="flex justify-between"><span>Purity:</span> <span
+                                class="font-bold text-emerald-900">22K / 916 Hallmark</span></p>
+                        <p class="flex justify-between"><span>Gross Weight:</span> <span
+                                class="font-bold text-emerald-900">~24.500 Grams</span></p>
+                    </div>
+                    <div class="flex items-baseline space-x-2 md:space-x-3 mb-4">
+                        <span id="pop-old-price" class="text-sm md:text-lg text-gray-400 line-through"></span>
+                        <span id="pop-price" class="text-xl md:text-3xl font-bold text-amber-600"></span>
+                    </div>
+                </div>
+                <div id="pop-btn-slot" class="mt-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Popup -->
+    <!-- Order Popup -->
+    <div id="order-popup"
+        class="fixed inset-0 bg-black/90 hidden z-[9600] items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-white rounded-2xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-emerald-950">Complete Your Order</h3>
+                <button onclick="closeOrderPopup()" class="text-4xl text-gray-500 hover:text-gray-700">&times;</button>
+            </div>
+
+            <!-- Order Type Selection -->
+            <div class="mb-6 p-4 bg-amber-50 rounded-xl border-2 border-amber-200">
+                <h4 class="font-bold text-amber-800 mb-3">Order Type *</h4>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="order-type" value="in-store" checked
+                            onchange="handleOrderTypeChange()">
+                        <span class="font-medium">In-Store Purchase</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="order-type" value="delivery" onchange="handleOrderTypeChange()">
+                        <span class="font-medium">Delivery</span>
+                    </label>
+                </div>
+                <p id="order-type-hint" class="text-sm text-amber-700 mt-2">
+                    <i class="fas fa-info-circle"></i> Visit our store to complete your purchase
+                </p>
+            </div>
+
+            <form onsubmit="submitOrder(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Your Name *</label>
+                    <input type="text" id="order-name" required
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-emerald-950 focus:outline-none"
+                        placeholder="Enter your name">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Phone Number *</label>
+                    <input type="tel" id="order-phone" required
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-emerald-950 focus:outline-none"
+                        placeholder="Enter your phone number">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Email <span
+                            class="text-gray-400 font-normal">(optional)</span></label>
+                    <input type="email" id="order-email"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-emerald-950 focus:outline-none"
+                        placeholder="Enter your email address">
+                </div>
+
+                <div id="delivery-address-section" style="display: none;">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Delivery Address *</label>
+                    <textarea id="order-address" rows="3"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-emerald-950 focus:outline-none resize-none"
+                        placeholder="Enter your full address"></textarea>
+                </div>
+
+                <div class="bg-slate-100 p-4 rounded-xl">
+                    <h4 class="font-bold text-emerald-950 mb-2">Order Summary</h4>
+                    <div id="order-summary" class="text-sm text-gray-700 max-h-40 overflow-y-auto"></div>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-emerald-950 text-white py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-emerald-800 transition">
+                    Send Order via WhatsApp
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Firebase Configuration -->
+    <script type="module">
+        // Import firebase-config if it exists
+        try {
+            import('./firebase-config.js').then(module => {
+                // Make db available globally for components.js
+                if (module.db) {
+                    window.db = module.db;
+                    console.log('✅ Firebase initialized from firebase-config.js');
+                }
+            }).catch(err => {
+                console.log('ℹ️ firebase-config.js not found, using components.js fallback');
+            });
+        } catch (e) {
+            console.log('ℹ️ Using local storage for prices');
+        }
+    </script>
+    <script src="components.js"></script>
+    <script>
+        // Don't re-init cart/wishlist — they are already loaded from localStorage in components.js
+        // Just ensure they are defined
+        if (typeof cart === 'undefined') cart = {};
+        if (typeof wishlist === 'undefined') wishlist = [];
+
+
+
+
+
+        // Categories data and render function
+        const categories = [
+            { name: 'Rings', img: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400' },
+            { name: 'Chains', img: 'https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1WOFwN.img?w=1012&h=569&m=6&x=494&y=158&s=264&d=264' },
+            { name: 'Bracelets', img: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400' },
+            { name: 'Harams', img: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400' },
+            { name: 'Earrings', img: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400' },
+            { name: 'Bangles', img: 'https://images.unsplash.com/photo-1611085583191-a3b130944abc?w=400' },
+            { name: 'Coins', img: 'https://images.unsplash.com/photo-1584270354949-1c8e6b4b9a1c?w=400' },
+            { name: 'Necklaces', img: 'https://images.unsplash.com/photo-1584270354949-1c8e6b4b9a1c?w=400' },
+            { name: 'Other', img: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=400' }
+        ];
+
+        // Render categories
+
+        // Render categories
+
+        function renderCategories() {
+            const container = document.getElementById('categories-container');
+            container.innerHTML = categories.map(cat => `
+        <div class="category-wrapper">
+            <a href="${cat.name.toLowerCase()}.html" class="block no-underline">
+                <div class="category-card">
+                    <img src="${cat.img}" alt="${cat.name}" loading="lazy">
+                </div>
+                <h4 class="category-name">${cat.name}</h4>
+            </a>
+        </div>
+    `).join('');
+        }
+
+        // Calculate price based on weight
+        function calculatePrice(weightGrams, metal = 'gold', makingCharge = 0, carat = '22CT') {
+            const latest = (priceHistory && priceHistory.length > 0)
+                ? priceHistory[priceHistory.length - 1]
+                : (cachedPrices
+                    ? { gold: cachedPrices.gold || 0, skjg: cachedPrices.skjg || 0, skjs: cachedPrices.silver || 0, silver: cachedPrices.silver || 0 }
+                    : { gold: 0, skjg: 0, skjs: 0, silver: 0 });
+            const w = parseFloat(weightGrams) || 0;
+            let unit = 0;
+            if (metal === 'gold') {
+                unit = (carat === '24CT') ? (latest.gold) : (latest.skjg);
+            } else if (metal === 'silver') {
+                unit = ((latest.skjs || latest.silver)) / 10;
+            }
+            return metal === 'other' ? Math.round(makingCharge) : Math.round((w * unit) + makingCharge);
+        }
+
+
+// Handle card click - opens popup only if not clicking buttons
+function handleCardClick(event, id, price, originalPrice, discount, name, image) {
+    // Don't open popup if user is selecting text
+    if (window.getSelection().toString().length > 0) return;
+    
+    openProductPopup(id, price, originalPrice, discount, name, image);
+}
+
+// Handle wishlist button click - completely isolated
+function handleWishlistClick(event, id, name) {
+    event.stopPropagation();
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    
+    // Get the actual button element from event target
+    const btnElement = event.currentTarget; // The button that was clicked
+    
+    // Call toggleWishlist with proper element
+    toggleWishlist(id, name, btnElement);
+    return false;
+}
+
+
+
+        let priceHistory = [];
+        let trendingProducts = [];
+        // Render trending items
+
+        // AFTER (new with onSnapshot for real-time updates):
+        // AFTER (new with onSnapshot for real-time updates):
+        let trendingUnsubscribe = null;
+async function renderTrending() {
+    const section = document.getElementById('trending-section');
+    const container = document.getElementById('trending-container');
+    if (!section || !container) return;
+
+    // Use the globally loaded compat Firebase — no module imports needed
+    if (typeof firebase === 'undefined' || !firebase.firestore) {
+        setTimeout(renderTrending, 600);
+        return;
+    }
+
+    try {
+        const db = firebase.firestore();
+        if (trendingUnsubscribe) { trendingUnsubscribe(); trendingUnsubscribe = null; }
+
+        trendingUnsubscribe = db.collection('products')
+            .where('isTrending', '==', true)
+            .limit(20)
+            .onSnapshot((querySnapshot) => {
+                console.log('Trending snapshot received, count:', querySnapshot.size);
+                trendingProducts = [];
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.onlineEnabled === false) return;
+                    trendingProducts.push({ id: doc.id, ...data });
+                });
+
+                if (trendingProducts.length === 0) {
+                    section.classList.add('hidden');
+                    container.innerHTML = '';
+                    return;
+                }
+
+                section.classList.remove('hidden');
+
+                const latestPrices = (priceHistory && priceHistory.length > 0)
+                    ? priceHistory[priceHistory.length - 1]
+                    : (cachedPrices || { gold: 6400, skjg: 6200, skjs: 75, silver: 750 });
+
+                let html = '';
+                trendingProducts.forEach((product) => {
+                    // ========== CORRECTED PRICE CALCULATION ==========
+                    let offerPrice = product.offerPrice || product.price || 0;
+                    let originalPrice = product.originalPrice || 0;
+                    let discount = 0;
+                    let hasDiscount = false;
+
+                    if (product.metalType === 'gold' && product.weight && product.dynamicPricing !== false) {
+                        const ratePerGram = product.carat === '24CT' ? latestPrices.gold : latestPrices.skjg;
+                        const makingCharges = (product.makingCharges || 0) * parseFloat(product.weight);
+                        const basePrice = Math.round((parseFloat(product.weight) * ratePerGram) + makingCharges);
+                        let discountAmt = product.discountAmount || 0;
+                        if (!discountAmt && product.discountPercent > 0) {
+                            discountAmt = Math.round((basePrice * product.discountPercent) / 100);
+                        }
+                        originalPrice = basePrice;
+                        offerPrice = basePrice - discountAmt;
+                        discount = discountAmt > 0 ? Math.round(((originalPrice - offerPrice) / originalPrice) * 100) : 0;
+                        hasDiscount = discountAmt > 0;
+                    } else if (product.metalType === 'silver' && product.weight && product.dynamicPricing !== false) {
+                        const ratePerGram = (latestPrices.skjs || latestPrices.silver || 750) / 10;
+                        const makingCharges = (product.makingCharges || 0) * parseFloat(product.weight);
+                        const basePrice = Math.round((parseFloat(product.weight) * ratePerGram) + makingCharges);
+                        let discountAmt = product.discountAmount || 0;
+                        if (!discountAmt && product.discountPercent > 0) {
+                            discountAmt = Math.round((basePrice * product.discountPercent) / 100);
+                        }
+                        originalPrice = basePrice;
+                        offerPrice = basePrice - discountAmt;
+                        discount = discountAmt > 0 ? Math.round(((originalPrice - offerPrice) / originalPrice) * 100) : 0;
+                        hasDiscount = discountAmt > 0;
+                    } else {
+                        // Non-dynamic pricing - use stored prices
+                        originalPrice = product.originalPrice || offerPrice;
+                        if (originalPrice > offerPrice) {
+                            discount = Math.round(((originalPrice - offerPrice) / originalPrice) * 100);
+                            hasDiscount = discount > 0;
+                        } else {
+                            hasDiscount = false;
+                        }
+                    }
+
+                    const mainImage = (product.images && product.images.length > 0)
+                        ? product.images[product.mainImageIndex || 0]
+                        : 'https://via.placeholder.com/500x400?text=No+Image';
+                    const isWishlisted = wishlist.some(w => w.id === product.id);
+                    const qty = cart[product.id]?.qty || 0;
+                    const safeName = product.name.replace(/'/g, "\\'");
+
+                    // ========== CORRECTED HTML TEMPLATE ==========
+                    html += `
+                        <div class="trending-card-wrapper" data-item-id="${product.id}">
+                            <div class="trending-card" data-product-id="${product.id}">
+                                <div class="card-image-section" onclick="handleCardClick(event, '${product.id}', ${offerPrice}, ${originalPrice}, ${discount}, '${safeName}', '${mainImage}')">
+                                    ${hasDiscount ? `<div class="offer-badge">${discount}% OFF</div>` : ''}
+                                    <button onclick="handleWishlistClick(event, '${product.id}', '${safeName}')" 
+        class="card-heart ${isWishlisted ? 'heart-active' : ''}" 
+        data-product-id="${product.id}">
+    <i class="${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart" 
+       style="color:${isWishlisted ? '#ef4444' : '#ffffff'};font-size:1.1rem;"></i>
+</button>
+                                    <img src="${mainImage}" alt="${product.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/500x400?text=Image+Error'">
+                                </div>
+                                <div class="card-content" onclick="handleCardClick(event, '${product.id}', ${offerPrice}, ${originalPrice}, ${discount}, '${safeName}', '${mainImage}')">
+                                    <h5>${product.name}</h5>
+                                    <div class="price-section">
+                                        ${hasDiscount ? `<span class="original-price">₹${originalPrice.toLocaleString()}</span>` : ''}
+                                        <span class="offer-price">₹${offerPrice.toLocaleString()}</span>
+                                    </div>
+                                    <div class="card-add-btn" onclick="event.stopPropagation();">
+                                        ${qty > 0 ? `
+                                            <div class="quantity-controls">
+                                                <button onclick="event.stopPropagation(); updateCartQty('${product.id}', -1, ${offerPrice}, ${originalPrice}, '${safeName}');">−</button>
+                                                <span>${qty}</span>
+                                                <button onclick="event.stopPropagation(); updateCartQty('${product.id}', 1, ${offerPrice}, ${originalPrice}, '${safeName}');">+</button>
+                                            </div>
+                                        ` : `
+                                            <button onclick="event.stopPropagation(); updateCartQty('${product.id}', 1, ${offerPrice}, ${originalPrice}, '${safeName}');">Add to Cart</button>
+                                        `}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+
+                // ── CRITICAL: save single-set HTML before applyTrendingLayout duplicates it ──
+                container._singleSetHTML = html;
+                container.innerHTML = html;
+
+                // Give DOM a tick to paint cards so offsetWidth is measurable
+                setTimeout(applyTrendingLayout, 150);
+
+            }, (error) => {
+                console.error('Trending snapshot error:', error);
+                section.classList.add('hidden');
+            });
+
+    } catch (error) {
+        console.error('Error setting up trending listener:', error);
+        section.classList.add('hidden');
+    }
+}     
+        
+        
+        
+        
+        // Override checkGoldSafetyBeforeAdd to sync heart buttons from index.html
+        window.checkGoldSafetyBeforeAdd = async function (id, name, callback) {
+            try {
+                if (typeof firebase === 'undefined' || !firebase.firestore) { callback(true); return; }
+                const db = firebase.firestore();
+                const settingsDoc = await db.collection('settings').doc('dashboard').get();
+                if (settingsDoc.exists && settingsDoc.data().goldSafetyEnabled === true) {
+                    const confirmed = await (typeof showSafetyConfirmation === 'function' ? showSafetyConfirmation() : Promise.resolve(false));
+                    if (confirmed) {
+                        const idx = wishlist.findIndex(w => w.id === id);
+                        if (idx < 0) {
+                            wishlist.push({ id, name, addedAt: new Date().toISOString() });
+                            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+                            if (typeof updateWishlistUI === 'function') updateWishlistUI();
+                            // Instantly activate all heart buttons for this product
+                            syncAllHeartButtons(id);
+                            showToast('Added to wishlist ❤️', 'success');
+                        }
+                    }
+                    callback(false);
+                } else {
+                    callback(true);
+                }
+            } catch (err) { callback(true); }
+        };
+
+        
+        // NEW: Initialize trending section behavior
+        function initTrendingSection() {
+            const trendingContainer = document.getElementById('trending-container');
+            const trendingTrack = document.querySelector('.trending-track');
+            const trendingItems = document.querySelectorAll('.trending-card');
+            const prevBtn = document.querySelector('.trending-nav-btn.prev');
+            const nextBtn = document.querySelector('.trending-nav-btn.next');
+
+            if (!trendingContainer || !trendingTrack) return;
+
+            // Hide section if no trending items
+            if (trendingItems.length === 0) {
+                const section = document.getElementById('trending-section');
+                if (section) {
+                    section.classList.add('hidden');
+                    section.style.display = 'none';
+                }
+                return;
+            }
+
+            // Show section if items exist
+            const section = document.getElementById('trending-section');
+            if (section) {
+                section.classList.remove('hidden');
+                section.style.display = 'block';
+            }
+
+            // Apply layout based on screen size and item count
+            applyTrendingLayout();
+
+            // Manual scroll arrows (mobile only)
+            if (prevBtn && nextBtn) {
+                prevBtn.addEventListener('click', () => {
+                    trendingTrack.scrollBy({ left: -300, behavior: 'smooth' });
+                });
+                nextBtn.addEventListener('click', () => {
+                    trendingTrack.scrollBy({ left: 300, behavior: 'smooth' });
+                });
+            }
+        }
+        
+        // Scroll trending items — works for both button onclick and touch
+       function scrollTrendingItems(direction) {
+            // Desktop: buttons hidden, nothing to do
+            // Mobile: delegate to the fade-page navigator
+            const c = document.getElementById('trending-container');
+            if (!c) return;
+            if (typeof window._trendGoPage === 'function' && c._tTotal > 1) {
+                window._trendGoPage((c._tPage || 0) + direction);
+            }
+        }
+        window.scrollTrendingItems = scrollTrendingItems;
+
+        // Initialize on DOM ready - UPDATED
+        /*document.addEventListener('DOMContentLoaded', () => {
+
+            // 1. Initialize globals — always start empty; Firebase will populate if logged in
+/*cart = {};
+wishlist = [];
+localStorage.removeItem('cart');
+localStorage.removeItem('wishlist');
+
+            // 2. Render static content
+            renderCategories();
+            renderTestimonials();
+
+            // 3. Start auto-rotations
+            startTestimonialAuto();
+
+            // 4. Update UI
+            updateCartItemsList();
+            updateWishlistUI();
+
+            // 5. Initialize dynamic content (after delay)
+            setTimeout(renderTrending, 300);
+
+            // 6. Event listeners
+            document.getElementById('item-popup')?.addEventListener('click', (e) => {
+                if (e.target.id === 'item-popup') closePopup();
+            });
+            document.getElementById('order-popup')?.addEventListener('click', (e) => {
+                if (e.target.id === 'order-popup') closePopup();
+            });
+
+            // Initialize trending with small delay to ensure Firebase is ready
+            setTimeout(() => {
+                renderTrending();
+            }, 100);
+        });*/
+
+        // Popup backdrop close listeners — set once, not inside DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // DO NOT wipe cart/wishlist — auth listener in components.js restores them on login
+            renderCategories();
+            renderTestimonials();
+            startTestimonialAuto();
+            updateCartItemsList();
+            updateWishlistUI();
+            renderTrending();
+
+            // Render trending after a short delay so compat Firebase is ready
+            //setTimeout(renderTrending, 500);
+
+            document.getElementById('item-popup')?.addEventListener('click', (e) => {
+                if (e.target.id === 'item-popup') closePopup();
+            });
+        });
+
+        // Re-render trending when gold/silver prices change
+        window.onPricesUpdated = function(newPrices) {
+            if (typeof trendingProducts !== 'undefined' && trendingProducts && trendingProducts.length > 0) {
+                renderTrending();
+            }
+        };
+        // Initialize trending section behavior - Updated for dynamic layout
+        function initTrendingSection() {
+            const trendingContainer = document.getElementById('trending-container');
+            const trendingTrack = document.querySelector('.trending-track');
+            const trendingItems = document.querySelectorAll('.trending-card');
+            const prevBtn = document.querySelector('.trending-nav-btn.prev');
+            const nextBtn = document.querySelector('.trending-nav-btn.next');
+
+            if (!trendingContainer || !trendingTrack) return;
+
+            // Hide section if no trending items
+            if (trendingItems.length === 0) {
+                const section = document.getElementById('trending-section');
+                if (section) section.classList.add('hidden');
+                return;
+            }
+
+            // Show section if items exist
+            const section = document.getElementById('trending-section');
+            if (section) section.classList.remove('hidden');
+
+            // Apply layout based on screen size and item count
+            applyTrendingLayout();
+
+            // Manual scroll arrows (mobile only)
+            if (prevBtn && nextBtn) {
+                prevBtn.addEventListener('click', () => {
+                    trendingTrack.scrollBy({ left: -300, behavior: 'smooth' });
+                });
+                nextBtn.addEventListener('click', () => {
+                    trendingTrack.scrollBy({ left: 300, behavior: 'smooth' });
+                });
+            }
+        }
+
+        // Dynamic layout for trending section
+        // Dynamic layout for trending section
+        // ── Trending layout: desktop = inner marquee track, mobile = fade pagination ──
+        function applyTrendingLayout() {
+            const container = document.getElementById('trending-container');
+            const wrapper   = document.getElementById('trending-wrapper');
+            const prevBtn   = document.getElementById('trend-prev');
+            const nextBtn   = document.getElementById('trend-next');
+            if (!container || !wrapper) return;
+
+            const singleHTML = container._singleSetHTML;
+            if (!singleHTML) return;
+
+            // Parse individual card wrappers from the stored single-set HTML
+            const _tmp = document.createElement('div');
+            _tmp.innerHTML = singleHTML;
+            const _wrappers = Array.from(_tmp.querySelectorAll('.trending-card-wrapper'))
+                              .map(el => el.outerHTML);
+            if (!_wrappers.length) return;
+
+            // ── Full reset ──
+            container.className = '';           // strip all classes
+            container.removeAttribute('style'); // strip all inline styles
+            container.innerHTML = '';
+            if (prevBtn) { prevBtn.style.display = 'none'; prevBtn.onclick = null; }
+            if (nextBtn) { nextBtn.style.display = 'none'; nextBtn.onclick = null; }
+
+            const isDesktop = window.innerWidth >= 1024;
+
+            if (isDesktop) {
+                // ══════════════════════════════════════════════════════
+                // DESKTOP — inner .trending-marquee-track div scrolls.
+                // Parent #trending-container is just overflow:hidden.
+                // Repeat 20× so translateX(-50%) = translateX(0) visually.
+                // No transition on animated element → zero flicker.
+                // ══════════════════════════════════════════════════════
+                container.style.cssText = 'overflow:hidden; width:100%;';
+
+                const inner = document.createElement('div');
+                inner.className = 'trending-marquee-track';
+                inner.innerHTML = _wrappers.join('').repeat(20);
+                container.appendChild(inner);
+
+                // Force reflow BEFORE animation starts — prevents snap-to-start flash
+                void inner.offsetWidth;
+
+                const singleW  = inner.scrollWidth / 20;
+                const duration = Math.max(40, Math.round(singleW / 3)); // 3px/s — slower scroll
+                inner.style.setProperty('--scroll-duration', duration + 's');
+
+                // ── Desktop drag-to-scroll ──
+                // ── Desktop drag-to-scroll ──
+                let _dragStartX = 0, _dragOffset = 0, _mouseDown = false, _dragActive = false;
+                const _getTranslateX = () => {
+                    const st = getComputedStyle(inner);
+                    const m = new DOMMatrix(st.transform);
+                    return m.m41;
+                };
+
+                container.style.cursor = 'grab';
+                container.addEventListener('mousedown', (e) => {
+                    // Don't intercept button/link clicks
+                    if (e.target.closest('button, a, .card-heart')) return;
+                    _mouseDown = true;
+                    _dragActive = false;
+                    _dragStartX = e.clientX;
+                    _dragOffset = _getTranslateX();
+                });
+                document.addEventListener('mousemove', (e) => {
+                    if (!_mouseDown) return;
+                    const dx = e.clientX - _dragStartX;
+                    // Only start drag after 5px threshold
+                    if (!_dragActive && Math.abs(dx) < 5) return;
+                    if (!_dragActive) {
+                        _dragActive = true;
+                        inner.style.animation = 'none';
+                        container.style.cursor = 'grabbing';
+                    }
+                    const half = inner.scrollWidth / 2;
+                    let newX = _dragOffset + dx;
+                    if (newX > 0) newX -= half;
+                    if (newX < -half) newX += half;
+                    inner.style.transform = `translateX(${newX}px)`;
+                });
+                document.addEventListener('mouseup', () => {
+                    if (!_mouseDown) return;
+                    _mouseDown = false;
+                    if (!_dragActive) return;
+                    _dragActive = false;
+                    container.style.cursor = 'grab';
+                    // Resume animation from current position
+                    const curX = _getTranslateX();
+                    const half = inner.scrollWidth / 2;
+                    const pct = Math.abs(curX / half) * 100;
+                    inner.style.animation = '';
+                    inner.style.animationDelay = `-${(pct / 100) * duration}s`;
+                });
+
+            } else {
+                // ══════════════════════════════════════════════════════
+                // MOBILE / TABLET — testimonial-style fade pagination
+                //   ≥ 768px  →  3 cards per page
+                //   ≥ 480px  →  2 cards per page
+                //   < 480px  →  1 card  per page
+                // ══════════════════════════════════════════════════════
+                const vw    = window.innerWidth;
+                const ipp   = vw < 480 ? 1 : vw < 768 ? 2 : 3;
+                const total = Math.ceil(_wrappers.length / ipp);
+
+                container.classList.add('mobile-page-mode');
+                container.style.gridTemplateColumns = 'repeat(' + ipp + ', 1fr)';
+
+                // Store pagination state on the element itself (no stale-closure bugs)
+                container._tPage  = 0;
+                container._tTotal = total;
+                container._tIPP   = ipp;
+                container._tWrap  = _wrappers;
+
+                function _goPage(page) {
+                    const c = document.getElementById('trending-container');
+                    if (!c || !c._tWrap) return;
+                    const t = c._tTotal, i = c._tIPP, w = c._tWrap;
+                    const p = ((page % t) + t) % t;
+                    c._tPage = p;
+                    c.style.opacity = '0';
+                    setTimeout(() => {
+                        c.innerHTML = w.slice(p * i, p * i + i).join('');
+                        c.querySelectorAll('.trending-card').forEach(card => {
+                            card.style.minWidth = 'unset';
+                            card.style.maxWidth = 'unset';
+                            card.style.width    = '100%';
+                        });
+                        c.style.opacity = '1';
+                    }, 350);
+                }
+
+                window._trendGoPage = _goPage;
+                _goPage(0);
+
+                // ── Mobile touch swipe ──
+                let _touchStartX = 0, _touchStartTime = 0;
+                container.addEventListener('touchstart', (e) => {
+                    _touchStartX = e.touches[0].clientX;
+                    _touchStartTime = Date.now();
+                }, { passive: true });
+                container.addEventListener('touchend', (e) => {
+                    const dx = e.changedTouches[0].clientX - _touchStartX;
+                    const dt = Date.now() - _touchStartTime;
+                    // Swipe threshold: 40px in under 500ms
+                    if (Math.abs(dx) > 40 && dt < 500) {
+                        const c = document.getElementById('trending-container');
+                        if (dx < 0) window._trendGoPage(c._tPage + 1);  // swipe left = next
+                        else window._trendGoPage(c._tPage - 1);          // swipe right = prev
+                    }
+                }, { passive: true });
+
+                if (total > 1) {
+                    if (prevBtn) {
+                        prevBtn.style.display = 'flex';
+                        prevBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            const c = document.getElementById('trending-container');
+                            window._trendGoPage(c._tPage - 1);
+                        };
+                    }
+                    if (nextBtn) {
+                        nextBtn.style.display = 'flex';
+                        nextBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            const c = document.getElementById('trending-container');
+                            window._trendGoPage(c._tPage + 1);
+                        };
+                    }
+                }
+            }
+        }
+
+
+
+        // Re-apply layout on resize
+        window.addEventListener('resize', () => {
+            if (trendingProducts.length > 0) {
+                applyTrendingLayout();
+            }
+        });
+
+        // Render testimonials
+        const testimonials = [
+            {
+                "quote": "సాయి కిరణ్ జ్యుయలరీస్లోని పనితనం అసమానమైనది. నా వివాహ హారాన్ని ఇక్కడ కొన్నాను, వివరాల పట్ల ఉన్న శ్రద్ధ నిజంగా అద్భుతం.",
+                "author": "లక్ష్మి"
+            },
+            {
+                "quote": "అద్భుతమైన నాణ్యత మరియు అసలైన బంగారం. సిబ్బంది చాలా సహాయకారులు, ప్రతి ముక్క గురించి పూర్తి అవగాహన ఉంది. ఖచ్చితంగా సిఫారసు చేస్తున్నాను!",
+                "author": "శ్రీనివాస్"
+            },
+            {
+                "quote": "ఈ నగరంలోని ఉత్తమ ఆభరణాల దుకాణం ఇదే. వారి డిజైన్లు ప్రత్యేకమైనవి, ధరలు న్యాయమైనవి. ఖచ్చితంగా మళ్లీ వస్తాను.",
+                "author": "దివ్య"
+            },
+            {
+                "quote": "హాల్‌మార్కింగ్ ప్రక్రియ మరియు పారదర్శకత నన్ను చాలా ఆకర్షించాయి. ప్రతి ముక్కకు ప్రామాణికత ధృవీకరణ పత్రం ఇస్తారు.",
+                "author": "కృష్ణ"
+            },
+            {
+                "quote": "గాజులు మరియు చెవిపోగుల అందమైన సేకరణ. కస్టమర్ సేవ అసాధారణం, ముక్కలను మన ఇష్టం ప్రకారం కూడా తయారు చేస్తారు!",
+                "author": "స్వాతి"
+            },
+            {
+                "quote": "నేను ఒక నిశ్చితార్థ ఉంగరాన్ని కొన్నాను, మరింత సంతోషంగా ఉండలేను. డిజైన్ అందమైనది, నాణ్యత ప్రీమియం స్థాయిలో ఉంది.",
+                "author": "రవి"
+            },
+            {
+                "quote": "ఇక్కడ షాపింగ్ చేయడం గొప్ప అనుభవం. సిబ్బంది ప్రతి ఆభరణం యొక్క శుద్ధత మరియు బరువును స్పష్టంగా వివరించారు.",
+                "author": "పద్మ"
+            },
+            {
+                "quote": "బంగారు గొలుసులు మరియు లాకెట్ల అద్భుతమైన సేకరణ. సేల్ సమయంలో గొప్ప డిస్కౌంట్ లభించింది. ప్రతి రూపాయికి విలువైనది!",
+                "author": "వెంకటేష్"
+            },
+            {
+                "quote": "మార్పిడి విధానం చాలా కస్టమర్-స్నేహపూర్వకమైనది. నా పాత ఆభరణాన్ని కొత్త డిజైన్‌తో ఎటువంటి ఇబ్బంది లేకుండా మార్చుకున్నాను.",
+                "author": "సరస్వతి"
+            },
+            {
+                "quote": "నా కూతురి వివాహ ఆభరణాల కోసం సందర్శించాను. వైవిధ్యం మరియు నాణ్యత నా అంచనాలను మించిపోయాయి. అద్భుతమైన సేవ!",
+                "author": "రామయ్య"
+            },
+            { quote: "Perfect place for gifting jewelry. Their gift wrapping is elegant and the pieces are always premium quality.", author: "Anil" },
+            { quote: "I love their harams and bracelets collection. The designs are trendy yet traditional. Definitely coming back!", author: "Dhanu" },
+            { quote: "Best hallmarked gold in town. The transparency in pricing and weight is commendable. Trust them completely.", author: "Sanjay Bulla" },
+            { quote: "Got my earrings customized here and the result was perfect. The craftspeople are true artists.", author: "Priyanka" },
+            { quote: "Excellent investment in gold jewelry. The pieces appreciate in value and the customer service is world-class.", author: "David" }
+        ];
+
+        let currentTestimonial = 0;
+        let testimonialInterval;
+
+        function renderTestimonials() {
+            const container = document.getElementById('testimonials-wrapper');
+
+            container.innerHTML = testimonials.map((t, i) => {
+                // Random rating: either 4.5 or 5
+                const rating = Math.random() < 0.5 ? 4.5 : 5;
+                const full = Math.floor(rating);
+                const half = (rating - full) === 0.5;
+                let stars = '';
+                for (let s = 0; s < full; s++) stars += '<i class="fa-solid fa-star"></i>';
+                if (half) stars += '<i class="fa-solid fa-star-half-stroke"></i>';
+
+                return `
+            <div class="testimonial-slide ${i === 0 ? 'active' : ''}" data-index="${i}">
+                <i class="fa-solid fa-quote-left text-4xl text-amber-200 mb-6"></i>
+                <p class="text-lg md:text-xl italic text-gray-600 mb-6 max-w-3xl mx-auto">"${t.quote}"</p>
+                <h5 class="font-bold text-emerald-950">- ${t.author}</h5>
+                <div class="text-amber-500 mt-2 text-lg">${stars}</div>
+            </div>
+        `;
+            }).join('');
+        }
+
+
+        function showTestimonial(index) {
+            const slides = document.querySelectorAll('.testimonial-slide');
+            slides.forEach((slide, i) => {
+                if (i === index) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+            currentTestimonial = index;
+        }
+
+        function changeTestimonial(direction) {
+            clearInterval(testimonialInterval); // Stop auto on manual interaction
+            let newIndex = currentTestimonial + direction;
+            if (newIndex < 0) newIndex = testimonials.length - 1;
+            if (newIndex >= testimonials.length) newIndex = 0;
+            showTestimonial(newIndex);
+            startTestimonialAuto(); // Restart auto
+        }
+
+        function startTestimonialAuto() {
+            clearInterval(testimonialInterval);
+            testimonialInterval = setInterval(() => {
+                let newIndex = currentTestimonial + 1;
+                if (newIndex >= testimonials.length) newIndex = 0;
+                showTestimonial(newIndex);
+            }, 20000); // 20 seconds
+        }
+
+        // Expose all onclick-referenced functions to global scope
+        window.changeTestimonial    = changeTestimonial;
+        window.renderCategories     = renderCategories;
+        window.renderTestimonials   = renderTestimonials;
+        window.startTestimonialAuto = startTestimonialAuto;
+        window.applyTrendingLayout  = applyTrendingLayout;
+        window.openProductPopup     = openProductPopup;
+        window.closePopup           = closePopup;
+        window.openOrderPopup       = openOrderPopup;
+        window.closeOrderPopup      = closeOrderPopup;
+        window.handleOrderTypeChange = handleOrderTypeChange;
+        window.submitOrder          = submitOrder;
+        window.toggleWishlist       = toggleWishlist;
+        window.togglePopupWishlist  = togglePopupWishlist;
+        window.changePopImg         = changePopImg;
+        window.zoomPopupImage       = typeof zoomPopupImage === 'function' ? zoomPopupImage : function(){};
+        window.handleWishlistClick  = handleWishlistClick;
+        window.updateCartQty        = window.updateCartQty || function(){};
+
+        // Single merged DOMContentLoaded — only one, prevents double-init conflicts
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCategories();
+            renderTestimonials();
+            startTestimonialAuto();
+            updateCartItemsList();
+            updateWishlistUI();
+            setTimeout(renderTrending, 400);
+        });
+        // Product popup functions
+
+        let currentPopId = '';
+        let currentPopProduct = null;
+
+        function openProductPopup(id, offerPrice, originalPrice, discount, name = '', image = '') {
+            currentPopId = id;
+            currentImageIndex = 0;
+            window.currentPopupOriginalPrice = originalPrice;
+
+            // If full product data passed, use it; otherwise fetch from trendingProducts array
+            currentPopProduct = trendingProducts.find(p => p.id === id);
+            if (!currentPopProduct) {
+                console.warn('Product not found in trending:', id);
+                currentPopProduct = {
+                    id, name: name || 'Product', images: image ? [image] : [],
+                    weight: 0, makingCharges: 0, metalType: 'other'
+                };
+            }
+
+            // Set popup content
+            const mainImage = currentPopProduct.images && currentPopProduct.images[0]
+                ? currentPopProduct.images[0]
+                : (image || 'https://via.placeholder.com/800x800?text=No+Image');
+
+            document.getElementById('pop-img').src = mainImage;
+            document.getElementById('pop-img').classList.remove('zoomed');
+            document.getElementById('pop-title').innerText = name || currentPopProduct.name || 'Product';
+            document.getElementById('pop-price').innerText = '₹' + offerPrice.toLocaleString();
+            document.getElementById('pop-old-price').innerText = originalPrice > offerPrice ? '₹' + originalPrice.toLocaleString() : '';
+            document.getElementById('pop-discount-label').innerText = discount > 0 ? discount + '% OFF' : '';
+
+            // Update weight display if available
+            const weightDisplay = document.querySelector('#item-popup .space-y-2 p:nth-child(2) span.font-bold');
+            if (weightDisplay && currentPopProduct.weight) {
+                weightDisplay.textContent = `~${currentPopProduct.weight} Grams`;
+            }
+
+            // Update heart button state
+            const heartBtn = document.querySelector('.popup-heart-btn');
+            const isWishlisted = wishlist.some(w => w.id === id);
+            if (heartBtn) {
+                const icon = heartBtn.querySelector('i');
+                heartBtn.classList.toggle('active', isWishlisted);
+                icon.classList.remove('fa-regular', 'fa-solid');
+                icon.classList.add(isWishlisted ? 'fa-solid' : 'fa-regular');
+                icon.style.color = isWishlisted ? '#ef4444' : '#ffffff';
+            }
+
+            const qty = cart[id]?.qty || 0;
+            updatePopupButton(id, offerPrice, qty, originalPrice);
+
+            document.getElementById('item-popup').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closePopup() {
+            document.getElementById('item-popup').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function zoomPopupImage() {
+            const imgElement = document.getElementById('pop-img');
+            imgElement.classList.toggle('zoomed');
+        }
+
+        function togglePopupWishlist(id) {
+            const btn = document.querySelector('.popup-heart-btn');
+            if (!btn) return;
+
+            const idx = wishlist.findIndex(w => w.id === id);
+            const title = document.getElementById('pop-title').innerText;
+
+            if (idx >= 0) {
+                // Remove from wishlist
+                wishlist.splice(idx, 1);
+                btn.classList.remove('active');
+                btn.querySelector('i').classList.remove('fa-solid');
+                btn.querySelector('i').classList.add('fa-regular');
+            } else {
+                // Add to wishlist
+                wishlist.push({ id, name: title });
+                btn.classList.add('active');
+                btn.querySelector('i').classList.remove('fa-regular');
+                btn.querySelector('i').classList.add('fa-solid');
+            }
+
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            updateWishlistUI();
+
+            // Sync with popup if it's open and showing the same item
+            if (document.getElementById('item-popup').classList.contains('active') && currentPopId === id) {
+                const popupHeartBtn = document.querySelector('.popup-heart-btn');
+                if (popupHeartBtn) {
+                    const idx = wishlist.findIndex(w => w.id === id);
+                    if (idx >= 0) {
+                        popupHeartBtn.classList.add('active');
+                        popupHeartBtn.querySelector('i').classList.remove('fa-regular');
+                        popupHeartBtn.querySelector('i').classList.add('fa-solid');
+                    } else {
+                        popupHeartBtn.classList.remove('active');
+                        popupHeartBtn.querySelector('i').classList.remove('fa-solid');
+                        popupHeartBtn.querySelector('i').classList.add('fa-regular');
+                    }
+                }
+            }
+
+
+
+            // Update the trending card heart UI to sync with popup
+            updateTrendingCardHeart(id, idx < 0); // idx < 0 means it was added (now in wishlist)
+        }
+
+        // Helper function to update trending card heart
+        function updateTrendingCardHeart(id, isWishlisted) {
+            const cardWrapper = document.querySelector(`[data-item-id="${id}"]`);
+            if (cardWrapper) {
+                const heartBtn = cardWrapper.querySelector('.card-heart');
+                if (heartBtn) {
+                    if (isWishlisted) {
+                        heartBtn.classList.add('heart-active');
+                        heartBtn.querySelector('i').classList.remove('fa-regular');
+                        heartBtn.querySelector('i').classList.add('fa-solid');
+                        heartBtn.querySelector('i').style.color = '#ef4444';
+                    } else {
+                        heartBtn.classList.remove('heart-active');
+                        heartBtn.querySelector('i').classList.remove('fa-solid');
+                        heartBtn.querySelector('i').classList.add('fa-regular');
+                        heartBtn.querySelector('i').style.color = '#ffffff';
+                    }
+                }
+            }
+        }
+        function updatePopupButton(id, price, qty, originalPrice = null) {
+            const slot = document.getElementById('pop-btn-slot');
+            const op = originalPrice || window.currentPopupOriginalPrice || Math.round(price * 1.25);
+            if (qty > 0) {
+                slot.innerHTML = `
+                    <div class="flex items-center justify-between border-2 border-emerald-950 rounded-xl overflow-hidden bg-white">
+                        <button onclick="updateCartQty('${id}', -1, ${price}, ${op})" class="px-6 py-3 bg-emerald-950 text-white hover:bg-emerald-800 transition">-</button>
+                        <span class="font-bold text-xl">${qty}</span>
+                        <button onclick="updateCartQty('${id}', 1, ${price}, ${op})" class="px-6 py-3 bg-emerald-950 text-white hover:bg-emerald-800 transition">+</button>
+                    </div>
+                `;
+            } else {
+                slot.innerHTML = `<button onclick="updateCartQty('${id}', 1, ${price}, ${op})" class="btn-premium w-full">Add to Cart</button>`;
+            }
+        }
+
+
+        // ============================================
+        // WISHLIST FUNCTIONS
+        // ============================================
+
+
+        // Toggle wishlist status for a product
+        function toggleWishlist(id, name, btnElement) {
+            if (event) event.stopPropagation();
+
+            // Require login — open sidebar instantly with toast
+            if (typeof isUserLoggedIn === 'function' && !isUserLoggedIn()) {
+                if (typeof openLoginSidebar === 'function') openLoginSidebar();
+                if (typeof showToast === 'function') showToast('Please login to add items to wishlist ❤️', 'info');
+                return;
+            }
+
+            const index = wishlist.findIndex(item => item.id === id);
+            const icon = btnElement.querySelector('i');
+
+            if (index >= 0) {
+                // Remove from wishlist
+                wishlist.splice(index, 1);
+                btnElement.classList.remove('active', 'heart-active');
+                icon.classList.remove('fa-solid');
+                icon.classList.add('fa-regular');
+                icon.style.color = '#ffffff';
+
+                // Show feedback
+                showToast('Removed from wishlist', 'info');
+            } else {
+                // Add to wishlist
+                wishlist.push({
+                    id: id,
+                    name: name,
+                    addedAt: new Date().toISOString()
+                });
+                btnElement.classList.add('active', 'heart-active');
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid');
+                icon.style.color = '#ef4444';
+
+                // Show feedback with animation
+                showToast('Added to wishlist ❤️', 'success');
+
+                // Add pop animation
+                btnElement.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    btnElement.style.transform = 'scale(1)';
+                }, 200);
+            }
+
+            // Save to localStorage AND Firebase
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            if (typeof saveUserCartAndWishlist === 'function') saveUserCartAndWishlist();
+
+            if (typeof updateWishlistUI === 'function') updateWishlistUI();
+            syncPopupHeartWithWishlist(id);
+            syncAllHeartButtons(id);
+        }
+
+        // Sync popup heart button with current wishlist state
+        function syncPopupHeartWithWishlist(id) {
+            const popupHeartBtn = document.querySelector('.popup-heart-btn');
+            if (!popupHeartBtn) return;
+
+            const isWishlisted = wishlist.some(w => w.id === id);
+            const icon = popupHeartBtn.querySelector('i');
+
+            if (isWishlisted) {
+                popupHeartBtn.classList.add('active');
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid');
+            } else {
+                popupHeartBtn.classList.remove('active');
+                icon.classList.remove('fa-solid');
+                icon.classList.add('fa-regular');
+            }
+        }
+
+        // Sync all heart buttons for a product (handles duplicated carousel items)
+        function syncAllHeartButtons(id) {
+            const isWishlisted = wishlist.some(w => w.id === id);
+
+            // Find all heart buttons for this product
+            const allHearts = document.querySelectorAll(`.card-heart[data-product-id="${id}"]`);
+
+            allHearts.forEach(heart => {
+                const icon = heart.querySelector('i');
+                if (isWishlisted) {
+                    heart.classList.add('active', 'heart-active');
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                    icon.style.color = '#ef4444';
+                } else {
+                    heart.classList.remove('active', 'heart-active');
+                    icon.classList.remove('fa-solid');
+                    icon.classList.add('fa-regular');
+                    icon.style.color = '#ffffff';
+                }
+            });
+        }
+
+        // Toggle wishlist from popup
+       function togglePopupWishlist(id) {
+            // Require login
+            if (typeof isUserLoggedIn === 'function' && !isUserLoggedIn()) {
+                if (typeof openLoginSidebar === 'function') openLoginSidebar();
+                if (typeof showToast === 'function') showToast('Please login to add items to wishlist ❤️', 'info');
+                return;
+            }
+
+            const btn = document.querySelector('.popup-heart-btn');
+            if (!btn) return;
+
+            const index = wishlist.findIndex(w => w.id === id);
+            const title = document.getElementById('pop-title')?.innerText || 'Product';
+
+            if (index >= 0) {
+                // Remove from wishlist
+                wishlist.splice(index, 1);
+                btn.classList.remove('active');
+                const icon = btn.querySelector('i');
+                icon.classList.remove('fa-solid');
+                icon.classList.add('fa-regular');
+
+                showToast('Removed from wishlist', 'info');
+            } else {
+                // Add to wishlist
+                wishlist.push({
+                    id: id,
+                    name: title,
+                    addedAt: new Date().toISOString()
+                });
+                btn.classList.add('active');
+                const icon = btn.querySelector('i');
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid');
+
+                showToast('Added to wishlist ❤️', 'success');
+
+                // Pop animation
+                btn.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    btn.style.transform = 'scale(1)';
+                }, 200);
+            }
+
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            if (typeof saveUserCartAndWishlist === 'function') saveUserCartAndWishlist();
+
+            if (typeof updateWishlistUI === 'function') updateWishlistUI();
+            syncAllHeartButtons(id);
+        }
+
+        // Remove item from wishlist (for wishlist page)
+        function removeFromWishlist(id) {
+            const index = wishlist.findIndex(w => w.id === id);
+            if (index >= 0) {
+                wishlist.splice(index, 1);
+                localStorage.setItem('wishlist', JSON.stringify(wishlist));
+
+                // Update UI
+                if (typeof updateWishlistUI === 'function') {
+                    updateWishlistUI();
+                }
+
+                // Sync all heart buttons
+                syncAllHeartButtons(id);
+
+                showToast('Removed from wishlist', 'info');
+
+                // Refresh wishlist display if on wishlist page
+                if (typeof renderWishlistItems === 'function') {
+                    renderWishlistItems();
+                }
+            }
+        }
+
+        // Clear entire wishlist
+        function clearWishlist() {
+            if (wishlist.length === 0) return;
+
+            if (confirm('Are you sure you want to clear your wishlist?')) {
+                // Store IDs to sync UI
+                const ids = wishlist.map(w => w.id);
+
+                wishlist = [];
+                localStorage.setItem('wishlist', JSON.stringify(wishlist));
+
+                // Update UI
+                if (typeof updateWishlistUI === 'function') {
+                    updateWishlistUI();
+                }
+
+                // Sync all affected buttons
+                ids.forEach(id => syncAllHeartButtons(id));
+
+                showToast('Wishlist cleared', 'info');
+
+                // Refresh wishlist display if on wishlist page
+                if (typeof renderWishlistItems === 'function') {
+                    renderWishlistItems();
+                }
+            }
+        }
+
+
+        // Render wishlist items (for wishlist page)
+        function renderWishlistItems() {
+            const container = document.getElementById('wishlist-container');
+            if (!container) return;
+
+            if (wishlist.length === 0) {
+                container.innerHTML = `
+            <div style="text-align: center; padding: 4rem 2rem; color: #6b7280;">
+                <i class="fas fa-heart text-5xl mb-4" style="color: #e5e7eb;"></i>
+                <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">Your wishlist is empty</p>
+                <p style="font-size: 0.9rem; color: #9ca3af;">Start adding items you love!</p>
+                <a href="index.html" style="display: inline-block; margin-top: 1.5rem; padding: 0.75rem 1.5rem; background: #d4af37; color: white; text-decoration: none; border-radius: 0.5rem;">Continue Shopping</a>
+            </div>
+        `;
+                return;
+            }
+
+            // Fetch full product details for wishlist items
+            // This is a simplified version - you may want to fetch from Firebase
+            container.innerHTML = wishlist.map(item => `
+        <div class="wishlist-item" data-wishlist-id="${item.id}">
+            <div class="wishlist-item-image">
+                <img src="${item.image || 'https://via.placeholder.com/200'}" alt="${item.name}">
+            </div>
+            <div class="wishlist-item-details">
+                <h4>${item.name}</h4>
+                <p class="wishlist-item-price">₹${(item.price || 0).toLocaleString()}</p>
+            </div>
+            <div class="wishlist-item-actions">
+                <button onclick="moveToCart('${item.id}')" class="btn-move-cart">
+                    <i class="fas fa-shopping-bag"></i> Move to Cart
+                </button>
+                <button onclick="removeFromWishlist('${item.id}')" class="btn-remove">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+        }
+
+        // Toast notification helper
+        function showToast(message, type = 'info') {
+            // Remove existing toast
+            const existingToast = document.querySelector('.toast-notification');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+        <span>${message}</span>
+    `;
+
+
+
+            document.body.appendChild(toast);
+
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(-50%) translateY(0)';
+            });
+
+            // Remove after delay
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(100px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        // Initialize wishlist on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateWishlistUI();
+        });
+
+
+        window.updateCartQty = function(id, delta, price, originalPrice, name) {
+            // Require login to add to cart
+            if (delta > 0 && !cart[id]) {
+                // Adding new item - require login
+                if (typeof isUserLoggedIn === 'function' && !isUserLoggedIn()) {
+                    if (typeof openLoginSidebar === 'function') openLoginSidebar('Please login to add items to cart 🛍️');
+                    return;
+                }
+            }
+                if (!firebase.auth || !firebase.auth().currentUser) {
+                    const panel = document.getElementById('login-panel');
+                    if (panel) {
+                        panel.classList.remove('translate-x-full');
+                        panel.classList.add('translate-x-0');
+                        const ov = document.getElementById('login-panel-overlay');
+                        if (ov) ov.classList.remove('hidden');
+                        document.body.style.overflow = 'hidden';
+                        showToast('Please login to add items to cart', 'info');
+                    }
+                    return;
+                }
+            const currentQty = cart[id]?.qty || 0;
+
+            // Only check gold safety when ADDING (delta > 0) and item not yet in cart
+            if (delta > 0 && currentQty === 0 && typeof checkGoldSafetyBeforeAdd === 'function') {
+                const productName = name || cart[id]?.n || (currentPopProduct?.name) || 'Product';
+                // Find product to check if it's a gold item
+                const product = trendingProducts.find(p => p.id === id);
+                const isGoldItem = product ? product.metalType === 'gold' : false;
+                if (isGoldItem) {
+                    checkGoldSafetyBeforeAdd(id, productName, (allowed) => {
+                        if (allowed) _doUpdateCartQty(id, delta, price, originalPrice, name);
+                    });
+                    return;
+                }
+            }
+            _doUpdateCartQty(id, delta, price, originalPrice, name);
+        }
+
+
+
+
+        function _doUpdateCartQty(id, delta, price, originalPrice = null, name = '') {
+            const currentQty = cart[id]?.qty || 0;
+            const newQty = currentQty + delta;
+
+            // Get product name from various sources
+            const productName = name || cart[id]?.n || (currentPopProduct?.name) || 'Product';
+
+            // Calculate original price if not provided
+            if (!originalPrice && cart[id]?.op) {
+                originalPrice = cart[id].op;
+            } else if (!originalPrice) {
+                originalPrice = Math.round(price / 0.8);
+            }
+
+            // Calculate discount percentage for storage
+            const discountPercent = originalPrice > 0 ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+
+            if (newQty <= 0) {
+                delete cart[id];
+            } else {
+                cart[id] = {
+                    qty: newQty,
+                    n: productName,
+                    name: productName,
+                    p: price,
+                    op: originalPrice,
+                    discount: discountPercent
+                };
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+    if (typeof saveUserCartAndWishlist === 'function') saveUserCartAndWishlist();
+            updateCartUI();
+            updateCartItemsList();
+
+            // Update trending card button visually
+            updateTrendingCardUI(id, newQty, price, originalPrice, productName);
+
+            // Update popup button if open
+            if (document.getElementById('item-popup').classList.contains('active') && currentPopId === id) {
+                updatePopupButton(id, price, newQty > 0 ? newQty : 0, originalPrice);
+            }
+        }
+
+
+
+        // Helper to update trending card UI
+        function updateTrendingCardUI(id, qty, price, originalPrice, name) {
+            // Find all cards with this product ID (both original and duplicated for scroll)
+            const cards = document.querySelectorAll(`[data-item-id="${id}"]`);
+
+            cards.forEach(card => {
+                const btnDiv = card.querySelector('.card-add-btn');
+                if (!btnDiv) return;
+
+                if (qty > 0) {
+                    btnDiv.innerHTML = `
+                <div class="quantity-controls">
+                    <button onclick="event.stopPropagation(); updateCartQty('${id}', -1, ${price}, ${originalPrice}, '${name.replace(/'/g, "\\'")}');">−</button>
+                    <span>${qty}</span>
+                    <button onclick="event.stopPropagation(); updateCartQty('${id}', 1, ${price}, ${originalPrice}, '${name.replace(/'/g, "\\'")}');">+</button>
+                </div>
+            `;
+                } else {
+                    btnDiv.innerHTML = `<button onclick="event.stopPropagation(); updateCartQty('${id}', 1, ${price}, ${originalPrice}, '${name.replace(/'/g, "\\'")}');">Add to Cart</button>`;
+                }
+            });
+        }
+        function openOrderPopup() {
+            if (Object.keys(cart).length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+
+            let summary = '';
+            let total = 0;
+            let sno = 1;
+
+            for (let id in cart) {
+                const item = cart[id];
+                const itemTotal = item.qty * item.p;
+                total += itemTotal;
+                summary += `
+            <div class="flex justify-between py-2 border-b">
+                <span>${sno}. ${item.n} (x${item.qty})</span>
+                <span class="font-bold">₹${itemTotal.toLocaleString()}</span>
+            </div>
+        `;
+                sno++;
+            }
+
+            summary += `
+        <div class="flex justify-between py-3 text-lg font-bold text-emerald-950">
+            <span>Total:</span>
+            <span>₹${total.toLocaleString()}</span>
+        </div>
+    `;
+
+            document.getElementById('order-summary').innerHTML = summary;
+            // AFTER:
+            document.getElementById('order-popup').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+
+            // Default to in-store: auto-fill user info
+            document.querySelector('input[name="order-type"][value="in-store"]').checked = true;
+            handleOrderTypeChange();
+        }
+
+        function handleOrderTypeChange() {
+            const orderType = document.querySelector('input[name="order-type"]:checked')?.value || 'in-store';
+            const addressSection = document.getElementById('delivery-address-section');
+            const hintEl = document.getElementById('order-type-hint');
+            const addressField = document.getElementById('order-address');
+
+            if (orderType === 'delivery') {
+                // Show address field (required)
+                if (addressSection) {
+                    addressSection.style.display = 'block';
+                    if (addressField) addressField.required = true;
+                }
+                if (hintEl) hintEl.innerHTML = '<i class="fas fa-truck"></i> We will deliver to your address';
+
+                // Auto-fill address from user profile if available
+                if (window.currentUserData && window.currentUserData.address && addressField) {
+                    if (!addressField.value) addressField.value = window.currentUserData.address;
+                }
+            } else {
+                // In-Store: hide address, not required
+                if (addressSection) {
+                    addressSection.style.display = 'none';
+                    if (addressField) { addressField.required = false; addressField.value = ''; }
+                }
+                if (hintEl) hintEl.innerHTML = '<i class="fas fa-info-circle"></i> Visit our store to complete your purchase';
+            }
+
+            // Auto-fill name, phone, email from user data for both types
+            if (window.currentUserData) {
+                const nameField = document.getElementById('order-name');
+                const phoneField = document.getElementById('order-phone');
+                const emailField = document.getElementById('order-email');
+                if (nameField && !nameField.value) nameField.value = window.currentUserData.name || window.currentUserData.displayName || '';
+                if (phoneField && !phoneField.value) phoneField.value = window.currentUserData.phone || '';
+                if (emailField && !emailField.value) emailField.value = window.currentUserData.email || '';
+            }
+        }
+
+
+
+        function updateCartItemsList() {
+            const container = document.getElementById('cart-items');
+            if (!container) return;
+
+            let html = '';
+            let total = 0;
+            let totalQty = 0;
+            let totalOriginal = 0;
+
+            // AFTER:
+            for (let id in cart) {
+                const item = cart[id];
+
+                // Read-only display: use stored op, don't mutate cart
+                let displayOp = item.op || item.originalPrice;
+                if (!displayOp || displayOp <= item.p) {
+                    displayOp = item.discount && item.discount > 0
+                        ? Math.round(item.p / (1 - (item.discount / 100)))
+                        : Math.round(item.p / 0.8);
+                }
+                // Don't write back to cart[id] here}
+
+                total += item.qty * item.p;
+                totalQty += item.qty;
+                totalOriginal += item.qty * item.op;
+
+                html += `
+            <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl mb-3 border border-gray-100">
+                <div>
+                    <p class="font-bold text-sm">${item.n}</p>
+                    <p class="text-xs text-amber-600">₹${item.p.toLocaleString()} x ${item.qty}</p>
+                </div>
+                <div class="flex items-center border-2 border-emerald-950 rounded-lg overflow-hidden">
+                    <button onclick="updateCartQty('${id}', -1, ${item.p}, ${item.op || item.p}, '${(item.n || '').replace(/'/g, '')}'); event.stopPropagation();" class="px-3 py-2 bg-emerald-950 text-white hover:bg-emerald-800 font-bold">−</button>
+<span class="px-3 py-2 font-bold text-emerald-950 min-w-[40px] text-center">${item.qty}</span>
+<button onclick="updateCartQty('${id}', 1, ${item.p}, ${item.op || item.p}, '${(item.n || '').replace(/'/g, '')}'); event.stopPropagation();" class="px-3 py-2 bg-emerald-950 text-white hover:bg-emerald-800 font-bold">+</button>
+                </div>
+            </div>
+        `;
+            }
+
+            const discount = totalOriginal - total;
+
+            container.innerHTML = html || '<p class="text-center text-gray-400 mt-10 italic">Your bag is empty</p>';
+            document.getElementById('cart-total').innerText = '₹' + total.toLocaleString();
+            document.getElementById('cart-total-qty').innerText = totalQty;
+            document.getElementById('cart-original-price').innerText = '₹' + totalOriginal.toLocaleString();
+            document.getElementById('cart-discount').innerText = '₹' + discount.toLocaleString();
+        }
+
+
+
+
+        // Product image carousel function
+        let currentImageIndex = 0;
+
+        function changePopImg(direction) {
+            const imgElement = document.getElementById('pop-img');
+            if (!currentPopProduct || !currentPopProduct.images || currentPopProduct.images.length <= 1) return;
+
+            currentImageIndex += direction;
+
+            // Loop through available images
+            if (currentImageIndex < 0) {
+                currentImageIndex = currentPopProduct.images.length - 1;
+            }
+            if (currentImageIndex >= currentPopProduct.images.length) {
+                currentImageIndex = 0;
+            }
+
+            imgElement.src = currentPopProduct.images[currentImageIndex];
+        }
+
+
+        function updateMobileNavForAuth(user) {
+            const mobileBtn = document.getElementById('mobile-login-btn');
+            const mobileIcon = document.getElementById('mobile-login-icon');
+            const mobileLabel = document.getElementById('mobile-login-label');
+
+            if (!mobileBtn) return;
+
+            if (user) {
+                mobileBtn.href = 'javascript:void(0)';
+                mobileBtn.onclick = (e) => { e.preventDefault(); toggleLoginPanel(); };
+                if (mobileIcon) mobileIcon.className = 'fa-solid fa-user-check';
+                if (mobileLabel) mobileLabel.textContent = 'Account';
+            } else {
+                // Always open login panel — never redirect away from the current page
+                mobileBtn.href = 'javascript:void(0)';
+                mobileBtn.onclick = (e) => { e.preventDefault(); toggleLoginPanel(); };
+                if (mobileIcon) mobileIcon.className = 'fa-regular fa-user';
+                if (mobileLabel) mobileLabel.textContent = 'Login';
+            }
+        }
+
+        // Add to Wishlist function
+        function addToWishlist(id, name) {
+            // Require login — open sidebar instantly
+            if (typeof isUserLoggedIn === 'function' && !isUserLoggedIn()) {
+                if (typeof openLoginSidebar === 'function') openLoginSidebar('Please login to add items to wishlist ❤️');
+                return;
+            }
+            const idx = wishlist.findIndex(w => w.id === id);
+            if (idx >= 0) {
+                wishlist.splice(idx, 1);
+            } else {
+                wishlist.push({ id, name });
+            }
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            if (typeof saveUserCartAndWishlist === 'function') saveUserCartAndWishlist(); // sync to Firebase
+            updateWishlistUI();
+        }
+
+        function closeOrderPopup() {
+            document.getElementById('order-popup').style.display = 'none';
+            document.body.style.overflow = '';
+            document.getElementById('order-name').value = '';
+            document.getElementById('order-phone').value = '';
+            if (document.getElementById('order-email')) document.getElementById('order-email').value = '';
+            document.getElementById('order-address').value = '';
+        }
+
+        async function submitOrder(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('order-name').value.trim();
+            const phone = document.getElementById('order-phone').value.trim();
+            const phoneRegex = /^[6-9]\d{9}$/;
+            if (!phoneRegex.test(phone)) {
+                alert('Please enter a valid 10-digit Indian mobile number');
+                return;
+            }
+            const email = document.getElementById('order-email')?.value.trim() || '';
+            // AFTER:
+            const orderType = document.querySelector('input[name="order-type"]:checked')?.value || 'in-store';
+            const address = document.getElementById('order-address').value.trim();
+            if (orderType === 'delivery' && !address) {
+                alert('Please enter a delivery address');
+                return;
+            }
+
+            // Generate random Order ID
+            const orderId = 'SKJ' + Date.now().toString(36).toUpperCase().slice(-6) + Math.floor(Math.random() * 100);
+
+            let total = 0;
+            let originalTotal = 0;
+            const items = [];
+
+            for (let id in cart) {
+                const item = cart[id];
+                const itemTotal = item.qty * item.p;
+                const itemOriginal = item.qty * (item.op || item.p);
+                total += itemTotal;
+                originalTotal += itemOriginal;
+                items.push({ id, name: item.n, qty: item.qty, price: item.p, originalPrice: item.op || item.p, subtotal: itemTotal });
+            }
+
+            const discount = originalTotal - total;
+
+            // Build WhatsApp message as table format
+            let itemRows = items.map(item =>
+                `| ${item.name} | Qty: ${item.qty} | ₹${item.price.toLocaleString()}/pc | ₹${item.subtotal.toLocaleString()} |`
+            ).join('\n');
+
+            const message =
+                `╔══════════════════════════════╗
+       🛍️ NEW ORDER — SKJ JEWELLERY
+╚══════════════════════════════╝
+
+📋 ORDER ID   : ${orderId}
+👤 NAME       : ${name}
+📞 PHONE      : ${phone}
+📧 EMAIL      : ${email || 'N/A'}
+🏠 ADDRESS    : ${address}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ITEMS ORDERED:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${itemRows}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💰 ORIGINAL PRICE : ₹${originalTotal.toLocaleString()}
+🏷️ DISCOUNT       : ₹${discount.toLocaleString()}
+✅ TOTAL PAYABLE  : ₹${total.toLocaleString()}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+            // Save order to Firebase — always include userId if logged in
+try {
+    const loggedUser = typeof firebase !== 'undefined' && firebase.auth ? firebase.auth().currentUser : null;
+    const orderData = {
+        orderId,
+        customerName: name,
+        customerPhone: phone,
+        customerEmail: email,
+        address,
+        items,
+        total,
+        originalTotal,
+        discount,
+        status: 'pending',
+        userId: loggedUser ? loggedUser.uid : null,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    if (window.db) {
+        const { collection: col, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js');
+        orderData.createdAt = serverTimestamp();
+        await addDoc(col(window.db, 'orders'), orderData);
+    } else if (typeof firebase !== 'undefined') {
+        await firebase.firestore().collection('orders').add(orderData);
+    }
+} catch (e) { console.warn('Could not save order to Firebase:', e); }
+
+            // Send via WhatsApp
+            const whatsappURL = `https://wa.me/919705373804?text=${encodeURIComponent(message)}`;
+            window.open(whatsappURL, '_blank');
+
+            // Clear cart and close popup — do NOT sign out
+            cart = {};
+            localStorage.setItem('cart', JSON.stringify(cart));
+            if (typeof saveUserCartAndWishlist === 'function') saveUserCartAndWishlist(); // clear cart in Firebase
+            updateCartUI();
+            if (typeof updateCartItemsList === 'function') updateCartItemsList();
+            if (typeof renderCartItems === 'function') renderCartItems();
+            closeOrderPopup();
+            if (typeof toggleCart === 'function') toggleCart();
+
+            alert('Order sent! We will contact you shortly.');
+        }
+
+
+
+        // Close order popup on backdrop click
+        document.getElementById('order-popup')?.addEventListener('click', (e) => {
+            if (e.target.id === 'order-popup') closeOrderPopup();
+        });
+
+        window.addEventListener('beforeunload', () => {
+            if (typeof trendingUnsubscribe === 'function') trendingUnsubscribe();
+        });
+
+
+        // Ensure auth is initialized after components.js loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Small delay to ensure Firebase is ready
+    setTimeout(() => {
+        if (typeof initAuthListener === 'function') {
+            initAuthListener();
+        }
+        
+        // Force auth state check after a longer delay (for IndexedDB restore)
+        setTimeout(async () => {
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                const user = firebase.auth().currentUser;
+                if (user && !_currentUser) {
+                    // Auth restored from IndexedDB but listener missed it
+                    console.log('Late auth restore detected');
+                    _currentUser = user;
+                    updateLoginPanelUI(user);
+                    await loadUserData(user.uid, user.email);
+                    await loadUserCartAndWishlist(user.uid);
+                } else if (!user && !window._intentionalLogout && Object.keys(cart).length === 0 && wishlist.length === 0) {
+                    // Truly no user - ensure empty state
+                    cart = {};
+                    wishlist = [];
+                    localStorage.removeItem('cart');
+                    localStorage.removeItem('wishlist');
+                    updateCartUI();
+                    updateWishlistUI();
+                }
+            }
+        }, 1500);
+    }, 100);
+});
+
+
+
+// Ensure auth is properly initialized and synced across pages
+document.addEventListener('DOMContentLoaded', function() {
+    // Just initialize auth - the listener handles everything
+    if (typeof initAuthListener === 'function') {
+        initAuthListener();
+    } else {
+        // Retry if components.js hasn't loaded yet
+        const checkInterval = setInterval(() => {
+            if (typeof initAuthListener === 'function') {
+                clearInterval(checkInterval);
+                initAuthListener();
+            }
+        }, 100);
+        setTimeout(() => clearInterval(checkInterval), 5000);
+    }
+});
+    </script>
+
+
+</body>
+
+</html>

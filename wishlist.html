@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist - Sai Kiran Jewelleries A/C</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="components.js"></script>
+    <style>
+
+        /* Add to Cart Button Animation */
+.add-to-cart-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.add-to-cart-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.add-to-cart-btn:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+.add-to-cart-btn.added {
+    background: #10b981 !important;
+    transform: scale(1.05);
+}
+
+.add-to-cart-btn.added::before {
+    content: '✓ ';
+}
+
+/* Quantity control animation */
+.qty-control {
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Card add button in trending/index pages */
+.card-add-btn button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.card-add-btn button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.card-add-btn button:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+.card-add-btn button.added {
+    background: #10b981 !important;
+}
+
+.card-add-btn button.added::before {
+    content: '✓ Added!';
+}
+        :root { --royal-green: #004d40; --gold: #D4AF37; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        
+        /* Product Grid - Same as rings.html but slightly smaller */
+        .products-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+            gap: 1rem; 
+        }
+        @media (max-width: 640px) { 
+            .products-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 0.75rem; 
+            } 
+        }
+        
+        /* Product Card - Same structure as rings.html */
+        .product-card { 
+            background: white; 
+            border-radius: 1rem; 
+            overflow: hidden; 
+            border: 2px solid #e5e7eb; 
+            transition: all 0.3s ease; 
+            position: relative; 
+            display: flex; 
+            flex-direction: column;
+        }
+        
+        @media (min-width: 1024px) {
+            .product-card { border: 3px solid transparent; }
+            .product-card:hover { 
+                border-color: var(--gold); 
+                box-shadow: 0 15px 30px rgba(212, 175, 55, 0.2); 
+                transform: translateY(-4px); 
+            }
+        }
+        
+        /* Product Image Gallery - Same as rings.html */
+        .product-image-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        
+        .product-image-main {
+            position: relative;
+            height: 180px; /* Reduced from 220px */
+            overflow: hidden;
+            background: #f9f9f9;
+            flex-shrink: 0;
+        }
+        @media (max-width: 640px) { 
+            .product-image-main { height: 140px; } /* Reduced from 160px */
+        }
+        
+        .product-image-main img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+            cursor: pointer;
+        }
+        
+        @media (min-width: 1024px) {
+            .product-card:hover .product-image-main img { transform: scale(1.05); }
+        }
+        
+        .product-image-thumbnails {
+            display: grid;
+            gap: 0.25rem;
+            min-height: 40px; /* Reduced from 50px */
+            flex-shrink: 0;
+        }
+        
+        .thumbnails-grid-4 { grid-template-columns: repeat(4, 1fr); }
+        .thumbnails-grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .thumbnails-grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .thumbnails-grid-1 { grid-template-columns: 1fr; max-width: 50px; margin: 0 auto; }
+        .thumbnails-grid-0 { display: none; }
+        
+        .product-image-thumbnail {
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 0.35rem;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        @media (min-width: 1024px) {
+            .product-image-thumbnail:hover { border-color: var(--gold); }
+        }
+        
+        .product-image-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        @media (min-width: 1024px) {
+            .product-image-thumbnail:hover img { transform: scale(1.1); }
+        }
+        
+        .discount-badge { 
+            position: absolute; 
+            top: 8px; 
+            left: 8px; 
+            background: #ef4444; 
+            color: white; 
+            padding: 3px 8px; 
+            border-radius: 999px; 
+            font-size: 10px; 
+            font-weight: 700; 
+            z-index: 10; 
+            display: none;
+        }
+        
+        .discount-badge.show { display: block; }
+        
+        .wishlist-btn { 
+            position: absolute; 
+            top: 8px; 
+            right: 8px; 
+            width: 28px; 
+            height: 28px; 
+            background: rgba(255,255,255,0.85); 
+            border: 2px solid #e5e7eb; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            z-index: 10; 
+        }
+        
+        @media (min-width: 1024px) {
+            .wishlist-btn { border: none; }
+            .wishlist-btn:hover { 
+                transform: scale(1.15); 
+                background: white; 
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
+            }
+        }
+        
+        .wishlist-btn i { font-size: 0.8rem; }
+        .wishlist-btn.active i { color: #ef4444; }
+        
+        .product-info { 
+            padding: 0.75rem; 
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 120px; /* Reduced from 140px */
+            justify-content: flex-end;
+        }
+        @media (max-width: 640px) { 
+            .product-info { padding: 0.5rem; min-height: 110px; } 
+        }
+        
+        .product-name { 
+            font-weight: 700; 
+            color: #1f2937; 
+            margin-bottom: 0.2rem; 
+            font-size: 0.85rem; 
+            line-height: 1.2; 
+        }
+        @media (max-width: 640px) { .product-name { font-size: 0.75rem; } }
+        
+        .product-price { 
+            display: flex; 
+            align-items: baseline; 
+            gap: 0.35rem; 
+            margin-bottom: 0.5rem; 
+            min-height: 1.5rem; 
+        }
+        .original-price { 
+            color: #9ca3af; 
+            text-decoration: line-through; 
+            font-size: 0.7rem; 
+        }
+        @media (max-width: 640px) { .original-price { font-size: 0.65rem; } }
+        
+        .offer-price { 
+            color: var(--gold); 
+            font-weight: 800; 
+            font-size: 0.9rem; 
+        }
+        @media (max-width: 640px) { .offer-price { font-size: 0.8rem; } }
+        
+        .single-price {
+            color: var(--gold);
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+        
+        .add-to-cart-btn { 
+            width: 100%; 
+            background: var(--royal-green); 
+            color: white; 
+            border: none; 
+            padding: 0.5rem; 
+            border-radius: 0.5rem; 
+            font-weight: 600; 
+            font-size: 0.75rem; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            text-transform: uppercase; 
+            margin-top: auto;
+        }
+        
+        @media (min-width: 1024px) {
+            .add-to-cart-btn:hover { background: #00332b; }
+        }
+        
+        .qty-control { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            background: #f3f4f6; 
+            border-radius: 0.5rem; 
+            padding: 0.2rem; 
+            margin-top: auto; 
+        }
+        .qty-btn { 
+            width: 28px; 
+            height: 28px; 
+            background: var(--royal-green); 
+            color: white; 
+            border: none; 
+            border-radius: 0.35rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+            font-size: 0.8rem; 
+        }
+        .qty-display { 
+            font-weight: 700; 
+            color: var(--royal-green); 
+            min-width: 24px; 
+            text-align: center; 
+            font-size: 0.8rem; 
+        }
+        
+        /* Out of Stock styling */
+        .product-card.out-of-stock { opacity: 0.6; }
+        .out-of-stock-btn {
+            width: 100%; 
+            background: #9ca3af; 
+            color: white; 
+            border: none; 
+            padding: 0.5rem; 
+            border-radius: 0.5rem; 
+            font-weight: 600; 
+            font-size: 0.75rem; 
+            cursor: not-allowed; 
+            margin-top: auto; 
+            text-transform: uppercase;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        .empty-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 3rem;
+            color: var(--gold);
+        }
+        
+        /* Fade animation for removal */
+        .fade-out {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+        }
+        
+        /* Loading state */
+        .loading-card {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 2px solid #e5e7eb;
+            height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f4f6;
+            border-top-color: var(--royal-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+    <div id="mobile-nav-placeholder"></div>
+    
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="bg-gradient-to-br from-[#004d40] via-[#00695c] to-[#004d40] py-12 md:py-20 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute top-0 right-0 w-72 h-72 bg-[#D4AF37] rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 left-0 w-96 h-96 bg-[#D4AF37] rounded-full blur-3xl"></div>
+            </div>
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <h1 class="font-cinzel text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-wide">
+                    My Wishlist
+                </h1>
+                <p class="text-amber-200/80 text-base md:text-lg max-w-2xl mx-auto">
+                    Your curated collection of exquisite jewelry pieces
+                </p>
+                <div class="mt-6 inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
+                    <i class="fa-solid fa-heart text-red-400"></i>
+                    <span class="text-white text-sm font-medium">
+                        <span id="wishlist-count">0</span> items saved
+                    </span>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Wishlist Content -->
+        <section class="py-8 md:py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Empty State -->
+                <div id="empty-wishlist" class="empty-state hidden">
+                    <div class="empty-icon">
+                        <i class="fa-regular fa-heart"></i>
+                    </div>
+                    <h2 class="font-cinzel text-2xl md:text-3xl font-bold text-[#004d40] mb-3">
+                        Your Wishlist is Empty
+                    </h2>
+                    <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                        Discover our exquisite collection and save your favorite pieces for later. Your dream jewelry awaits!
+                    </p>
+                    <a href="index.html" class="inline-flex items-center gap-2 bg-gradient-to-r from-[#004d40] to-[#00695c] text-white px-6 py-3 rounded-2xl font-semibold hover:shadow-lg hover:transform hover:-translate-y-1 transition-all">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Explore Collection
+                    </a>
+                </div>
+                
+                <!-- Wishlist Grid -->
+                <div id="wishlist-container" class="products-grid">
+                    <!-- Items will be rendered here by JavaScript -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Continue Shopping CTA -->
+        <section id="continue-shopping" class="py-8 md:py-12 border-t border-gray-200 hidden">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <p class="text-gray-600 mb-4">Looking for more exquisite pieces?</p>
+                <div class="flex flex-wrap justify-center gap-3">
+                    <a href="rings.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Rings</a>
+                    <a href="chains.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Chains</a>
+                    <a href="bracelets.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Bracelets</a>
+                    <a href="harams.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Harams</a>
+                    <a href="earrings.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Earrings</a>
+                    <a href="bangles.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Bangles</a>
+                    <a href="coins.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Coins</a>
+                    <a href="necklaces.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Necklaces</a>
+                    <a href="other.html" class="px-4 py-2 bg-white border-2 border-[#D4AF37] text-[#004d40] rounded-full font-medium hover:bg-[#D4AF37] hover:text-white transition">Other</a>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <div id="footer-placeholder"></div>
+    <div id="cta-placeholder"></div>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase Compat SDK — MUST be before components.js -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script>
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                apiKey: "AIzaSyATmseHSU3qimkm6pSCJ_xA1EL3_KiHtXs",
+                authDomain: "skj-jewelry-store.firebaseapp.com",
+                projectId: "skj-jewelry-store",
+                storageBucket: "skj-jewelry-store.firebasestorage.app",
+                messagingSenderId: "531463279637",
+                appId: "1:531463279637:web:2ab8aaaa80211045252a1c",
+                measurementId: "G-0S99YE5NR1"
+            });
+        }
+    </script>
+
+    <script src="components.js"></script>
+    
+    <script>
+        // Store current image order for each product
+        let productImageOrders = {};
+        
+        // Get grid class based on thumbnail count
+        function getThumbnailGridClass(thumbnailCount) {
+            if (thumbnailCount >= 4) return 'thumbnails-grid-4';
+            if (thumbnailCount === 3) return 'thumbnails-grid-3';
+            if (thumbnailCount === 2) return 'thumbnails-grid-2';
+            if (thumbnailCount === 1) return 'thumbnails-grid-1';
+            return 'thumbnails-grid-0';
+        }
+        
+        // Update wishlist count display
+        function updateWishlistCount() {
+            const countEl = document.getElementById('wishlist-count');
+            if (countEl) {
+                countEl.textContent = wishlist.length;
+            }
+        }
+        
+        // Fetch fresh product data and render
+       async function renderWishlistPage() {
+    const container = document.getElementById('wishlist-container');
+    const empty = document.getElementById('empty-wishlist');
+    const continueShopping = document.getElementById('continue-shopping');
+
+    if (!container) return;
+
+    // Check if user is logged in
+    if (!isUserLoggedIn()) {
+        container.innerHTML = '';
+        if (empty) {
+            empty.classList.remove('hidden');
+            empty.querySelector('h2').textContent = 'Please Login';
+            empty.querySelector('p').textContent = 'Login to view your saved items';
+        }
+        if (continueShopping) continueShopping.classList.add('hidden');
+        return;
+    }
+
+    if (wishlist.length === 0) {
+        container.innerHTML = '';
+        if (empty) {
+            empty.classList.remove('hidden');
+            empty.querySelector('h2').textContent = 'Your Wishlist is Empty';
+            empty.querySelector('p').textContent = 'Discover our exquisite collection and save your favorite pieces for later.';
+        }
+        if (continueShopping) continueShopping.classList.remove('hidden');
+        updateWishlistCount();
+        return;
+    }
+
+    if (empty) empty.classList.add('hidden');
+    if (continueShopping) continueShopping.classList.remove('hidden');
+
+    // Show loading
+    container.innerHTML = '<div class="col-span-full text-center py-12"><i class="fas fa-spinner fa-spin text-3xl text-emerald-700"></i><p class="mt-4 text-gray-600">Loading your wishlist...</p></div>';
+
+    try {
+        const db = firebase.firestore();
+        
+        // Fetch live data for all wishlist items
+        const enrichedWishlist = await Promise.all(
+            wishlist.map(async (item) => {
+                try {
+                    const productDoc = await db.collection('products').doc(item.id).get();
+                    if (!productDoc.exists) return item; // Product deleted, keep stored data
+                    
+                    const data = productDoc.data();
+                    
+                    // Skip if not available online
+                    if (data.onlineEnabled === false) return null;
+                    
+                    // Calculate live price
+                    const prices = (typeof cachedPrices !== 'undefined' && cachedPrices) 
+                        ? cachedPrices 
+                        : { gold: 6400, skjg: 6200, skjs: 75, silver: 750 };
+                    
+                    let offerPrice = data.offerPrice || data.price || 0;
+                    let originalPrice = data.originalPrice || offerPrice;
+
+                    if (data.metalType === 'gold' && data.weight && data.dynamicPricing !== false) {
+                        const ratePerGram = data.carat === '24CT' ? prices.gold : (prices.skjg || 6200);
+                        const makingCharges = (data.makingCharges || 0) * parseFloat(data.weight);
+                        const basePrice = Math.round((parseFloat(data.weight) * ratePerGram) + makingCharges);
+                        let discountAmt = data.discountAmount || 0;
+                        if (!discountAmt && data.discountPercent > 0) {
+                            discountAmt = Math.round((basePrice * data.discountPercent) / 100);
+                        }
+                        originalPrice = basePrice;
+                        offerPrice = basePrice - discountAmt;
+                    } else if (data.metalType === 'silver' && data.weight && data.dynamicPricing !== false) {
+                        const ratePerGram = (prices.skjs || prices.silver || 750) / 10;
+                        const makingCharges = (data.makingCharges || 0) * parseFloat(data.weight);
+                        const basePrice = Math.round((parseFloat(data.weight) * ratePerGram) + makingCharges);
+                        let discountAmt = data.discountAmount || 0;
+                        if (!discountAmt && data.discountPercent > 0) {
+                            discountAmt = Math.round((basePrice * data.discountPercent) / 100);
+                        }
+                        originalPrice = basePrice;
+                        offerPrice = basePrice - discountAmt;
+                    }
+                    
+                    const discount = originalPrice > offerPrice 
+                        ? Math.round(((originalPrice - offerPrice) / originalPrice) * 100) 
+                        : 0;
+                    
+                    return {
+                        ...item,
+                        name: data.name || item.name,
+                        images: data.images && data.images.length > 0 ? data.images : (item.images || []),
+                        offerPrice: offerPrice,
+                        originalPrice: originalPrice,
+                        discountPercent: discount,
+                        weight: data.weight || item.weight || '0',
+                        inStock: data.inStock !== false && data.stock !== 0 && data.stock !== 'out',
+                        category: data.category || item.category || 'rings'
+                    };
+                } catch(e) {
+                    console.warn('Error fetching product', item.id, e);
+                    return item;
+                }
+            })
+        );
+        
+        // Filter out nulls (offline products)
+        const validWishlist = enrichedWishlist.filter(item => item !== null);
+        
+        // Update global wishlist with fresh data
+        wishlist = validWishlist;
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+        updateWishlistUI();
+        
+        // Render cards
+        renderProductCards(validWishlist);
+        updateWishlistCount();
+        
+    } catch(e) {
+        console.error('Error loading wishlist:', e);
+        // Fallback to stored data
+        renderProductCards(wishlist);
+        updateWishlistCount();
+    }
+}
+
+// Separate function to render cards (keeps renderWishlistPage clean)
+function renderProductCards(products) {
+    const container = document.getElementById('wishlist-container');
+    if (!container) return;
+    
+    if (products.length === 0) {
+        container.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">No items available</div>';
+        return;
+    }
+
+    container.innerHTML = products.map((product) => {
+        const discount = product.discountPercent || 0;
+        const weight = product.weight || '0';
+        const offerPrice = product.offerPrice || 0;
+        const originalPrice = product.originalPrice || offerPrice;
+        const hasDiscount = discount > 0 && originalPrice > offerPrice;
+        const isOutOfStock = !product.inStock;
+        
+        const images = product.images && product.images.length > 0 
+            ? product.images 
+            : ['https://via.placeholder.com/400x400?text=No+Image'];
+        
+        const mainImage = images[0];
+        const thumbnails = images.slice(1);
+        const thumbnailCount = thumbnails.length;
+        const gridClass = getThumbnailGridClass(thumbnailCount);
+        
+        const inCart = cart[product.id]?.qty || 0;
+        
+        let priceHtml = '';
+        if (hasDiscount) {
+            priceHtml = `
+                <span class="original-price">₹${originalPrice.toLocaleString()}</span>
+                <span class="offer-price">₹${offerPrice.toLocaleString()}</span>
+            `;
+        } else {
+            priceHtml = `<span class="single-price">₹${originalPrice.toLocaleString()}</span>`;
+        }
+        
+        let buttonHtml = '';
+        if (isOutOfStock) {
+            buttonHtml = `<button class="out-of-stock-btn" disabled>Out of Stock</button>`;
+        } else if (inCart > 0) {
+            buttonHtml = `
+                <div class="qty-control">
+                    <button class="qty-btn" onclick="event.stopPropagation(); updateCartItem('${product.id}', -1)">-</button>
+                    <span class="qty-display">${inCart}</span>
+                    <button class="qty-btn" onclick="event.stopPropagation(); updateCartItem('${product.id}', 1)">+</button>
+                </div>
+            `;
+        } else {
+            buttonHtml = `
+                <button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCartWithFeedback('${product.id}', '${product.name.replace(/'/g, "\\'")}', ${offerPrice})">
+                    Add to Cart
+                </button>
+            `;
+        }
+        
+        const discountBadgeClass = hasDiscount ? 'show' : '';
+        
+        const safeName = product.name.replace(/'/g, "\\'");
+
+return `
+    <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" 
+         data-product-id="${product.id}" 
+         data-wishlist-id="${product.id}"
+         onclick="handleWishlistCardClick(event, '${product.id}', ${offerPrice}, ${originalPrice}, ${discount}, '${safeName}')">
+        <div class="product-image-gallery" onclick="if(!event.target.closest('button')){handleWishlistCardClick(event, '${product.id}', ${offerPrice}, ${originalPrice}, ${discount}, '${safeName}')}">
+            <div class="product-image-main">
+                <div class="discount-badge ${discountBadgeClass}">${discount}% OFF</div>
+                <button onclick="event.stopPropagation(); toggleWishlistWithRemove('${product.id}', this)" 
+                    class="wishlist-btn active" title="Remove from wishlist">
+                    <i class="fa-solid fa-heart text-red-500"></i>
+                </button>
+                <img src="${mainImage}" alt="${product.name}" loading="lazy" class="main-product-img" 
+                    onerror="this.src='https://via.placeholder.com/400x400?text=Image+Error'">
+            </div>
+            <div class="product-image-thumbnails ${gridClass}">
+                ${thumbnails.map((img, idx) => `
+                    <div class="product-image-thumbnail" onclick="event.stopPropagation(); swapCardImage('${product.id}', ${idx})">
+                        <img src="${img}" alt="${product.name} image ${idx + 2}" loading="lazy"
+                            onerror="this.style.display='none'">
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        <div class="product-info" onclick="if(!event.target.closest('button')){handleWishlistCardClick(event, '${product.id}', ${offerPrice}, ${originalPrice}, ${discount}, '${safeName}')}">
+            <h3 class="product-name">${product.name}</h3>
+            <div class="product-price">
+                ${priceHtml}
+            </div>
+            ${buttonHtml}
+        </div>
+    </div>
+`;
+    }).join('');
+}       
+        function renderProductCards(products) {
+            const container = document.getElementById('wishlist-container');
+            
+            container.innerHTML = products.map((product) => {
+                const discount = product.discountPercent || 0;
+                const weight = product.weight || '0';
+                const offerPrice = product.offerPrice || product.price || 0;
+                const originalPrice = product.originalPrice || offerPrice;
+                const hasDiscount = originalPrice > offerPrice && discount > 0;
+                const isOutOfStock = product.inStock === false;
+                
+                // Use product images or fallback
+                const images = product.images && product.images.length > 0 
+                    ? [...product.images] 
+                    : Array.from({length: 5}, (_, i) => `https://picsum.photos/id/${parseInt(product.id) + 20 + i}/400/400`);
+                
+                // Initialize or get current image order
+                if (!productImageOrders[product.id]) {
+                    productImageOrders[product.id] = [...images];
+                }
+                const currentImages = productImageOrders[product.id];
+                
+                const thumbnails = currentImages.slice(1);
+                const thumbnailCount = thumbnails.length;
+                const gridClass = getThumbnailGridClass(thumbnailCount);
+                
+                const inCart = cart[product.id]?.qty || 0;
+                const isWishlisted = true; // Always true in wishlist
+                
+                // Build price display
+                let priceHtml = '';
+                if (hasDiscount) {
+                    priceHtml = `
+                        <span class="original-price">₹${originalPrice.toLocaleString()}</span>
+                        <span class="offer-price">₹${offerPrice.toLocaleString()}</span>
+                    `;
+                } else {
+                    priceHtml = `<span class="single-price">₹${originalPrice.toLocaleString()}</span>`;
+                }
+                
+                // Build button based on stock status
+                let buttonHtml = '';
+                if (isOutOfStock) {
+                    buttonHtml = `<button class="out-of-stock-btn" disabled>Out of Stock</button>`;
+                } else if (inCart > 0) {
+                    buttonHtml = `
+                        <div class="qty-control">
+                            <button class="qty-btn" onclick="updateCartItem('${product.id}', -1)">-</button>
+                            <span class="qty-display">${inCart}</span>
+                            <button class="qty-btn" onclick="updateCartItem('${product.id}', 1)">+</button>
+                        </div>
+                    `;
+                } else {
+                    buttonHtml = `
+                        <button class="add-to-cart-btn" onclick="addToCartWithFeedback('${product.id}', '${product.name}', ${offerPrice})">
+                            Add to Cart
+                        </button>
+                    `;
+                }
+                
+                const discountBadgeClass = hasDiscount ? 'show' : '';
+                
+                return `
+                    <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" data-product-id="${product.id}">
+                        <div class="product-image-gallery">
+                            <div class="product-image-main">
+                                <div class="discount-badge ${discountBadgeClass}">${discount}% OFF</div>
+                                <button onclick="toggleWishlistWithRemove('${product.id}', this)" 
+                                    class="wishlist-btn active" title="Remove from wishlist">
+                                    <i class="fa-solid fa-heart text-red-500"></i>
+                                </button>
+                                <img src="${currentImages[0]}" alt="${product.name}" loading="lazy" class="main-product-img">
+                            </div>
+                            <div class="product-image-thumbnails ${gridClass}">
+                                ${thumbnails.map((img, idx) => `
+                                    <div class="product-image-thumbnail" onclick="swapCardImage('${product.id}', ${idx})">
+                                        <img src="${img}" alt="${product.name} image ${idx + 2}" loading="lazy">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">${product.name}</h3>
+                            <div class="product-price">
+                                ${priceHtml}
+                            </div>
+                            ${buttonHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Swap main image with clicked thumbnail
+        function swapCardImage(productId, thumbnailIndex) {
+            const currentImages = productImageOrders[productId];
+            if (!currentImages || thumbnailIndex + 1 >= currentImages.length) return;
+            
+            const newImages = [...currentImages];
+            const mainImageIndex = 0;
+            const clickedImageIndex = thumbnailIndex + 1;
+            
+            [newImages[mainImageIndex], newImages[clickedImageIndex]] = [newImages[clickedImageIndex], newImages[mainImageIndex]];
+            
+            productImageOrders[productId] = newImages;
+            
+            const card = document.querySelector(`.product-card[data-product-id="${productId}"]`);
+            if (card) {
+                const mainImg = card.querySelector('.product-image-main img.main-product-img');
+                const thumbnailImgs = card.querySelectorAll('.product-image-thumbnail img');
+                
+                mainImg.src = newImages[0];
+                thumbnailImgs.forEach((thumb, idx) => {
+                    if (idx + 1 < newImages.length) {
+                        thumb.src = newImages[idx + 1];
+                    }
+                });
+            }
+        }
+        
+        // Toggle wishlist and remove from display
+        function toggleWishlistWithRemove(id, btnElement) {
+            const card = btnElement.closest('.product-card');
+            
+            // Animate removal
+            if (card) {
+                card.classList.add('fade-out');
+                setTimeout(() => {
+                    // Remove from wishlist array
+                    wishlist = wishlist.filter(w => w.id !== id);
+                    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+                    
+                    // Update UI
+                    updateWishlistUI();
+                    updateWishlistCount();
+                    
+                    // Re-render
+                    if (wishlist.length === 0) {
+                        renderWishlistPage();
+                    } else {
+                        card.remove();
+                    }
+                }, 300);
+            }
+        }
+        
+        // Add to cart with visual feedback
+        
+
+        async function addToCartWithFeedback(id, name, price) {
+            // Check gold safety for gold items
+            if (typeof firebase !== 'undefined' && firebase.firestore && typeof checkGoldSafetyBeforeAdd === 'function') {
+                try {
+                    const prodDoc = await firebase.firestore().collection('products').doc(id).get();
+                    const product = prodDoc.exists ? prodDoc.data() : null;
+                    if (product && product.metalType === 'gold') {
+                        let allowed = false;
+                        await new Promise(resolve => {
+                            checkGoldSafetyBeforeAdd(id, name, (result) => {
+                                allowed = result;
+                                resolve();
+                            });
+                        });
+                        if (!allowed) return;
+                    }
+                } catch(e) { /* proceed if check fails */ }
+            }
+
+            const currentQty = cart[id]?.qty || 0;
+            const newQty = currentQty + 1;
+
+            // Add to cart
+            addToCart(id, name, price);
+
+            // Animation
+            const btn = event.target;
+            btn.classList.add('added');
+            btn.innerText = 'Added!';
+
+            // Revert after animation
+            setTimeout(() => {
+                btn.classList.remove('added');
+                generateProducts(); // This will show qty controls
+            }, 800);
+        }
+        // Update cart item quantity
+        function updateCartItem(id, delta) {
+            const currentQty = cart[id]?.qty || 0;
+            const newQty = currentQty + delta;
+            
+            if (newQty <= 0) {
+                delete cart[id];
+            } else {
+                const product = wishlist.find(p => p.id === id);
+                const price = product ? (product.offerPrice || product.price || 0) : 0;
+                const name = product ? product.name : `Product #${id}`;
+                
+                cart[id] = { 
+                    qty: newQty, 
+                    n: name, 
+                    p: price || cart[id]?.p || 0
+                };
+            }
+            
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartUI();
+            renderWishlistPage();
+        }
+        
+        // Initialize wishlist page
+        // Ensure auth is initialized after components.js loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Small delay to ensure Firebase is ready
+    setTimeout(() => {
+        if (typeof initAuthListener === 'function') {
+            initAuthListener();
+        }
+        
+        // Force auth state check after a longer delay (for IndexedDB restore)
+        setTimeout(async () => {
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                const user = firebase.auth().currentUser;
+                if (user && !_currentUser) {
+                    // Auth restored from IndexedDB but listener missed it
+                    console.log('Late auth restore detected');
+                    _currentUser = user;
+                    updateLoginPanelUI(user);
+                    await loadUserData(user.uid, user.email);
+                    await loadUserCartAndWishlist(user.uid);
+                } else if (!user && !window._intentionalLogout && Object.keys(cart).length === 0 && wishlist.length === 0) {
+                    // Truly no user - ensure empty state
+                    cart = {};
+                    wishlist = [];
+                    localStorage.removeItem('cart');
+                    localStorage.removeItem('wishlist');
+                    updateCartUI();
+                    updateWishlistUI();
+                }
+            }
+        }, 1500);
+    }, 100);
+});
+        
+        // Listen for storage changes (sync across tabs)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'wishlist') {
+                wishlist = JSON.parse(e.newValue) || [];
+                renderWishlistPage();
+                updateWishlistUI();
+            }
+            if (e.key === 'cart') {
+                cart = JSON.parse(e.newValue) || {};
+                updateCartUI();
+                renderWishlistPage();
+            }
+        });
+
+        // Re-render wishlist when gold/silver prices change
+        window.onPricesUpdated = function(newPrices) {
+            if (typeof renderWishlistPage === 'function') {
+                renderWishlistPage();
+            }
+        };
+
+        // Ensure auth is properly initialized and synced across pages
+document.addEventListener('DOMContentLoaded', function() {
+    // Just initialize auth - the listener handles everything
+    if (typeof initAuthListener === 'function') {
+        initAuthListener();
+    } else {
+        // Retry if components.js hasn't loaded yet
+        const checkInterval = setInterval(() => {
+            if (typeof initAuthListener === 'function') {
+                clearInterval(checkInterval);
+                initAuthListener();
+            }
+        }, 100);
+        setTimeout(() => clearInterval(checkInterval), 5000);
+    }
+});
+    </script>
+
+    
+</body>
+</html>

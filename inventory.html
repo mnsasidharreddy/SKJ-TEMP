@@ -1,0 +1,2726 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKJ Jewelry - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --royal-green: #004d40;
+            --gold: #D4AF37;
+        }
+
+        .bg-royal-green {
+            background-color: var(--royal-green);
+        }
+
+        .text-gold {
+            color: var(--gold);
+        }
+
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .main-content {
+            margin-left: 260px;
+        }
+
+        /* Original styles preserved */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+
+        /* Login Section - Initially hidden to prevent flicker */
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+            /* Hidden by default */
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-container.show {
+            display: block;
+        }
+
+        .login-container h2 {
+            color: #d4af37;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #d4af37;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            background: #b8962e;
+        }
+
+        .error {
+            color: #dc3545;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            display: none;
+        }
+
+        .admin-panel.show {
+            display: block;
+        }
+
+        /* Toggle Switch Styles */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.toggle-slider {
+            background-color: #10b981;
+        }
+
+        input:checked+.toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+
+
+        .admin-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #d4af37;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Upload Form */
+        .upload-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .upload-card h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .file-input {
+            border: 2px dashed #d4af37;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            background: #fffbf0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .preview-img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            display: none;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #d4af37;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        /* Image Gallery */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .image-preview-card {
+            position: relative;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .image-preview-card img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+
+        .image-preview-card.main-image {
+            border: 3px solid #d4af37;
+        }
+
+        /* Inventory Search Controls */
+        .inventory-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .search-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .image-preview-card.main-image {
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        .image-preview-card .main-badge {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #d4af37;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .image-preview-card .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+        }
+
+        .image-preview-card .replace-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .image-count {
+            color: #666;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .feedback-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .feedback-message.show {
+            display: block;
+        }
+
+        .feedback-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Product List */
+        .filter-section {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-section select {
+            padding: 8px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 15px;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .product-price {
+            color: #d4af37;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .product-meta {
+            color: #666;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .btn-small {
+            padding: 8px;
+            font-size: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-toggle {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-toggle.out {
+            background: #dc3545;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-edit {
+            background: #d4af37;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #b8962e;
+        }
+
+        /* Price calculation helper styles */
+        .price-calc-group {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .price-calc-group h4 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .calc-result {
+            background: #d4edda;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #155724;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Loading state */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-screen.hidden {
+            display: none;
+        }
+
+        .active-nav {
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%) !important;
+            border-left-color: #D4AF37 !important;
+            color: #D4AF37 !important;
+            font-weight: 700;
+        }
+
+        .active-nav i,
+        .active-nav span {
+            color: #D4AF37 !important;
+        }
+
+
+        /* ===== IMPROVED PRODUCT CARD STYLES ===== */
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            transform: translateY(-4px);
+        }
+
+        .product-card.out-of-stock {
+            opacity: 0.75;
+        }
+
+        /* Image Section */
+        .card-image-wrapper {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+            background: #f9fafb;
+        }
+
+        .card-main-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .card-main-image {
+            transform: scale(1.05);
+        }
+
+        /* Badges */
+        .safety-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stock-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: white;
+            z-index: 10;
+        }
+
+        .stock-badge.in-stock {
+            background: #10b981;
+        }
+
+        .stock-badge.out-of-stock {
+            background: #ef4444;
+        }
+
+        .discount-badge {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: #dc2626;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            z-index: 10;
+        }
+
+        /* Info Section */
+        .card-info-wrapper {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .card-product-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            min-height: 42px;
+        }
+
+        /* Tags */
+        .card-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .category-tag {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .weight-tag {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Price Section */
+        .card-price-section {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .current-price {
+            font-size: 20px;
+            font-weight: 800;
+            color: #d4af37;
+        }
+
+        .original-price {
+            font-size: 13px;
+            color: #9ca3af;
+            text-decoration: line-through;
+        }
+
+        .savings {
+            font-size: 11px;
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        /* Status Row */
+        .card-status-row {
+            display: flex;
+            gap: 16px;
+            padding-top: 4px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .status-item i {
+            color: #d4af37;
+            font-size: 14px;
+        }
+
+        /* Action Buttons */
+        .card-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr 40px 40px;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 8px;
+        }
+
+        .action-btn {
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-btn i {
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #d4af37;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b8962e;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-online {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        .btn-online:hover {
+            background: #0284c7;
+        }
+
+        .btn-offline {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-offline:hover {
+            background: #4b5563;
+        }
+
+        .btn-danger-outline {
+            background: white;
+            border: 2px solid #ef4444;
+            color: #ef4444;
+            padding: 8px;
+        }
+
+        .btn-danger-outline:hover {
+            background: #ef4444;
+            color: white;
+        }
+    </style>
+
+    <link rel="stylesheet" href="admin-layout.css">
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- Loading Screen to prevent flicker -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="text-center">
+            <i class="fas fa-spinner fa-spin text-4xl text-yellow-500 mb-4"></i>
+            <p class="text-gray-600">Loading...</p>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div id="admin-panel" class="admin-panel show">
+        <!-- Sidebar -->
+        <div id="sidebar-container"></div>
+
+        <!-- Main Content -->
+        <main class="main-content p-8">
+            <!-- Header -->
+            <header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center mb-6 rounded-lg">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Inventory Management</h2>
+                    <p class="text-gray-600">Manage your jewelry products</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500" id="currentDate"></span>
+                    <div class="bg-royal-green text-white w-10 h-10 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats -->
+            <div class="stats-bar">
+                <div class="stat-box">
+                    <div class="stat-number" id="stat-total">0</div>
+                    <div class="stat-label">Total Products</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="stat-instock">0</div>
+                    <div class="stat-label">In Stock</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="stat-outstock">0</div>
+                    <div class="stat-label">Out of Stock</div>
+                </div>
+            </div>
+            <!-- Real-time Update Indicator -->
+            <div id="update-indicator"
+                style="position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 9999; pointer-events: none;">
+                <i class="fas fa-sync-alt fa-spin" style="margin-right: 6px;"></i> Live Update
+            </div>
+            <style>
+                #update-indicator.show {
+                    opacity: 1;
+                }
+            </style>
+            <!-- Default Making Charges Settings -->
+            <div class="upload-card"
+                style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 2px solid #10b981;">
+                <h2 style="color: #065f46; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-cogs"></i> Default Making Charges Settings
+                </h2>
+                <p style="color: #6b7280; margin-bottom: 15px; font-size: 14px;">
+                    Set default making charges for each category. These values will be auto-filled when adding new
+                    products.
+                </p>
+
+                <div class="form-row" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="form-group">
+                        <label style="font-size: 12px; color: #374151;">Rings (₹/g)</label>
+                        <input type="number" id="default-rings" placeholder="500" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 12px; color: #374151;">Chains (₹/g)</label>
+                        <input type="number" id="default-chains" placeholder="450" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 12px; color: #374151;">Bangles (₹/g)</label>
+                        <input type="number" id="default-bangles" placeholder="400" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 12px; color: #374151;">Bracelets (₹/g)</label>
+                        <input type="number" id="default-bracelets" placeholder="550" min="0" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-row" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="form-group">
+                        <label style="font-size: 12px; color: #374151;">Harams (₹/g)</label>
+                        <input type="number" id="default-harams" placeholder="600" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 12px; color: #374151;">Earrings (₹/g)</label>
+                        <input type="number" id="default-earrings" placeholder="700" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 12px; color: #374151;">Necklaces (₹/g)</label>
+                        <input type="number" id="default-necklaces" placeholder="500" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 12px; color: #374151;">Coins (₹/g)</label>
+                        <input type="number" id="default-coins" placeholder="100" min="0" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-row" style="grid-template-columns: 1fr 3fr;">
+                    <div class="form-group">
+                        <label style="font-size: 12px; color: #374151;">Other (₹/g)</label>
+                        <input type="number" id="default-other" placeholder="500" min="0" step="0.01">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end;">
+                        <button type="button" class="btn" onclick="saveDefaultMakingCharges()"
+                            style="background: #10b981; max-width: 200px;">
+                            <i class="fas fa-save"></i> Set Default Values
+                        </button>
+                    </div>
+                </div>
+
+                <div id="default-charges-message" class="feedback-message"></div>
+            </div>
+
+            <!-- Upload Form -->
+            <div class="upload-card">
+                <h2>➕ Add New Product</h2>
+                <form id="upload-form" onsubmit="handleUpload(event)">
+                    <div class="form-row">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="prod-category" required onchange="autoFillMakingCharges()">
+                                    <option value="">Select Category</option>
+                                    <option value="rings">Rings</option>
+                                    <option value="chains">Chains</option>
+                                    <option value="bangles">Bangles</option>
+                                    <option value="bracelets">Bracelets</option>
+                                    <option value="harams">Harams</option>
+                                    <option value="earrings">Earrings</option>
+                                    <option value="necklaces">Necklaces</option>
+                                    <option value="coins">Coins</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Product Name</label>
+                                <input type="text" id="prod-name" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Metal Type and Carat Fields -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Metal Type *</label>
+                            <select type="text" id="prod-metal-type" required onchange="handleMetalTypeChange()">
+                                <option value="">Select Metal</option>
+                                <option value="gold">Gold</option>
+                                <option value="silver">Silver</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="carat-field" style="opacity: 0.5; pointer-events: none;">
+                            <label>Carat <span id="carat-required"
+                                    style="color: #ef4444; display: none;">*</span></label>
+                            <select id="prod-carat" disabled>
+                                <option value="">Select Carat</option>
+                                <option value="24CT">24CT</option>
+                                <option value="22CT">22CT</option>
+                            </select>
+                            <small id="carat-hint" style="color: #6b7280; font-size: 11px; display: none;">Select carat
+                                for gold products</small>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Making Charges Field -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Making Charges (₹ per gram) *</label>
+                            <input type="number" id="prod-making-charges" placeholder="Auto-filled from default"
+                                required min="0" step="0.01"
+                                oninput="calculateTotalMakingCharges(); calculateAutoPrice();">
+                            <small style="color: #6b7280; font-size: 11px;">Auto-filled based on category. You can edit
+                                this.</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Weight (grams) *</label>
+                            <input type="number" step="0.01" id="prod-weight" placeholder="5.5" required min="0"
+                                oninput="calculateTotalMakingCharges(); calculateAutoPrice();">
+                        </div>
+                    </div>
+
+                    <!-- Total Making Charges Display -->
+                    <div class="calc-result" id="total-making-charges-display"
+                        style="display: none; background: #fef3c7; color: #92400e;">
+                        Total Making Charges: <span id="total-making-charges">₹0</span>
+                        <small style="display: block; margin-top: 4px; font-size: 11px; color: #64748b;">
+                            Weight: <span id="display-weight">0</span>g × Rate: <span id="display-rate">₹0</span>/g
+                        </small>
+                    </div>
+
+
+                    <!-- Price Display (Auto-calculated based on metal type) -->
+                    <div class="calc-result" id="auto-price-calc-result"
+                        style="display: none; background: #dbeafe; color: #1e40af;">
+                        Auto-calculated Price: <span id="auto-calculated-price">₹0</span>
+                        <small style="display: block; margin-top: 4px; font-size: 11px; color: #64748b;">
+                            Based on current market rates + making charges
+                        </small>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Original Price (₹) *</label>
+                            <input type="number" id="prod-original-price" placeholder="50000" required min="0"
+                                oninput="calculatePrices('upload')">
+                        </div>
+                        <div class="form-group">
+                            <label>Offer Price (₹)</label>
+                            <input type="number" id="prod-offer-price" placeholder="45000" min="0"
+                                oninput="calculatePrices('upload')">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Discount Percentage (%)</label>
+                            <input type="number" id="prod-discount-percent" placeholder="10" min="0" max="100"
+                                step="0.01" oninput="calculatePrices('upload')">
+                        </div>
+                        <div class="form-group">
+                            <label>Discount Amount (₹)</label>
+                            <input type="number" id="prod-discount-amount" placeholder="5000" min="0"
+                                oninput="calculatePrices('upload')">
+                        </div>
+                    </div>
+
+                    <div class="calc-result" id="price-calc-result" style="display: none;">
+                        Final Price: <span id="final-price-display">₹0</span>
+                        (You save: <span id="savings-display">₹0</span>)
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Stock Quantity</label>
+                            <input type="number" id="prod-quantity" placeholder="1" min="0" value="1">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Status</label>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div class="checkbox-group" style="margin: 0;">
+                                    <input type="checkbox" id="prod-instock" checked style="width: auto;">
+                                    <label for="prod-instock" style="margin: 0;">In Stock</label>
+                                </div>
+                                <div class="checkbox-group" style="margin: 0;">
+                                    <input type="checkbox" id="prod-online-enabled" checked style="width: auto;">
+                                    <label for="prod-online-enabled" style="margin: 0;">Available Online</label>
+                                </div>
+                                <!-- NEW: TRENDING CHECKBOX -->
+                                <div class="checkbox-group"
+                                    style="margin: 0; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px;">
+                                    <input type="checkbox" id="prod-trending" style="width: auto;">
+                                    <label for="prod-trending" style="margin: 0; color: #92400e; font-weight: 600;">
+                                        <i class="fas fa-fire" style="color: #ef4444;"></i> Trending Item
+                                    </label>
+                                </div>
+                                <div class="checkbox-group" style="margin: 0;">
+                                    <input type="checkbox" id="prod-dynamic-pricing" style="width: auto;">
+                                    <label for="prod-dynamic-pricing"
+                                        style="margin: 0; color: #10b981; font-weight: bold;">Dynamic Pricing</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Gold Safety Protection</label>
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0;">
+                                <label class="toggle-switch" style="margin: 0;">
+                                    <input type="checkbox" id="prod-safety" class="product-safety-toggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span style="font-size: 14px; color: #4b5563;">Enable safety mode for this
+                                    product</span>
+                            </div>
+                            <p style="font-size: 12px; color: #6b7280; margin-top: 8px; font-style: italic;">
+                                When enabled and global safety is ON, this item will go to wishlist instead of cart
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Product Images (Max 4) *</label>
+                        <div class="file-input" onclick="document.getElementById('prod-images').click()">
+                            <p>📷 Click to select images (up to 4)</p>
+                            <input type="file" id="prod-images" accept="image/*" multiple style="display: none;"
+                                onchange="previewImages(this)" required>
+                        </div>
+                        <div id="image-gallery" class="image-gallery"></div>
+                        <div id="image-count" class="image-count">0 images selected</div>
+                    </div>
+
+                    <div class="progress-bar" id="progress-container">
+                        <div class="progress-fill" id="progress-bar"></div>
+                    </div>
+
+                    <div id="upload-message" class="feedback-message"></div>
+                    <button type="submit" class="btn">Upload Product</button>
+                </form>
+            </div>
+
+            <!-- Filters -->
+            <div class="inventory-controls">
+                <div class="search-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="inventory-search" placeholder="Search products by name or category..."
+                        oninput="applyFilters()">
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label style="font-weight: bold; color: #374151;">Filters:</label>
+                    <select id="category-filter" onchange="applyFilters()"
+                        style="padding: 10px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                        <option value="all">All Categories</option>
+                        <option value="rings">Rings</option>
+                        <option value="chains">Chains</option>
+                        <option value="bangles">Bangles</option>
+                        <option value="bracelets">Bracelets</option>
+                        <option value="harams">Harams</option>
+                        <option value="earrings">Earrings</option>
+                        <option value="necklaces">Necklaces</option>
+                        <option value="coins">Coins</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <select id="stock-filter" onchange="applyFilters()"
+                        style="padding: 10px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                        <option value="all">All Stock Status</option>
+                        <option value="in-stock">In Stock Only</option>
+                        <option value="out-of-stock">Out of Stock Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Product List -->
+            <h2 style="margin-bottom: 15px;">📦 Manage Products</h2>
+            <div id="products-list" class="product-grid">
+                <p style="grid-column: 1/-1; text-align: center; color: #666;">Loading products...</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- EDIT PRODUCT MODAL -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Product</h2>
+                <button class="close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div id="edit-message" class="feedback-message"></div>
+            <form id="edit-form" onsubmit="handleEditProduct(event)">
+                <input type="hidden" id="edit-product-id">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="edit-category" required onchange="autoFillEditMakingCharges()">
+                            <option value="rings">Rings</option>
+                            <option value="chains">Chains</option>
+                            <option value="bangles">Bangles</option>
+                            <option value="bracelets">Bracelets</option>
+                            <option value="harams">Harams</option>
+                            <option value="earrings">Earrings</option>
+                            <option value="necklaces">Necklaces</option>
+                            <option value="coins">Coins</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" id="edit-name" required>
+                    </div>
+                </div>
+
+
+
+                <!-- NEW: Making Charges in Edit Modal -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Making Charges (₹ per gram)</label>
+                        <input type="number" id="edit-making-charges" required min="0" step="0.01"
+                            oninput="calculateEditTotalMakingCharges()">
+                        <small style="color: #6b7280; font-size: 11px;">You can edit this value</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Weight (grams)</label>
+                        <input type="number" step="0.01" id="edit-weight" required min="0"
+                            oninput="calculateEditTotalMakingCharges()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Metal Type</label>
+                        <select id="edit-metal-type" onchange="handleEditMetalTypeChange()">
+                            <option value="">Select Metal</option>
+                            <option value="gold">Gold</option>
+                            <option value="silver">Silver</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="edit-carat-field" style="opacity: 0.5; pointer-events: none;">
+                        <label>Carat</label>
+                        <select id="edit-carat" disabled onchange="calculateEditAutoPrice()">
+                            <option value="">Select Carat</option>
+                            <option value="24CT">24CT</option>
+                            <option value="22CT">22CT</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Stock Quantity</label>
+                        <input type="number" id="edit-quantity" min="0" value="1">
+                    </div>
+                </div>
+
+
+
+                <div class="calc-result" id="edit-total-making-display"
+                    style="display: none; background: #fef3c7; color: #92400e;">
+                    Total Making Charges: <span id="edit-total-making">₹0</span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Original Price (₹)</label>
+                        <input type="number" id="edit-original-price" required min="0"
+                            oninput="calculatePrices('edit')">
+                    </div>
+                    <div class="form-group">
+                        <label>Offer Price (₹)</label>
+                        <input type="number" id="edit-offer-price" min="0" oninput="calculatePrices('edit')">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Discount Percentage (%)</label>
+                        <input type="number" id="edit-discount-percent" min="0" max="100" step="0.01"
+                            oninput="calculatePrices('edit')">
+                    </div>
+                    <div class="form-group">
+                        <label>Discount Amount (₹)</label>
+                        <input type="number" id="edit-discount-amount" min="0" oninput="calculatePrices('edit')">
+                    </div>
+                </div>
+
+                <div class="calc-result" id="edit-price-calc-result" style="display: none;">
+                    Final Price: <span id="edit-final-price-display">₹0</span>
+                    (You save: <span id="edit-savings-display">₹0</span>)
+                </div>
+
+
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div class="checkbox-group" style="margin: 0;">
+                                <input type="checkbox" id="edit-instock" style="width: auto;">
+                                <label for="edit-instock" style="margin: 0;">In Stock</label>
+                            </div>
+                            <div class="checkbox-group" style="margin: 0;">
+                                <input type="checkbox" id="edit-online-enabled" style="width: auto;">
+                                <label for="edit-online-enabled" style="margin: 0;">Available Online</label>
+                            </div>
+                            <!-- NEW: TRENDING CHECKBOX IN EDIT -->
+                            <div class="checkbox-group"
+                                style="margin: 0; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px;">
+                                <input type="checkbox" id="edit-trending" style="width: auto;">
+                                <label for="edit-trending" style="margin: 0; color: #92400e; font-weight: 600;">
+                                    <i class="fas fa-fire" style="color: #ef4444;"></i> Trending Item
+                                </label>
+                            </div>
+                            <!-- NEW: DYNAMIC PRICING IN EDIT -->
+                            <div class="checkbox-group"
+                                style="margin: 0; background: #ecfdf5; border: 1px solid #10b981; border-radius: 6px;">
+                                <input type="checkbox" id="edit-dynamic-pricing" style="width: auto;"
+                                    onchange="calculateEditAutoPrice()">
+                                <label for="edit-dynamic-pricing" style="margin: 0; color: #065f46; font-weight: 600;">
+                                    <i class="fas fa-bolt" style="color: #10b981;"></i> Dynamic Pricing
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Gold Safety Protection</label>
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0;">
+                        <label class="toggle-switch" style="margin: 0;">
+                            <input type="checkbox" id="edit-safety">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span style="font-size: 14px; color: #4b5563;">Enable safety mode</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Manage Images (Click image to set as main, × to delete, 🔄 to replace)</label>
+                    <div id="edit-image-gallery" class="image-gallery"></div>
+                    <div id="edit-image-count" class="image-count"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Add New Images (optional, max 4 total)</label>
+                    <div class="file-input" onclick="document.getElementById('edit-new-images').click()">
+                        <p>📷 Click to add images</p>
+                        <input type="file" id="edit-new-images" accept="image/*" multiple style="display: none;"
+                            onchange="previewEditNewImages(this)">
+                    </div>
+                </div>
+
+                <div class="progress-bar" id="edit-progress-container">
+                    <div class="progress-fill" id="edit-progress-bar"></div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button type="button" class="btn" onclick="closeEditModal()"
+                        style="background: #6c757d;">Cancel</button>
+                    <button type="submit" class="btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Hidden file input for image replacement -->
+    <input type="file" id="replace-image-input" accept="image/*" style="display: none;"
+        onchange="handleImageReplace(this)">
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+    <script>
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                apiKey: "AIzaSyATmseHSU3qimkm6pSCJ_xA1EL3_KiHtXs",
+                authDomain: "skj-jewelry-store.firebaseapp.com",
+                projectId: "skj-jewelry-store",
+                storageBucket: "skj-jewelry-store.firebasestorage.app",
+                messagingSenderId: "531463279637",
+                appId: "1:531463279637:web:2ab8aaaa80211045252a1c",
+                measurementId: "G-0S99YE5NR1"
+            });
+        }
+    </script>
+    <script src="sidebar.js"></script>
+    <!-- FIREBASE SCRIPT -->
+    <script>
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Compat shims for modular-style function calls used below
+        const onAuthStateChanged = (a, cb) => a.onAuthStateChanged(cb);
+        const signOut = (a) => a.signOut();
+        const setPersistence = (a, p) => a.setPersistence(p);
+        const browserLocalPersistence = firebase.auth.Auth.Persistence.LOCAL;
+        const collection = (d, path) => d.collection(path);
+        const doc = (d, ...args) => { if (args.length === 2) return d.collection(args[0]).doc(args[1]); return d.doc(args[0]); };
+        const getDoc = (ref) => ref.get().then(snap => ({ exists: () => snap.exists, data: () => snap.data(), id: snap.id }));
+        const getDocs = (q) => q.get().then(snap => ({ docs: snap.docs.map(d => ({ id: d.id, data: () => d.data(), exists: true })), empty: snap.empty, size: snap.size, forEach: (fn) => snap.forEach(fn) }));
+        const addDoc = (colRef, data) => colRef.add(data);
+        const updateDoc = (docRef, data) => docRef.update(data);
+        const setDoc = (docRef, data, opts) => docRef.set(data, opts || {});
+        const query = (colRef, ...constraints) => { let q = colRef; constraints.forEach(c => { q = c(q); }); return q; };
+        const where = (field, op, val) => (q) => q.where(field, op, val);
+        const onSnapshot = (q, cb, errCb) => q.onSnapshot(cb, errCb);
+        const serverTimestamp = () => firebase.firestore.FieldValue.serverTimestamp();
+        const ref = (s, path) => s.ref(path);
+        const uploadBytesResumable = (storageRef, file) => storageRef.put(file);
+        const getDownloadURL = (storageRef) => storageRef.getDownloadURL();
+        const deleteObject = (storageRef) => storageRef.delete();
+
+        // Live price cache for dynamic pricing
+        let inventoryCachedPrices = { gold: 6400, skjg: 6200, silver: 750 };
+
+        // Real-time price listener — auto re-renders inventory when rates change
+        db.collection('prices').doc('current').onSnapshot((docSnap) => {
+            if (docSnap.exists) {
+                const data = docSnap.data();
+                inventoryCachedPrices = {
+                    gold: data.goldMarketPrice || 0,
+                    skjg: data.goldSKJPrice || 0,
+                    silver: data.silverMarketPrice || 0
+                };
+                console.log('✅ Inventory prices updated:', inventoryCachedPrices);
+                // Re-render all products with new prices
+                if (allProducts.length > 0) {
+                    renderProducts();
+                }
+            }
+        }, (err) => { console.error('Inventory price listener error:', err); });
+
+        // Global variables
+        let allProducts = [];
+        let currentCategory = 'all';
+        let currentStockFilter = 'all';
+        let currentSearchQuery = ''; // NEW
+        let selectedImages = [];
+        let editingProductImages = [];
+        let editingProductData = null;
+        let currentReplaceIndex = -1;
+        const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+        const MAX_IMAGES_PER_PRODUCT = 4;
+
+        // Set current date
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+
+        // ============================================
+        // METAL TYPE AND CARAT HANDLING
+        // ============================================
+        window.handleMetalTypeChange = function () {
+            const metalType = document.getElementById('prod-metal-type').value;
+            const caratField = document.getElementById('carat-field');
+            const caratSelect = document.getElementById('prod-carat');
+            const caratRequired = document.getElementById('carat-required');
+            const caratHint = document.getElementById('carat-hint');
+
+            if (metalType === 'gold') {
+                caratField.style.opacity = '1';
+                caratField.style.pointerEvents = 'auto';
+                caratSelect.disabled = false;
+                caratSelect.required = true;
+                caratRequired.style.display = 'inline';
+                if (caratHint) caratHint.style.display = 'block';
+            } else {
+                caratField.style.opacity = '0.5';
+                caratField.style.pointerEvents = 'none';
+                caratSelect.disabled = true;
+                caratSelect.required = false;
+                caratSelect.value = '';
+                caratRequired.style.display = 'none';
+                if (caratHint) caratHint.style.display = 'none';
+            }
+
+            calculateAutoPrice();
+        };
+
+
+        window.handleEditMetalTypeChange = function () {
+            const metalType = document.getElementById('edit-metal-type').value;
+            const caratField = document.getElementById('edit-carat-field');
+            const caratSelect = document.getElementById('edit-carat');
+
+            if (metalType === 'gold') {
+                caratField.style.opacity = '1';
+                caratField.style.pointerEvents = 'auto';
+                caratSelect.disabled = false;
+            } else {
+                caratField.style.opacity = '0.5';
+                caratField.style.pointerEvents = 'none';
+                caratSelect.disabled = true;
+                caratSelect.value = '';
+            }
+
+            // Recalculate dynamic price when metal type changes
+            calculateEditAutoPrice();
+        };
+        // Calculate price based on metal type, weight, and current market rates
+        window.calculateAutoPrice = async function () {
+            const metalType = document.getElementById('prod-metal-type').value;
+            const weight = parseFloat(document.getElementById('prod-weight').value) || 0;
+            const carat = document.getElementById('prod-carat').value;
+            const makingCharges = parseFloat(document.getElementById('prod-making-charges').value) || 0;
+            const totalMakingCharges = makingCharges * weight;
+
+            const resultDiv = document.getElementById('auto-price-calc-result');
+            const priceDisplay = document.getElementById('auto-calculated-price');
+
+            if (!metalType || weight <= 0) {
+                resultDiv.style.display = 'none';
+                return;
+            }
+
+            let calculatedPrice = 0;
+
+            // Load live prices from Firebase instead of priceHistory array
+            let goldRate = 0, skjGoldRate = 0, silverRate = 0;
+            try {
+                const pricesDoc = await getDoc(doc(db, 'prices', 'current'));
+                if (pricesDoc.exists()) {
+                    const data = pricesDoc.data();
+                    goldRate = data.goldMarketPrice || 0;
+                    skjGoldRate = data.goldSKJPrice || data.goldMarketPrice || 0;
+                    silverRate = (data.silverMarketPrice || 0) / 10; // per gram
+                }
+            } catch (e) {
+                resultDiv.style.display = 'none';
+                return;
+            }
+
+            if (metalType === 'gold') {
+                if (!carat) {
+                    resultDiv.style.display = 'none';
+                    return;
+                }
+                const ratePerGram = carat === '24CT' ? goldRate : skjGoldRate;
+                if (!ratePerGram) { resultDiv.style.display = 'none'; return; }
+                calculatedPrice = (weight * ratePerGram) + totalMakingCharges;
+            } else if (metalType === 'silver') {
+                if (!silverRate) { resultDiv.style.display = 'none'; return; }
+                calculatedPrice = (weight * silverRate) + totalMakingCharges;
+            } else {
+                resultDiv.style.display = 'none';
+                return;
+            }
+
+            priceDisplay.textContent = '₹' + Math.round(calculatedPrice).toLocaleString();
+            resultDiv.style.display = 'block';
+
+            // Auto-fill the original price if empty
+            const originalPriceInput = document.getElementById('prod-original-price');
+            if (!originalPriceInput.value) {
+                originalPriceInput.value = Math.round(calculatedPrice);
+            }
+        };
+
+        // Update carat change handler
+        document.addEventListener('DOMContentLoaded', () => {
+            const caratSelect = document.getElementById('prod-carat');
+            if (caratSelect) {
+                caratSelect.addEventListener('change', calculateAutoPrice);
+            }
+        });
+
+        // ============================================
+        // PRICE CALCULATION FUNCTIONS
+        // ============================================
+        window.calculatePrices = function (formType) {
+            const prefix = formType === 'upload' ? 'prod' : 'edit';
+            const resultId = formType === 'upload' ? 'price-calc-result' : 'edit-price-calc-result';
+            const finalPriceId = formType === 'upload' ? 'final-price-display' : 'edit-final-price-display';
+            const savingsId = formType === 'upload' ? 'savings-display' : 'edit-savings-display';
+
+            const originalPrice = parseFloat(document.getElementById(`${prefix}-original-price`).value) || 0;
+            const offerPrice = parseFloat(document.getElementById(`${prefix}-offer-price`).value) || 0;
+            const discountPercent = parseFloat(document.getElementById(`${prefix}-discount-percent`).value) || 0;
+            const discountAmount = parseFloat(document.getElementById(`${prefix}-discount-amount`).value) || 0;
+
+            let calculatedOffer = 0;
+            let calculatedDiscountPercent = 0;
+            let calculatedDiscountAmount = 0;
+
+            // Determine which field was last modified by checking the event target
+            const activeElement = document.activeElement;
+            const activeId = activeElement ? activeElement.id : '';
+
+            if (activeId.includes('offer-price') && offerPrice > 0) {
+                // User entered offer price - calculate discount
+                calculatedOffer = offerPrice;
+                calculatedDiscountAmount = originalPrice - offerPrice;
+                calculatedDiscountPercent = originalPrice > 0 ? ((calculatedDiscountAmount / originalPrice) * 100) : 0;
+
+                // Update other fields
+                if (calculatedDiscountPercent >= 0 && calculatedDiscountPercent <= 100) {
+                    document.getElementById(`${prefix}-discount-percent`).value = calculatedDiscountPercent.toFixed(2);
+                }
+                if (calculatedDiscountAmount >= 0) {
+                    document.getElementById(`${prefix}-discount-amount`).value = Math.round(calculatedDiscountAmount);
+                }
+            } else if (activeId.includes('discount-percent') && discountPercent > 0) {
+                // User entered discount percentage - calculate offer price
+                calculatedDiscountAmount = (originalPrice * discountPercent) / 100;
+                calculatedOffer = originalPrice - calculatedDiscountAmount;
+                calculatedDiscountPercent = discountPercent;
+
+                // Update other fields
+                document.getElementById(`${prefix}-offer-price`).value = Math.round(calculatedOffer);
+                document.getElementById(`${prefix}-discount-amount`).value = Math.round(calculatedDiscountAmount);
+            } else if (activeId.includes('discount-amount') && discountAmount > 0) {
+                // User entered discount amount - calculate offer price and percentage
+                calculatedOffer = originalPrice - discountAmount;
+                calculatedDiscountAmount = discountAmount;
+                calculatedDiscountPercent = originalPrice > 0 ? ((discountAmount / originalPrice) * 100) : 0;
+
+                // Update other fields
+                document.getElementById(`${prefix}-offer-price`).value = Math.round(calculatedOffer);
+                if (calculatedDiscountPercent >= 0 && calculatedDiscountPercent <= 100) {
+                    document.getElementById(`${prefix}-discount-percent`).value = calculatedDiscountPercent.toFixed(2);
+                }
+            } else if (originalPrice > 0) {
+                // Default calculation based on current values
+                if (offerPrice > 0) {
+                    calculatedOffer = offerPrice;
+                    calculatedDiscountAmount = originalPrice - offerPrice;
+                    calculatedDiscountPercent = originalPrice > 0 ? ((calculatedDiscountAmount / originalPrice) * 100) : 0;
+                } else if (discountPercent > 0) {
+                    calculatedDiscountAmount = (originalPrice * discountPercent) / 100;
+                    calculatedOffer = originalPrice - calculatedDiscountAmount;
+                } else if (discountAmount > 0) {
+                    calculatedOffer = originalPrice - discountAmount;
+                    calculatedDiscountPercent = originalPrice > 0 ? ((discountAmount / originalPrice) * 100) : 0;
+                }
+            }
+
+            // Show result
+            if (originalPrice > 0 && calculatedOffer > 0) {
+                document.getElementById(resultId).style.display = 'block';
+                document.getElementById(finalPriceId).textContent = '₹' + Math.round(calculatedOffer).toLocaleString();
+                document.getElementById(savingsId).textContent = '₹' + Math.round(calculatedDiscountAmount).toLocaleString();
+            } else {
+                document.getElementById(resultId).style.display = 'none';
+            }
+        };
+
+
+        // ============================================
+        // DEFAULT MAKING CHARGES FUNCTIONS
+        // ============================================
+        let defaultMakingCharges = {};
+
+        // Load default making charges on page load
+        async function loadDefaultMakingCharges() {
+            try {
+                const docRef = doc(db, 'settings', 'makingCharges');
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    defaultMakingCharges = docSnap.data();
+                    // Fill the input fields
+                    Object.keys(defaultMakingCharges).forEach(category => {
+                        const input = document.getElementById(`default-${category}`);
+                        if (input) {
+                            input.value = defaultMakingCharges[category];
+                        }
+                    });
+                } else {
+                    // Set default values if not exists
+                    defaultMakingCharges = {
+                        rings: 500,
+                        chains: 450,
+                        bangles: 400,
+                        bracelets: 550,
+                        harams: 600,
+                        earrings: 700,
+                        necklaces: 500,
+                        coins: 100,
+                        other: 500
+                    };
+                }
+            } catch (error) {
+                console.error('Error loading default making charges:', error);
+            }
+        }
+
+        // Save default making charges
+        window.saveDefaultMakingCharges = async () => {
+            const categories = ['rings', 'chains', 'bangles', 'bracelets', 'harams', 'earrings', 'necklaces', 'coins', 'other'];
+            const newCharges = {};
+
+            categories.forEach(cat => {
+                const value = parseFloat(document.getElementById(`default-${cat}`).value) || 0;
+                newCharges[cat] = value;
+            });
+
+            try {
+                await setDoc(doc(db, 'settings', 'makingCharges'), newCharges);
+                defaultMakingCharges = newCharges;
+                showMessage('default-charges-message', 'Default making charges saved successfully!', 'success');
+            } catch (error) {
+                showMessage('default-charges-message', 'Error saving: ' + error.message, 'error');
+            }
+        };
+
+        // Auto-fill making charges when category changes
+        window.autoFillMakingCharges = () => {
+            const category = document.getElementById('prod-category').value;
+            if (category && defaultMakingCharges[category]) {
+                document.getElementById('prod-making-charges').value = defaultMakingCharges[category];
+                calculateTotalMakingCharges();
+            }
+        };
+
+        window.autoFillEditMakingCharges = () => {
+            const category = document.getElementById('edit-category').value;
+            const currentValue = document.getElementById('edit-making-charges').value;
+
+            // Only auto-fill if field is empty (new product or user hasn't manually set)
+            if (category && defaultMakingCharges[category] && !currentValue) {
+                document.getElementById('edit-making-charges').value = defaultMakingCharges[category];
+                calculateEditTotalMakingCharges();
+            }
+        };
+        document.addEventListener('DOMContentLoaded', () => {
+            const caratSelect = document.getElementById('prod-carat');
+            if (caratSelect) {
+                caratSelect.addEventListener('change', calculateAutoPrice);
+            }
+            // Auto-fill making charges for the default selected category on load
+            setTimeout(() => {
+                if (typeof autoFillMakingCharges === 'function') {
+                    autoFillMakingCharges();
+                }
+            }, 500); // Small delay to ensure defaultMakingCharges has loaded from Firestore
+        });
+
+        // Calculate total making charges
+        window.calculateTotalMakingCharges = () => {
+            const rate = parseFloat(document.getElementById('prod-making-charges').value) || 0;
+            const weight = parseFloat(document.getElementById('prod-weight').value) || 0;
+            const total = rate * weight;
+
+            if (rate > 0 && weight > 0) {
+                document.getElementById('total-making-charges-display').style.display = 'block';
+                document.getElementById('total-making-charges').textContent = '₹' + total.toLocaleString();
+                document.getElementById('display-weight').textContent = weight;
+                document.getElementById('display-rate').textContent = '₹' + rate;
+            } else {
+                document.getElementById('total-making-charges-display').style.display = 'none';
+            }
+        };
+
+        window.calculateEditTotalMakingCharges = () => {
+            const rate = parseFloat(document.getElementById('edit-making-charges').value) || 0;
+            const weight = parseFloat(document.getElementById('edit-weight').value) || 0;
+            const total = rate * weight;
+
+            if (rate > 0 && weight > 0) {
+                document.getElementById('edit-total-making-display').style.display = 'block';
+                document.getElementById('edit-total-making').textContent = '₹' + total.toLocaleString();
+            } else {
+                document.getElementById('edit-total-making-display').style.display = 'none';
+            }
+
+            // Also recalculate dynamic price if enabled
+            calculateEditAutoPrice();
+        };
+
+        // ============================================
+        // EDIT FORM - DYNAMIC PRICING AUTO-CALCULATION
+        // ============================================
+        window.calculateEditAutoPrice = async function () {
+            const dynamicEnabled = document.getElementById('edit-dynamic-pricing').checked;
+            const originalPriceInput = document.getElementById('edit-original-price');
+            const offerPriceInput = document.getElementById('edit-offer-price');
+
+            if (!dynamicEnabled) {
+                // Make fields editable again
+                originalPriceInput.readOnly = false;
+                originalPriceInput.style.backgroundColor = '';
+                originalPriceInput.style.cursor = '';
+                return;
+            }
+
+            // Make original price read-only when dynamic pricing is on
+            originalPriceInput.readOnly = true;
+            originalPriceInput.style.backgroundColor = '#f0fdf4';
+            originalPriceInput.style.cursor = 'not-allowed';
+
+            const metalType = document.getElementById('edit-metal-type').value;
+            const weight = parseFloat(document.getElementById('edit-weight').value) || 0;
+            const carat = document.getElementById('edit-carat').value;
+            const makingCharges = parseFloat(document.getElementById('edit-making-charges').value) || 0;
+            const totalMakingCharges = makingCharges * weight;
+
+            if (!metalType || metalType === 'other' || weight <= 0) return;
+
+            // Fetch current prices from Firestore
+            let goldRate = 0, skjGoldRate = 0, silverRate = 0;
+            try {
+                const pricesDoc = await getDoc(doc(db, 'prices', 'current'));
+                if (pricesDoc.exists()) {
+                    const data = pricesDoc.data();
+                    goldRate = data.goldMarketPrice || 0;
+                    skjGoldRate = data.goldSKJPrice || data.goldMarketPrice || 0;
+                    silverRate = (data.silverMarketPrice || 0) / 10; // per gram
+                }
+            } catch (e) {
+                console.error('Error fetching prices for edit form:', e);
+                return;
+            }
+
+            let calculatedPrice = 0;
+            if (metalType === 'gold') {
+                if (!carat) return;
+                const ratePerGram = carat === '24CT' ? goldRate : skjGoldRate;
+                if (!ratePerGram) return;
+                calculatedPrice = (weight * ratePerGram) + totalMakingCharges;
+            } else if (metalType === 'silver') {
+                if (!silverRate) return;
+                calculatedPrice = (weight * silverRate) + totalMakingCharges;
+            } else {
+                return;
+            }
+
+            // Update original price
+            originalPriceInput.value = Math.round(calculatedPrice);
+
+            // Use discountAmount as source of truth, recalculate discountPercent from it
+            const discountAmount = parseFloat(document.getElementById('edit-discount-amount').value) || 0;
+            if (discountAmount > 0 && calculatedPrice > 0) {
+                const offerPrice = Math.round(calculatedPrice - discountAmount);
+                const discountPercent = (discountAmount / calculatedPrice) * 100;
+                offerPriceInput.value = offerPrice;
+                document.getElementById('edit-discount-percent').value = discountPercent.toFixed(2);
+
+                // Update display
+                document.getElementById('edit-price-calc-result').style.display = 'block';
+                document.getElementById('edit-final-price-display').textContent = '₹' + offerPrice.toLocaleString();
+                document.getElementById('edit-savings-display').textContent = '₹' + Math.round(discountAmount).toLocaleString();
+            } else {
+                offerPriceInput.value = Math.round(calculatedPrice);
+                document.getElementById('edit-discount-percent').value = 0;
+            }
+        };
+
+        // ============================================
+        // AUTH STATE LISTENER (Check if user is admin)
+        // ============================================
+        // Set persistence to local to prevent frequent logouts
+        try {
+            setPersistence(auth, browserLocalPersistence);
+            console.log('✅ Auth persistence: LOCAL');
+        } catch (error) {
+            console.warn('Persistence error:', error);
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (user) {
+                console.log('🔑 Authenticated:', user.email);
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists() && userDoc.data().role === 'admin') {
+                        console.log('✅ Admin verified');
+                        loadProducts();
+                        loadDefaultMakingCharges();
+                    } else if (userDoc.exists()) {
+                        console.warn('🚫 Non-admin access, redirecting');
+                        window.location.href = 'index.html';
+                    } else {
+                        console.warn('⚠️ User profile not found');
+                        window.location.href = 'index.html';
+                    }
+                } catch (error) {
+                    console.error('❌ Check admin status error:', error);
+                    if (error.code === 'permission-denied') {
+                        alert('Session error: Access denied. Re-logging might help.');
+                        window.location.href = 'login.html';
+                    }
+                }
+                if (loadingScreen) {
+                    loadingScreen.classList.add('hidden');
+                }
+            } else {
+                console.log('🚪 No user session, redirecting to login');
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Sections are now handled by redirect
+
+        // ============================================
+        // IMAGE PREVIEW (MULTIPLE IMAGES)
+        // ============================================
+        window.previewImages = (input) => {
+            if (!input.files) return;
+
+            selectedImages = [];
+            const files = Array.from(input.files).slice(0, MAX_IMAGES_PER_PRODUCT);
+
+            files.forEach((file, index) => {
+                if (file.size > MAX_IMAGE_SIZE) {
+                    showMessage('upload-message', `Image too large: ${file.name} (Max 5MB)`, 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    selectedImages.push({
+                        file: file,
+                        preview: e.target.result,
+                        isMain: index === 0
+                    });
+                    renderImageGallery();
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+
+        window.previewEditNewImages = (input) => {
+            if (!input.files) return;
+
+            const files = Array.from(input.files);
+            let addedCount = 0;
+
+            files.forEach((file) => {
+                if (editingProductImages.length >= MAX_IMAGES_PER_PRODUCT) {
+                    showMessage('edit-message', `Maximum ${MAX_IMAGES_PER_PRODUCT} images allowed`, 'error');
+                    return;
+                }
+
+                if (file.size > MAX_IMAGE_SIZE) {
+                    showMessage('edit-message', `Image too large: ${file.name} (Max 5MB)`, 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    editingProductImages.push({
+                        file: file,
+                        preview: e.target.result,
+                        isNew: true,
+                        isMain: editingProductImages.length === 0
+                    });
+                    addedCount++;
+                    renderEditImageGallery();
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+
+        function renderImageGallery() {
+            const gallery = document.getElementById('image-gallery');
+            const count = document.getElementById('image-count');
+
+            gallery.innerHTML = selectedImages.map((img, idx) => `
+                <div class="image-preview-card ${img.isMain ? 'main-image' : ''}" onclick="setMainImage(${idx})">
+                    <img src="${img.preview}">
+                    ${img.isMain ? '<div class="main-badge">MAIN</div>' : ''}
+                    <button class="remove-btn" type="button" onclick="removeImage(${idx}, event)">×</button>
+                </div>
+            `).join('');
+
+            count.textContent = `${selectedImages.length}/${MAX_IMAGES_PER_PRODUCT} images selected`;
+        }
+
+        function renderEditImageGallery() {
+            const gallery = document.getElementById('edit-image-gallery');
+            const count = document.getElementById('edit-image-count');
+
+            gallery.innerHTML = editingProductImages.map((img, idx) => `
+                <div class="image-preview-card ${img.isMain ? 'main-image' : ''}" onclick="setEditMainImage(${idx})">
+                    <img src="${img.preview}">
+                    ${img.isMain ? '<div class="main-badge">MAIN</div>' : ''}
+                    <button class="remove-btn" type="button" onclick="removeEditImage(${idx}, event)">×</button>
+                    <button class="replace-btn" type="button" onclick="triggerImageReplace(${idx}, event)">🔄 Replace</button>
+                </div>
+            `).join('');
+
+            count.textContent = `${editingProductImages.length}/${MAX_IMAGES_PER_PRODUCT} images`;
+        }
+
+        window.setMainImage = (index) => {
+            selectedImages.forEach((img, idx) => {
+                img.isMain = idx === index;
+            });
+            renderImageGallery();
+        };
+
+        window.setEditMainImage = (index) => {
+            editingProductImages.forEach((img, idx) => {
+                img.isMain = idx === index;
+            });
+            renderEditImageGallery();
+        };
+
+        window.removeImage = (index, event) => {
+            event.stopPropagation();
+            selectedImages.splice(index, 1);
+            if (selectedImages.length > 0 && !selectedImages.some(img => img.isMain)) {
+                selectedImages[0].isMain = true;
+            }
+            renderImageGallery();
+        };
+
+        window.removeEditImage = (index, event) => {
+            event.stopPropagation();
+            const img = editingProductImages[index];
+
+            // If it's an existing image (not new), mark it for deletion
+            if (!img.isNew && img.url) {
+                img.markedForDeletion = true;
+                // Store the URL to delete later from storage
+                if (!editingProductData.imagesToDelete) {
+                    editingProductData.imagesToDelete = [];
+                }
+                editingProductData.imagesToDelete.push(img.url);
+            }
+
+            editingProductImages.splice(index, 1);
+            if (editingProductImages.length > 0 && !editingProductImages.some(img => img.isMain)) {
+                editingProductImages[0].isMain = true;
+            }
+            renderEditImageGallery();
+        };
+
+        // ============================================
+        // IMAGE REPLACE FUNCTIONALITY
+        // ============================================
+        window.triggerImageReplace = (index, event) => {
+            event.stopPropagation();
+            currentReplaceIndex = index;
+            document.getElementById('replace-image-input').click();
+        };
+
+        window.handleImageReplace = (input) => {
+            if (!input.files || input.files.length === 0) return;
+
+            const file = input.files[0];
+
+            if (file.size > MAX_IMAGE_SIZE) {
+                showMessage('edit-message', `Image too large: ${file.name} (Max 5MB)`, 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const oldImg = editingProductImages[currentReplaceIndex];
+
+                // Mark old image for deletion if it was an existing image
+                if (!oldImg.isNew && oldImg.url) {
+                    if (!editingProductData.imagesToDelete) {
+                        editingProductData.imagesToDelete = [];
+                    }
+                    editingProductData.imagesToDelete.push(oldImg.url);
+                }
+
+                // Replace with new image
+                editingProductImages[currentReplaceIndex] = {
+                    file: file,
+                    preview: e.target.result,
+                    isNew: true,
+                    isMain: oldImg.isMain
+                };
+
+                renderEditImageGallery();
+                showMessage('edit-message', 'Image ready to be replaced. Click Save Changes to confirm.', 'success');
+            };
+            reader.readAsDataURL(file);
+
+            // Reset input
+            input.value = '';
+        };
+
+        // ============================================
+        // UPLOAD PRODUCT
+        // ============================================
+        window.handleUpload = async (e) => {
+            e.preventDefault();
+
+            if (selectedImages.length === 0) {
+                showMessage('upload-message', 'Please select at least one image', 'error');
+                return;
+            }
+
+            const category = document.getElementById('prod-category').value;
+            const name = document.getElementById('prod-name').value;
+            const originalPrice = parseFloat(document.getElementById('prod-original-price').value) || 0;
+            const offerPrice = parseFloat(document.getElementById('prod-offer-price').value) || originalPrice;
+            const discountPercent = parseFloat(document.getElementById('prod-discount-percent').value) || 0;
+            const discountAmount = parseFloat(document.getElementById('prod-discount-amount').value) || 0;
+            const weight = parseFloat(document.getElementById('prod-weight').value);
+            const quantity = parseInt(document.getElementById('prod-quantity').value) || 0;
+            const inStock = document.getElementById('prod-instock').checked;
+
+            // NEW FIELDS
+            const makingCharges = parseFloat(document.getElementById('prod-making-charges').value) || 0;
+            const isTrending = document.getElementById('prod-trending').checked;
+            const dynamicPricing = document.getElementById('prod-dynamic-pricing').checked; // NEW
+            const totalMakingCharges = makingCharges * weight;
+
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            progressContainer.style.display = 'block';
+
+            try {
+                const imageUrls = [];
+                const storagePaths = [];
+                const totalImages = selectedImages.length;
+
+                for (let i = 0; i < totalImages; i++) {
+                    const imageData = selectedImages[i];
+                    const filename = `${category}_${Date.now()}_${i}_${imageData.file.name}`;
+                    const storageRef = ref(storage, `jewelry/${category}/${filename}`);
+
+                    const uploadTask = uploadBytesResumable(storageRef, imageData.file);
+
+                    await new Promise((resolve, reject) => {
+                        uploadTask.on('state_changed',
+                            (snapshot) => {
+                                const progress = ((i + (snapshot.bytesTransferred / snapshot.totalBytes)) / totalImages) * 100;
+                                progressBar.style.width = progress + '%';
+                            },
+                            reject,
+                            async () => {
+                                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                                imageUrls.push(downloadURL);
+                                storagePaths.push(`jewelry/${category}/${filename}`);
+                                resolve();
+                            }
+                        );
+                    });
+                }
+
+                // Save to Firestore with NEW FIELDS including metal type and carat
+                await addDoc(collection(db, 'products'), {
+                    name,
+                    category,
+                    metalType: document.getElementById('prod-metal-type').value,  // NEW
+                    carat: document.getElementById('prod-carat').value || null,   // NEW
+                    originalPrice,
+                    offerPrice,
+                    discountPercent,
+                    discountAmount,
+                    price: offerPrice,
+                    weight,
+                    makingCharges,
+                    totalMakingCharges,
+                    isTrending,
+                    dynamicPricing, // NEW
+                    images: imageUrls,
+                    storagePaths: storagePaths,
+                    mainImageIndex: 0,
+                    inStock,
+                    stockQuantity: quantity,
+                    onlineEnabled: document.getElementById('prod-online-enabled').checked,
+                    safetyEnabled: document.getElementById('prod-safety').checked,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    isActive: true
+                });
+
+
+                document.getElementById('upload-form').reset();
+                selectedImages = [];
+                document.getElementById('image-gallery').innerHTML = '';
+                document.getElementById('image-count').textContent = '0 images selected';
+                document.getElementById('price-calc-result').style.display = 'none';
+                document.getElementById('total-making-charges-display').style.display = 'none'; // NEW
+                progressContainer.style.display = 'none';
+                progressBar.style.width = '0%';
+
+                showMessage('upload-message', 'Product uploaded successfully!', 'success');
+
+            } catch (error) {
+                showMessage('upload-message', 'Error: ' + error.message, 'error');
+                progressContainer.style.display = 'none';
+            }
+        };
+        // ============================================
+        // LOAD PRODUCTS
+        // ============================================
+        function loadProducts() {
+            const q = query(collection(db, 'products'), where('isActive', '==', true));
+
+            onSnapshot(q, (snapshot) => {
+                allProducts = [];
+                snapshot.forEach((doc) => {
+                    allProducts.push({ id: doc.id, ...doc.data() });
+                });
+                updateStats();
+                renderProducts();
+            }, (error) => {
+                console.error('Error loading products:', error);
+                showMessage('products-list', 'Error loading products: ' + error.message, 'error');
+            });
+        }
+
+        // ============================================
+        // UPDATE STATISTICS
+        // ============================================
+        function updateStats() {
+            const total = allProducts.length;
+            const inStock = allProducts.filter(p => p.inStock).length;
+            const outOfStock = total - inStock;
+
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-instock').textContent = inStock;
+            document.getElementById('stat-outstock').textContent = outOfStock;
+        }
+
+        // ============================================
+        // APPLY FILTERS
+        // ============================================
+        window.applyFilters = () => {
+            currentCategory = document.getElementById('category-filter').value;
+            currentStockFilter = document.getElementById('stock-filter').value;
+            currentSearchQuery = document.getElementById('inventory-search').value.trim().toLowerCase(); // NEW
+            renderProducts();
+        };
+
+        // ============================================
+        // RENDER PRODUCTS
+        // ============================================
+        function renderProducts() {
+            const container = document.getElementById('products-list');
+
+            // Filter products
+            let filtered = allProducts;
+
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(p => p.category === currentCategory);
+            }
+
+            if (currentStockFilter === 'in-stock') {
+                filtered = filtered.filter(p => p.inStock);
+            } else if (currentStockFilter === 'out-of-stock') {
+                filtered = filtered.filter(p => !p.inStock);
+            }
+
+            // Apply Search Query (NEW)
+            if (currentSearchQuery) {
+                filtered = filtered.filter(p =>
+                    (p.name && p.name.toLowerCase().includes(currentSearchQuery)) ||
+                    (p.category && p.category.toLowerCase().includes(currentSearchQuery))
+                );
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666;">No products found</p>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(product => {
+                const mainImageUrl = product.images && product.images[product.mainImageIndex || 0] ? product.images[product.mainImageIndex || 0] : 'https://via.placeholder.com/200';
+                // Dynamic price calculation based on live gold/silver rates
+                let displayPrice = product.offerPrice || product.price || 0;
+                let originalPrice = product.originalPrice || displayPrice;
+
+                if (product.dynamicPricing && product.weight) {
+                    if (product.metalType === 'gold') {
+                        const ratePerGram = product.carat === '24CT' ? inventoryCachedPrices.gold : (inventoryCachedPrices.skjg || 6200);
+                        const makingCharges = (product.makingCharges || 0) * parseFloat(product.weight);
+                        const basePrice = Math.round((parseFloat(product.weight) * ratePerGram) + makingCharges);
+                        let discountAmt = product.discountAmount || 0;
+                        if (!discountAmt && product.discountPercent > 0) {
+                            discountAmt = Math.round((basePrice * product.discountPercent) / 100);
+                        }
+                        originalPrice = basePrice;
+                        displayPrice = basePrice - discountAmt;
+                    } else if (product.metalType === 'silver') {
+                        const ratePerGram = (inventoryCachedPrices.silver || 750) / 10;
+                        const makingCharges = (product.makingCharges || 0) * parseFloat(product.weight);
+                        const basePrice = Math.round((parseFloat(product.weight) * ratePerGram) + makingCharges);
+                        let discountAmt = product.discountAmount || 0;
+                        if (!discountAmt && product.discountPercent > 0) {
+                            discountAmt = Math.round((basePrice * product.discountPercent) / 100);
+                        }
+                        originalPrice = basePrice;
+                        displayPrice = basePrice - discountAmt;
+                    }
+                }
+
+                const hasDiscount = originalPrice > displayPrice;
+
+                return `
+        <div class="product-card ${product.inStock ? '' : 'out-of-stock'}">
+            <!-- Image Section -->
+            <div class="card-image-wrapper">
+                ${product.safetyEnabled ?
+                        '<div class="safety-badge"><i class="fas fa-shield-alt"></i> SAFE</div>'
+                        : ''}
+                ${product.isTrending ?
+                        '<div class="safety-badge" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); top: auto; bottom: 10px; right: 10px; left: auto;"><i class="fas fa-fire"></i> TRENDING</div>'
+                        : ''}
+                    ${product.dynamicPricing ?
+    '<div class="safety-badge" style="background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); top: 40px; left: 10px;"><i class="fas fa-bolt"></i> DYNAMIC</div>'
+    : ''}
+                <img src="${mainImageUrl}" alt="${product.name}" class="card-main-image">
+                <span class="stock-badge ${product.inStock ? 'in-stock' : 'out-of-stock'}">
+                    ${product.inStock ? '✓ In Stock' : '✕ Out of Stock'}
+                </span>
+                ${hasDiscount ? `<div class="discount-badge">-${Math.round(((originalPrice - displayPrice) / originalPrice) * 100)}%</div>` : ''}
+            </div>
+            
+            <!-- Info Section -->
+            <div class="card-info-wrapper">
+                <h3 class="card-product-name">${product.name}</h3>
+                
+                <div class="card-tags">
+                    <span class="tag category-tag">${product.category}</span>
+                    <span class="tag weight-tag">${product.weight}g</span>
+                    ${product.makingCharges ? `<span class="tag" style="background: #dbeafe; color: #1e40af;">MC: ₹${product.makingCharges}/g</span>` : ''}
+                </div>
+                
+                <div class="card-price-section">
+                    <div class="price-row">
+                        <span class="current-price">₹${displayPrice.toLocaleString()}</span>
+                        ${hasDiscount ? `<span class="original-price">₹${originalPrice.toLocaleString()}</span>` : ''}
+                    </div>
+                    ${hasDiscount ? `<span class="savings">You save ₹${(originalPrice - displayPrice).toLocaleString()}</span>` : ''}
+                    ${product.totalMakingCharges ? `<span style="font-size: 11px; color: #6b7280; margin-top: 4px; display: block;">Making Charges: ₹${product.totalMakingCharges.toLocaleString()}</span>` : ''}
+                </div>
+                
+                <div class="card-status-row">
+                    <div class="status-item">
+                        <i class="fas fa-boxes"></i>
+                        <span>Qty: ${product.stockQuantity || 0}</span>
+                    </div>
+                    <div class="status-item">
+                        <i class="fas fa-images"></i>
+                        <span>${(product.images && product.images.length) || 0}/4</span>
+                    </div>
+                    ${product.isTrending ? '<div class="status-item" style="color: #ef4444;"><i class="fas fa-fire"></i><span>Trending</span></div>' : ''}
+                </div>
+                ${product.dynamicPricing ? '<div class="status-item" style="color: #3b82f6;"><i class="fas fa-bolt"></i><span>Dynamic</span></div>' : ''}
+                
+                <div class="card-actions">
+                    <button class="action-btn btn-primary" onclick="openEditModal('${product.id}')" title="Edit Product">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="action-btn ${product.inStock ? 'btn-success' : 'btn-danger'}" 
+                            onclick="toggleStock('${product.id}', ${!product.inStock})"
+                            title="${product.inStock ? 'Mark as Out of Stock' : 'Mark as In Stock'}">
+                        <i class="fas ${product.inStock ? 'fa-check' : 'fa-times'}"></i>
+                        ${product.inStock ? 'In Stock' : 'Out'}
+                    </button>
+                    <button class="action-btn ${(product.onlineEnabled !== false) ? 'btn-online' : 'btn-offline'}" 
+                            onclick="toggleOnline('${product.id}', ${product.onlineEnabled === false})"
+                            title="${(product.onlineEnabled !== false) ? 'Visible Online' : 'Hidden from Store'}">
+                        <i class="fas ${(product.onlineEnabled !== false) ? 'fa-globe' : 'fa-eye-slash'}"></i>
+                    </button>
+                    <button class="action-btn btn-danger-outline" onclick="deleteProduct('${product.id}')" title="Delete Product">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        `;
+            }).join('');
+        }
+        // ============================================
+        // TOGGLE STOCK STATUS
+        // ============================================
+        window.toggleStock = async (productId, newStatus) => {
+            try {
+                await updateDoc(doc(db, 'products', productId), {
+                    inStock: newStatus,
+                    updatedAt: serverTimestamp()
+                });
+            } catch (error) {
+                showMessage('products-list', 'Error updating stock: ' + error.message, 'error');
+            }
+        };
+
+        // ============================================
+        // TOGGLE ONLINE STATUS
+        // ============================================
+        window.toggleOnline = async (productId, newStatus) => {
+            try {
+                await updateDoc(doc(db, 'products', productId), {
+                    onlineEnabled: newStatus,
+                    updatedAt: serverTimestamp()
+                });
+            } catch (error) {
+                showMessage('products-list', 'Error updating online status: ' + error.message, 'error');
+            }
+        };
+
+        // ============================================
+        // DELETE PRODUCT
+        // ============================================
+        window.deleteProduct = async (productId, storagePath) => {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+
+            try {
+                await updateDoc(doc(db, 'products', productId), {
+                    isActive: false,
+                    updatedAt: serverTimestamp()
+                });
+
+                // Optionally delete images from Storage
+                const product = allProducts.find(p => p.id === productId);
+                if (product && product.storagePaths) {
+                    for (const path of product.storagePaths) {
+                        try {
+                            await deleteObject(ref(storage, path));
+                        } catch (err) {
+                            console.log('Could not delete image:', err);
+                        }
+                    }
+                }
+            } catch (error) {
+                showMessage('products-list', 'Error deleting: ' + error.message, 'error');
+            }
+        };
+
+        // ============================================
+        // EDIT PRODUCT - OPEN MODAL
+        // ============================================
+        window.openEditModal = async (productId) => {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+
+            editingProductData = { ...product, imagesToDelete: [] };
+            editingProductImages = [];
+
+            // Populate form with current data
+            document.getElementById('edit-product-id').value = productId;
+            document.getElementById('edit-category').value = product.category;
+            document.getElementById('edit-name').value = product.name;
+            document.getElementById('edit-original-price').value = product.originalPrice || product.price || 0;
+            document.getElementById('edit-offer-price').value = product.offerPrice || product.price || 0;
+            document.getElementById('edit-discount-percent').value = product.discountPercent || 0;
+            document.getElementById('edit-discount-amount').value = product.discountAmount || 0;
+            document.getElementById('edit-weight').value = product.weight;
+            document.getElementById('edit-quantity').value = product.stockQuantity || 1;
+            document.getElementById('edit-instock').checked = product.inStock;
+            document.getElementById('edit-online-enabled').checked = product.onlineEnabled !== false;
+            document.getElementById('edit-safety').checked = product.safetyEnabled || false;
+            document.getElementById('edit-making-charges').value = product.makingCharges || 0;
+            document.getElementById('edit-trending').checked = product.isTrending || false;
+            document.getElementById('edit-dynamic-pricing').checked = product.dynamicPricing || false; // NEW
+            document.getElementById('edit-metal-type').value = product.metalType || 'other';
+            document.getElementById('edit-carat').value = product.carat || '';
+            handleEditMetalTypeChange(); // Update carat field visibility
+
+            // Recalculate dynamic price if enabled
+            calculateEditAutoPrice();
+
+            // Show calculation results
+            if (product.originalPrice && product.offerPrice) {
+                document.getElementById('edit-price-calc-result').style.display = 'block';
+                document.getElementById('edit-final-price-display').textContent = '₹' + Math.round(product.offerPrice).toLocaleString();
+                const savings = product.originalPrice - product.offerPrice;
+                document.getElementById('edit-savings-display').textContent = '₹' + Math.round(savings).toLocaleString();
+            }
+
+            // Show making charges calculation
+            if (product.makingCharges && product.weight) {
+                document.getElementById('edit-total-making-display').style.display = 'block';
+                document.getElementById('edit-total-making').textContent = '₹' + (product.makingCharges * product.weight).toLocaleString();
+            }
+
+            // Load existing images
+            if (product.images && product.images.length > 0) {
+                editingProductImages = product.images.map((url, idx) => ({
+                    url: url,
+                    preview: url,
+                    isMain: idx === (product.mainImageIndex || 0),
+                    isNew: false
+                }));
+                renderEditImageGallery();
+            } else {
+                document.getElementById('edit-image-gallery').innerHTML = '';
+                document.getElementById('edit-image-count').textContent = '0 images';
+            }
+
+            // Show modal
+            document.getElementById('edit-modal').classList.add('active');
+        };
+        window.closeEditModal = () => {
+            document.getElementById('edit-modal').classList.remove('active');
+            document.getElementById('edit-form').reset();
+            editingProductImages = [];
+            editingProductData = null;
+            currentReplaceIndex = -1;
+            document.getElementById('edit-message').classList.remove('show', 'success', 'error');
+            document.getElementById('edit-price-calc-result').style.display = 'none';
+        };
+
+
+
+        // ============================================
+        // EDIT PRODUCT - SAVE CHANGES
+        // ============================================
+        window.handleEditProduct = async (e) => {
+            e.preventDefault();
+
+            const productId = document.getElementById('edit-product-id').value;
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+
+            try {
+                const progressContainer = document.getElementById('edit-progress-container');
+                const progressBar = document.getElementById('edit-progress-bar');
+                progressContainer.style.display = 'block';
+
+                // Upload new images
+                const newImages = editingProductImages.filter(img => img.isNew && img.file);
+                const uploadedUrls = [];
+                const newStoragePaths = [];
+
+                for (let i = 0; i < newImages.length; i++) {
+                    const imageData = newImages[i];
+                    const filename = `${product.category}_${Date.now()}_${i}_${imageData.file.name}`;
+                    const storageRef = ref(storage, `jewelry/${product.category}/${filename}`);
+
+                    const uploadTask = uploadBytesResumable(storageRef, imageData.file);
+
+                    await new Promise((resolve, reject) => {
+                        uploadTask.on('state_changed',
+                            (snapshot) => {
+                                const progress = ((i + (snapshot.bytesTransferred / snapshot.totalBytes)) / newImages.length) * 100;
+                                progressBar.style.width = progress + '%';
+                            },
+                            reject,
+                            async () => {
+                                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                                uploadedUrls.push(downloadURL);
+                                newStoragePaths.push(`jewelry/${product.category}/${filename}`);
+                                resolve();
+                            }
+                        );
+                    });
+                }
+
+                // Combine old and new images
+                const finalImages = [];
+                const finalStoragePaths = [];
+
+                editingProductImages.forEach((img, idx) => {
+                    if (img.isNew && img.file) {
+                        const uploadIndex = newImages.indexOf(img);
+                        if (uploadIndex >= 0 && uploadedUrls[uploadIndex]) {
+                            finalImages.push(uploadedUrls[uploadIndex]);
+                            finalStoragePaths.push(newStoragePaths[uploadIndex]);
+                        }
+                    } else if (!img.markedForDeletion && img.url) {
+                        finalImages.push(img.url);
+                        const originalIdx = product.images.indexOf(img.url);
+                        if (originalIdx >= 0 && product.storagePaths && product.storagePaths[originalIdx]) {
+                            finalStoragePaths.push(product.storagePaths[originalIdx]);
+                        }
+                    }
+                });
+
+                const mainIndex = editingProductImages.findIndex(img => img.isMain && !img.markedForDeletion);
+
+                const originalPrice = parseFloat(document.getElementById('edit-original-price').value) || 0;
+                const offerPrice = parseFloat(document.getElementById('edit-offer-price').value) || originalPrice;
+                const discountPercent = parseFloat(document.getElementById('edit-discount-percent').value) || 0;
+                const discountAmount = parseFloat(document.getElementById('edit-discount-amount').value) || 0;
+                const weight = parseFloat(document.getElementById('edit-weight').value);
+                const makingCharges = parseFloat(document.getElementById('edit-making-charges').value) || 0;
+
+                const updateData = {
+                    name: document.getElementById('edit-name').value,
+                    category: document.getElementById('edit-category').value,
+                    metalType: document.getElementById('edit-metal-type').value,
+                    carat: document.getElementById('edit-carat').value || null,
+                    originalPrice: originalPrice,
+                    offerPrice: offerPrice,
+                    discountPercent: discountPercent,
+                    discountAmount: discountAmount,
+                    price: offerPrice,
+                    weight: weight,
+                    makingCharges: makingCharges,                           // NEW
+                    totalMakingCharges: makingCharges * weight,             // NEW
+                    isTrending: document.getElementById('edit-trending').checked,  // NEW
+                    dynamicPricing: document.getElementById('edit-dynamic-pricing').checked, // NEW
+                    stockQuantity: parseInt(document.getElementById('edit-quantity').value) || 0,
+                    inStock: document.getElementById('edit-instock').checked,
+                    onlineEnabled: document.getElementById('edit-online-enabled').checked,
+                    safetyEnabled: document.getElementById('edit-safety').checked,
+                    images: finalImages,
+                    storagePaths: finalStoragePaths,
+                    mainImageIndex: mainIndex >= 0 ? mainIndex : 0,
+                    updatedAt: serverTimestamp()
+                };
+
+                await updateDoc(doc(db, 'products', productId), updateData);
+
+                // Delete old images from storage
+                if (editingProductData.imagesToDelete && editingProductData.imagesToDelete.length > 0) {
+                    for (const url of editingProductData.imagesToDelete) {
+                        try {
+                            const idx = product.images.indexOf(url);
+                            if (idx >= 0 && product.storagePaths && product.storagePaths[idx]) {
+                                await deleteObject(ref(storage, product.storagePaths[idx]));
+                            }
+                        } catch (err) {
+                            console.log('Could not delete old image:', err);
+                        }
+                    }
+                }
+
+                progressContainer.style.display = 'none';
+                progressBar.style.width = '0%';
+                showMessage('edit-message', 'Product updated successfully!', 'success');
+
+                setTimeout(() => closeEditModal(), 1500);
+
+            } catch (error) {
+                showMessage('edit-message', 'Error: ' + error.message, 'error');
+                document.getElementById('edit-progress-container').style.display = 'none';
+            }
+        };
+        // ============================================
+        // FEEDBACK MESSAGE HELPER
+        // ============================================
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            // If elementId is a container, create a message element
+            if (!element.classList.contains('feedback-message')) {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `feedback-message show ${type}`;
+                msgDiv.textContent = message;
+                element.insertAdjacentElement('afterbegin', msgDiv);
+                setTimeout(() => msgDiv.remove(), 5000);
+            } else {
+                element.textContent = message;
+                element.className = `feedback-message show ${type}`;
+                setTimeout(() => {
+                    element.classList.remove('show');
+                }, 5000);
+            }
+        }
+    </script>
+
+
+    <!-- GLOBAL FUNCTION BRIDGE FOR INLINE HANDLERS -->
+    <script>
+        // Only define logout — all other window.* functions are set inside the module directly
+        window.logout = async function () {
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+    </script>
+</body>
+
+</html>

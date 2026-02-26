@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - SKJ | Sai Kiran Jewelleries</title>
+    <link rel="icon" type="image/png" href="image_0a5649.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Razorpay Checkout JS -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        :root { --royal-green: #004d40; --gold: #D4AF37; --phonepe: #5f259f; }
+        .payment-method { border: 2px solid #e5e7eb; transition: all 0.3s; cursor: pointer; }
+        .payment-method:hover { border-color: var(--gold); transform: translateY(-2px); }
+        .payment-method.selected { border-color: var(--royal-green); background: #f0fdf4; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .payment-method.selected-phonepe { border-color: var(--phonepe); background: #f3e8ff; }
+        .upi-apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1rem; }
+        .upi-app { border: 2px solid #e5e7eb; border-radius: 12px; padding: 1rem; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .upi-app:hover { border-color: var(--phonepe); background: #faf5ff; }
+        .upi-app.selected { border-color: var(--phonepe); background: #f3e8ff; }
+        .qr-code { width: 200px; height: 200px; margin: 1rem auto; background: white; padding: 1rem; border-radius: 12px; }
+    </style>
+<base target="_blank">
+</head>
+<body class="bg-slate-50">
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-50 shadow-md bg-white">
+        <nav class="px-8 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <img src="image_0a5649.png" class="h-10" alt="SKJ">
+                <div class="border-l pl-3">
+                    <h1 class="font-bold text-lg text-emerald-950">Sai Kiran Jewelleries</h1>
+                </div>
+            </div>
+            <a href="index.html" class="text-amber-600 font-bold hover:underline">
+                <i class="fa-solid fa-arrow-left mr-2"></i>Continue Shopping
+            </a>
+        </nav>
+    </header>
+
+    <main class="pt-24 pb-12 px-4 max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-emerald-950 mb-8">Secure Checkout</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Left: Customer Details -->
+            <div class="space-y-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm">
+                    <h2 class="text-xl font-bold mb-4">Customer Information</h2>
+                    <form id="customerForm" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" id="firstName" placeholder="First Name" class="w-full px-4 py-3 border rounded-lg focus:border-amber-500 focus:outline-none" required>
+                            <input type="text" id="lastName" placeholder="Last Name" class="w-full px-4 py-3 border rounded-lg focus:border-amber-500 focus:outline-none" required>
+                        </div>
+                        <input type="email" id="email" placeholder="Email Address" class="w-full px-4 py-3 border rounded-lg focus:border-amber-500 focus:outline-none" required>
+                        <input type="tel" id="phone" placeholder="Phone Number" class="w-full px-4 py-3 border rounded-lg focus:border-amber-500 focus:outline-none" required pattern="[0-9]{10}">
+                        
+                        <h3 class="font-bold mt-6 mb-2">Shipping Address</h3>
+                        <textarea id="address" placeholder="Full Address" rows="3" class="w-full px-4 py-3 border rounded-lg focus:border-amber-500 focus:outline-none" required></textarea>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" id="city" placeholder="City" class="w-full px-4 py-3 border rounded-lg focus:border-amber-500 focus:outline-none" required>
+                            <input type="text" id="pincode" placeholder="PIN Code" class="w-full px-4 py-3 border rounded-lg focus:border-amber-500 focus:outline-none" required pattern="[0-9]{6}">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm">
+                    <h2 class="text-xl font-bold mb-4">Select Payment Method</h2>
+                    
+                    <!-- Option 1: Razorpay (All methods including UPI) -->
+                    <div class="payment-method rounded-xl p-4 mb-4" onclick="selectPayment('razorpay')" id="razorpay-option">
+                        <div class="flex items-center space-x-4">
+                            <input type="radio" name="payment" value="razorpay" class="w-5 h-5 text-emerald-600" checked>
+                            <div class="flex-1">
+                                <p class="font-bold text-lg">Pay Online (Razorpay)</p>
+                                <p class="text-sm text-gray-500">All payment methods supported</p>
+                                <div class="flex flex-wrap gap-2 mt-2">
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">UPI</span>
+                                    <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-bold">Cards</span>
+                                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">NetBanking</span>
+                                    <span class="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-bold">Wallets</span>
+                                </div>
+                            </div>
+                            <div class="text-3xl text-gray-400">
+                                <i class="fa-solid fa-credit-card"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Option 2: PhonePe / UPI Intent -->
+                    <div class="payment-method rounded-xl p-4 mb-4" onclick="selectPayment('phonepe')" id="phonepe-option">
+                        <div class="flex items-center space-x-4">
+                            <input type="radio" name="payment" value="phonepe" class="w-5 h-5 text-purple-600">
+                            <div class="flex-1">
+                                <p class="font-bold text-lg text-purple-700">Pay via UPI App</p>
+                                <p class="text-sm text-gray-500">Google Pay, PhonePe, Paytm, or any UPI</p>
+                            </div>
+                            <div class="text-3xl text-purple-600">
+                                <i class="fa-solid fa-mobile-screen-button"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- UPI App Selection (hidden by default) -->
+                        <div id="upi-apps" class="upi-apps hidden">
+                            <div class="upi-app" onclick="selectUPIApp('gpay', event)">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Google_Pay_Logo_%282020%29.svg" class="h-8 mx-auto mb-2" alt="GPay">
+                                <p class="text-xs font-bold">Google Pay</p>
+                            </div>
+                            <div class="upi-app" onclick="selectUPIApp('phonepe', event)">
+                                <div class="w-8 h-8 bg-purple-600 rounded-full mx-auto mb-2 flex items-center justify-center text-white font-bold">P</div>
+                                <p class="text-xs font-bold">PhonePe</p>
+                            </div>
+                            <div class="upi-app" onclick="selectUPIApp('paytm', event)">
+                                <div class="w-8 h-8 bg-blue-500 rounded-full mx-auto mb-2 flex items-center justify-center text-white font-bold">P</div>
+                                <p class="text-xs font-bold">Paytm</p>
+                            </div>
+                            <div class="upi-app" onclick="selectUPIApp('other', event)">
+                                <i class="fa-solid fa-qrcode text-2xl text-gray-600 mb-2"></i>
+                                <p class="text-xs font-bold">Any UPI</p>
+                            </div>
+                        </div>
+
+                        <!-- UPI Payment Form -->
+                        <div id="upi-form" class="hidden mt-4 p-4 bg-purple-50 rounded-lg">
+                            <p class="font-bold mb-2">Enter UPI ID</p>
+                            <div class="flex space-x-2">
+                                <input type="text" id="upiId" placeholder="yourname@upi" class="flex-1 px-4 py-2 border rounded-lg uppercase" pattern="[a-zA-Z0-9._-]+@[a-zA-Z]+">
+                                <button onclick="verifyUPI()" class="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700">Verify</button>
+                            </div>
+                            <p id="upiVerifyResult" class="text-sm mt-2 hidden"></p>
+                            
+                            <!-- QR Code for UPI -->
+                            <div id="upi-qr-section" class="hidden mt-4 text-center">
+                                <p class="text-sm mb-2">Or scan with any UPI app:</p>
+                                <div class="qr-code border-2 border-dashed border-purple-300 flex items-center justify-center">
+                                    <div id="qrCode" class="text-center">
+                                        <i class="fa-solid fa-qrcode text-6xl text-purple-600"></i>
+                                        <p class="text-xs mt-2 text-gray-500">QR Code will<br>generate here</p>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">UPI ID: saikiranjewellers@axisbank</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Option 3: WhatsApp Order -->
+                    <div class="payment-method rounded-xl p-4" onclick="selectPayment('whatsapp')" id="whatsapp-option">
+                        <div class="flex items-center space-x-4">
+                            <input type="radio" name="payment" value="whatsapp" class="w-5 h-5 text-green-600">
+                            <div class="flex-1">
+                                <p class="font-bold text-lg text-green-600">Order via WhatsApp</p>
+                                <p class="text-sm text-gray-500">We'll send payment link and confirm your order</p>
+                            </div>
+                            <div class="text-3xl text-green-500">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Order Summary -->
+            <div>
+                <div class="bg-white rounded-2xl p-6 shadow-sm sticky top-24">
+                    <h2 class="text-xl font-bold mb-4">Order Summary</h2>
+                    
+                    <!-- Cart Items -->
+                    <div id="cartItems" class="space-y-3 mb-4 max-h-64 overflow-y-auto">
+                        <!-- Items loaded from localStorage -->
+                    </div>
+
+                    <!-- Price Breakdown -->
+                    <div class="border-t pt-4 space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Subtotal</span>
+                            <span id="subtotal" class="font-bold">₹0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Shipping</span>
+                            <span class="text-green-600 font-bold">FREE</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">GST (3%)</span>
+                            <span id="gst" class="font-bold">₹0</span>
+                        </div>
+                        <div id="discountRow" class="flex justify-between text-green-600 hidden">
+                            <span>Discount</span>
+                            <span id="discountAmount" class="font-bold">-₹0</span>
+                        </div>
+                        <div class="border-t pt-2 flex justify-between text-xl font-bold">
+                            <span>Total</span>
+                            <span id="total" class="text-amber-600">₹0</span>
+                        </div>
+                    </div>
+
+                    <!-- Promo Code -->
+                    <div class="mt-4 flex space-x-2">
+                        <input type="text" id="promoCode" placeholder="Enter promo code" class="flex-1 px-4 py-2 border rounded-lg uppercase">
+                        <button onclick="applyPromo()" class="bg-gray-200 px-4 py-2 rounded-lg font-bold hover:bg-gray-300">Apply</button>
+                    </div>
+                    <p id="promoMessage" class="text-sm mt-1 hidden"></p>
+
+                    <!-- Place Order Button -->
+                    <button onclick="placeOrder()" id="placeOrderBtn" class="w-full bg-emerald-800 text-white font-bold py-4 rounded-xl mt-6 hover:bg-emerald-900 transition flex items-center justify-center">
+                        <span id="btnText">Place Order</span>
+                        <span id="btnSpinner" class="hidden ml-2">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                    
+                    <div class="flex items-center justify-center space-x-4 mt-4 text-gray-400">
+                        <i class="fa-solid fa-lock text-sm"></i>
+                        <span class="text-xs">256-bit SSL Secure</span>
+                        <span class="text-xs">|</span>
+                        <span class="text-xs">Razorpay</span>
+                        <span class="text-xs">|</span>
+                        <span class="text-xs">UPI</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { db } from './firebase-config.js';
+        import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        let cart = JSON.parse(localStorage.getItem('skj_cart')) || {};
+        let appliedPromo = null;
+        let selectedPaymentMethod = 'razorpay';
+        let selectedUPIApp = null;
+        let verifiedUPIId = null;
+
+        // Load cart items
+        function loadCart() {
+            const container = document.getElementById('cartItems');
+            let html = '';
+            let subtotal = 0;
+
+            for (let id in cart) {
+                const item = cart[id];
+                subtotal += item.qty * item.p;
+                html += `
+                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                        <div>
+                            <p class="font-bold text-sm">${item.n}</p>
+                            <p class="text-xs text-gray-500">Qty: ${item.qty}</p>
+                        </div>
+                        <p class="font-bold">₹${(item.qty * item.p).toLocaleString()}</p>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html || '<p class="text-gray-500 text-center py-4">Your cart is empty</p>';
+            updateTotals(subtotal);
+        }
+
+        function updateTotals(subtotal) {
+            const gst = Math.round(subtotal * 0.03);
+            let discount = 0;
+            
+            if (appliedPromo) {
+                discount = Math.round(subtotal * (appliedPromo.discount / 100));
+                document.getElementById('discountRow').classList.remove('hidden');
+                document.getElementById('discountAmount').textContent = '-₹' + discount.toLocaleString();
+            } else {
+                document.getElementById('discountRow').classList.add('hidden');
+            }
+            
+            const total = subtotal + gst - discount;
+
+            document.getElementById('subtotal').textContent = '₹' + subtotal.toLocaleString();
+            document.getElementById('gst').textContent = '₹' + gst.toLocaleString();
+            document.getElementById('total').textContent = '₹' + total.toLocaleString();
+            
+            return { subtotal, gst, discount, total };
+        }
+
+        window.selectPayment = function(method) {
+            selectedPaymentMethod = method;
+            selectedUPIApp = null;
+            verifiedUPIId = null;
+            
+            // Update visual selection
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected', 'selected-phonepe');
+            });
+            
+            if (method === 'razorpay') {
+                document.getElementById('razorpay-option').classList.add('selected');
+                document.getElementById('upi-apps').classList.add('hidden');
+                document.getElementById('upi-form').classList.add('hidden');
+            } else if (method === 'phonepe') {
+                document.getElementById('phonepe-option').classList.add('selected-phonepe');
+                document.getElementById('upi-apps').classList.remove('hidden');
+                document.getElementById('upi-form').classList.remove('hidden');
+            } else if (method === 'whatsapp') {
+                document.getElementById('whatsapp-option').classList.add('selected');
+                document.getElementById('upi-apps').classList.add('hidden');
+                document.getElementById('upi-form').classList.add('hidden');
+            }
+            
+            // Update radio button
+            document.querySelector(`input[name="payment"][value="${method}"]`).checked = true;
+        };
+
+        window.selectUPIApp = function(app, event) {
+            event.stopPropagation();
+            selectedUPIApp = app;
+            
+            document.querySelectorAll('.upi-app').forEach(el => el.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            
+            // Show QR for quick pay
+            document.getElementById('upi-qr-section').classList.remove('hidden');
+            
+            // Auto-fill common UPI patterns
+            const upiInput = document.getElementById('upiId');
+            if (app === 'gpay') {
+                upiInput.placeholder = 'name@okaxis or name@okhdfcbank';
+            } else if (app === 'phonepe') {
+                upiInput.placeholder = 'name@ybl or name@axl';
+            } else if (app === 'paytm') {
+                upiInput.placeholder = 'name@paytm';
+            } else {
+                upiInput.placeholder = 'yourname@upi';
+            }
+        };
+
+        window.verifyUPI = async function() {
+            const upiId = document.getElementById('upiId').value.trim();
+            const resultEl = document.getElementById('upiVerifyResult');
+            
+            if (!upiId || !upiId.includes('@')) {
+                resultEl.textContent = 'Please enter a valid UPI ID (e.g., name@upi)';
+                resultEl.className = 'text-sm mt-2 text-red-600';
+                resultEl.classList.remove('hidden');
+                return;
+            }
+            
+            // Simulate verification (in production, verify via backend)
+            resultEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Verifying...';
+            resultEl.className = 'text-sm mt-2 text-gray-600';
+            resultEl.classList.remove('hidden');
+            
+            setTimeout(() => {
+                verifiedUPIId = upiId;
+                resultEl.innerHTML = '<i class="fa-solid fa-check-circle mr-1"></i>UPI ID verified! You can now place order.';
+                resultEl.className = 'text-sm mt-2 text-green-600';
+            }, 1500);
+        };
+
+        window.applyPromo = async function() {
+            const code = document.getElementById('promoCode').value.toUpperCase();
+            const messageEl = document.getElementById('promoMessage');
+            
+            try {
+                const promosRef = collection(db, 'promos');
+                const q = query(promosRef, where('code', '==', code), where('active', '==', true));
+                const snapshot = await getDocs(q);
+                
+                if (snapshot.empty) {
+                    messageEl.textContent = 'Invalid or expired promo code';
+                    messageEl.className = 'text-sm mt-1 text-red-600';
+                    messageEl.classList.remove('hidden');
+                    appliedPromo = null;
+                    return;
+                }
+
+                const promo = snapshot.docs[0].data();
+                const today = new Date().toISOString().split('T')[0];
+                
+                if (promo.expiry < today) {
+                    messageEl.textContent = 'Promo code has expired';
+                    messageEl.className = 'text-sm mt-1 text-red-600';
+                    messageEl.classList.remove('hidden');
+                    appliedPromo = null;
+                    return;
+                }
+
+                appliedPromo = promo;
+                messageEl.textContent = `✓ ${promo.discount}% discount applied!`;
+                messageEl.className = 'text-sm mt-1 text-green-600 font-bold';
+                messageEl.classList.remove('hidden');
+                
+                const subtotal = Object.values(cart).reduce((sum, item) => sum + (item.qty * item.p), 0);
+                updateTotals(subtotal);
+                
+            } catch (error) {
+                console.error('Error applying promo:', error);
+            }
+        };
+
+        window.placeOrder = async function() {
+            // Validate form
+            const form = document.getElementById('customerForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            if (Object.keys(cart).length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+
+            // Validate UPI if PhonePe selected
+            if (selectedPaymentMethod === 'phonepe' && !verifiedUPIId) {
+                alert('Please verify your UPI ID before placing order');
+                document.getElementById('upiId').focus();
+                return;
+            }
+
+            const btn = document.getElementById('placeOrderBtn');
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+            
+            btn.disabled = true;
+            btnText.textContent = 'Processing...';
+            btnSpinner.classList.remove('hidden');
+
+            const customerData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                pincode: document.getElementById('pincode').value
+            };
+
+            const { subtotal, gst, discount, total } = updateTotals(
+                Object.values(cart).reduce((sum, item) => sum + (item.qty * item.p), 0)
+            );
+
+            const orderData = {
+                customer: `${customerData.firstName} ${customerData.lastName}`,
+                email: customerData.email,
+                phone: customerData.phone,
+                shippingAddress: `${customerData.address}, ${customerData.city} - ${customerData.pincode}`,
+                items: Object.values(cart).map(item => `${item.n} (x${item.qty})`).join(', '),
+                itemDetails: Object.values(cart),
+                subtotal: subtotal,
+                gst: gst,
+                discount: discount,
+                promoCode: appliedPromo?.code || null,
+                total: total,
+                paymentMethod: selectedPaymentMethod === 'phonepe' ? `upi_${selectedUPIApp || 'other'}` : selectedPaymentMethod,
+                paymentStatus: 'pending',
+                upiId: verifiedUPIId || null,
+                status: 'pending',
+                createdAt: serverTimestamp()
+            };
+
+            try {
+                if (selectedPaymentMethod === 'razorpay') {
+                    initiateRazorpay(orderData, total);
+                } else if (selectedPaymentMethod === 'phonepe') {
+                    // For UPI, save order first, then show payment instructions
+                    const savedOrder = await saveOrder(orderData);
+                    showUPaymentInstructions(savedOrder.id, total, verifiedUPIId);
+                } else if (selectedPaymentMethod === 'whatsapp') {
+                    const message = createWhatsAppMessage(orderData, total);
+                    await saveOrder(orderData);
+                    window.open(`https://wa.me/919876543210?text=${encodeURIComponent(message)}`, '_blank');
+                    window.location.href = `payment-success.html?method=whatsapp`;
+                }
+            } catch (error) {
+                console.error('Order error:', error);
+                btn.disabled = false;
+                btnText.textContent = 'Place Order';
+                btnSpinner.classList.add('hidden');
+                alert('Error placing order. Please try again.');
+            }
+        };
+
+        function initiateRazorpay(orderData, amount) {
+            const options = {
+                key: "rzp_test_YOUR_KEY_HERE", // REPLACE WITH YOUR KEY
+                amount: amount * 100,
+                currency: "INR",
+                name: "Sai Kiran Jewelleries",
+                description: "Jewellery Purchase",
+                image: "image_0a5649.png",
+                handler: async function (response) {
+                    orderData.paymentStatus = 'paid';
+                    orderData.razorpayPaymentId = response.razorpay_payment_id;
+                    orderData.razorpayOrderId = response.razorpay_order_id;
+                    orderData.razorpaySignature = response.razorpay_signature;
+                    
+                    const savedOrder = await saveOrder(orderData);
+                    window.location.href = `payment-success.html?order_id=${savedOrder.id}&payment_id=${response.razorpay_payment_id}&method=razorpay`;
+                },
+                prefill: {
+                    name: orderData.customer,
+                    email: orderData.email,
+                    contact: orderData.phone
+                },
+                theme: {
+                    color: "#004d40"
+                },
+                modal: {
+                    ondismiss: function() {
+                        document.getElementById('placeOrderBtn').disabled = false;
+                        document.getElementById('btnText').textContent = 'Place Order';
+                        document.getElementById('btnSpinner').classList.add('hidden');
+                    }
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.open();
+        }
+
+        function showUPaymentInstructions(orderId, amount, upiId) {
+            // Create a modal or redirect to payment page with UPI instructions
+            const upiLink = `upi://pay?pa=saikiranjewellers@axisbank&pn=SaiKiranJewelleries&am=${amount}&cu=INR&tn=Order${orderId}`;
+            
+            // Show payment instructions page
+            const paymentWindow = window.open('', '_blank');
+            paymentWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Complete UPI Payment - SKJ</title>
+                    <script src="https://cdn.tailwindcss.com"></script>
+                </head>
+                <body class="bg-purple-50 flex items-center justify-center min-h-screen p-4">
+                    <div class="bg-white rounded-3xl shadow-xl max-w-md w-full p-8 text-center">
+                        <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <span class="text-4xl">📱</span>
+                        </div>
+                        <h1 class="text-2xl font-bold text-purple-800 mb-2">Complete UPI Payment</h1>
+                        <p class="text-gray-600 mb-6">Order #${orderId.substring(0, 8)}</p>
+                        
+                        <div class="bg-purple-50 rounded-xl p-6 mb-6">
+                            <p class="text-sm text-gray-600 mb-1">Amount to Pay</p>
+                            <p class="text-3xl font-bold text-purple-800">₹${amount.toLocaleString()}</p>
+                        </div>
+                        
+                        <div class="space-y-3 mb-6">
+                            <a href="${upiLink}" class="block w-full bg-purple-600 text-white font-bold py-4 rounded-xl hover:bg-purple-700">
+                                Open ${selectedUPIApp || 'UPI'} App
+                            </a>
+                            <p class="text-xs text-gray-500">or</p>
+                            <div class="bg-gray-100 p-4 rounded-lg">
+                                <p class="text-xs text-gray-600 mb-1">Pay to UPI ID:</p>
+                                <p class="font-bold text-purple-800">saikiranjewellers@axisbank</p>
+                            </div>
+                        </div>
+                        
+                        <p class="text-sm text-gray-500 mb-4">
+                            After payment, click below:
+                        </p>
+                        
+                        <button onclick="window.location.href='payment-success.html?order_id=${orderId}&method=upi'" 
+                                class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700">
+                            I've Completed Payment
+                        </button>
+                        
+                        <p class="text-xs text-gray-400 mt-4">
+                            Having issues? Contact us on WhatsApp
+                        </p>
+                    </div>
+                </body>
+                </html>
+            );
+        }
+        
+
+        async function saveOrder(orderData) {
+            const docRef = await addDoc(collection(db, 'orders'), orderData);
+            localStorage.removeItem('skj_cart');
+            return { id: docRef.id };
+        }
+
+        function createWhatsAppMessage(orderData, total) {
+            let message = `*New Order - SKJ Jewelleries*\\n\\n`;
+            message += `*Customer:* ${orderData.customer}\\n`;
+            message += `*Phone:* ${orderData.phone}\\n`;
+            message += `*Address:* ${orderData.shippingAddress}\\n\\n`;
+            message += `*Items:*\\n`;
+            orderData.itemDetails.forEach(item => {
+                message += `- ${item.n} x${item.qty} = ₹${(item.qty * item.p).toLocaleString()}\\n`;
+            });
+            message += `\\n*Subtotal:* ₹${orderData.subtotal.toLocaleString()}\\n`;
+            message += `*GST:* ₹${orderData.gst.toLocaleString()}\\n`;
+            if (orderData.discount > 0) {
+                message += `*Discount:* -₹${orderData.discount.toLocaleString()}\\n`;
+            }
+            message += `*Total:* ₹${total.toLocaleString()}\\n\\n`;
+            message += `*Payment:* Please send payment link`;
+            return message;
+        }
+
+        // Initialize
+        loadCart();
+        
+        // Select Razorpay by default
+        document.getElementById('razorpay-option').classList.add('selected');
+    </script>
+</body>
+</html>
