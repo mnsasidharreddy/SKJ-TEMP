@@ -2400,8 +2400,13 @@ async function checkGoldSafetyBeforeAdd(id, name, callback, heartBtn = null) {
             callback(true); return;
         }
         const db = firebase.firestore();
-        const settingsDoc = await db.collection('settings').doc('dashboard').get();
-        if (settingsDoc.exists && settingsDoc.data().goldSafetyEnabled === true) {
+        const [settingsDoc, productDoc] = await Promise.all([
+            db.collection('settings').doc('dashboard').get(),
+            db.collection('products').doc(id).get()
+        ]);
+        const globalEnabled = settingsDoc.exists && settingsDoc.data().goldSafetyEnabled === true;
+        const productSafetyEnabled = productDoc.exists && productDoc.data().safetyEnabled === true;
+        if (globalEnabled && productSafetyEnabled) {
             const confirmed = await showSafetyConfirmation();
             if (confirmed) {
                 const idx = wishlist.findIndex(w => w.id === id);

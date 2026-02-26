@@ -556,17 +556,26 @@
 
 
 // Open login if guest, else add to cart and show qty controls
-function handleCartClick(id, name, price) {
+async function handleCartClick(id, name, price) {
     const user = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
     if (!user) {
         if (typeof toggleLoginPanel === 'function') toggleLoginPanel();
         return;
     }
+    // Gold safety check
+    const product = allFetchedItems.find(p => p.id === id);
+    if (product && product.metalType === 'gold' && typeof checkGoldSafetyBeforeAdd === 'function') {
+        let allowed = false;
+        await new Promise(resolve => {
+            checkGoldSafetyBeforeAdd(id, name, (result) => { allowed = result; resolve(); });
+        });
+        if (!allowed) return;
+    }
     if (typeof addToCart === 'function') addToCart(id, name, price);
     updateCartCtrl(id, name, price);
 }
 
-function changeQty(id, name, price, delta) {
+async function changeQty(id, name, price, delta) {
     const user = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
     if (!user) {
         if (typeof toggleLoginPanel === 'function') toggleLoginPanel();
@@ -575,6 +584,17 @@ function changeQty(id, name, price, delta) {
     if (typeof cart === 'undefined') return;
     const current = cart[id] ? cart[id].qty : 0;
     const newQty = current + delta;
+    // Gold safety check only when adding from zero
+    if (delta > 0 && current === 0) {
+        const product = allFetchedItems.find(p => p.id === id);
+        if (product && product.metalType === 'gold' && typeof checkGoldSafetyBeforeAdd === 'function') {
+            let allowed = false;
+            await new Promise(resolve => {
+                checkGoldSafetyBeforeAdd(id, name, (result) => { allowed = result; resolve(); });
+            });
+            if (!allowed) return;
+        }
+    }
     if (newQty <= 0) {
         delete cart[id];
     } else {
